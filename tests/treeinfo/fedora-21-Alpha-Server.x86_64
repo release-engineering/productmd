@@ -1,0 +1,32 @@
+[general]
+name = Fedora-Server-21_Alpha
+family = Fedora-Server
+timestamp = 1410862874.45
+variant = Server
+version = 21_Alpha
+packagedir = 
+arch = x86_64
+
+[stage2]
+mainimage = LiveOS/squashfs.img
+
+[images-x86_64]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+boot.iso = images/boot.iso
+
+[images-xen]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+
+[checksums]
+images/efiboot.img = sha256:0655a92312272a2ee929f579c7ac5086c0ab75b7453a0293a38502d69a8335d3
+images/macboot.img = sha256:c25721c2e69ea82eedd78107baf69fc0d2900c5a23d0b689140edc2b372393f9
+images/boot.iso = sha256:e9c8b207d25c4af1a36c43a4cc3bf27dd2aefa9757eac63a8147e12e415f45f3
+images/pxeboot/vmlinuz = sha256:974cbed883608046bacfc7a4f232320750150c2821edcd4650fbbe709a6c1d3d
+images/pxeboot/initrd.img = sha256:b6cffe60149c0396b3413bf3f73c3a1aa3090048302daeeeb8830911d903aa2f
+images/pxeboot/upgrade.img = sha256:260ab3a63fb4ef1f0427a6b46d494c638760e0bb4e7e9f58295d0cf4e77886fc
+repodata/repomd.xml = sha256:1799b6652f287c73e1f1107ef5efe73a0714aaf34e8e9b81a08d3f741f5dc178
+

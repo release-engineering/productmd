@@ -1,0 +1,23 @@
+[general]
+family = Fedora
+timestamp = 1193822577.21
+variant = 
+totaldiscs = 1
+version = development
+discnum = 1
+packagedir = Packages
+arch = x86_64
+
+[images-x86_64]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+boot.iso = images/boot.iso
+diskboot.img = images/diskboot.img
+
+[images-xen]
+kernel = images/xen/vmlinuz
+initrd = images/xen/initrd.img
+
+[stage2]
+instimage = images/minstg2.img
+mainimage = images/stage2.img

@@ -1,0 +1,32 @@
+[general]
+name = Fedora-Cloud-21_Alpha
+family = Fedora-Cloud
+timestamp = 1410864261.34
+variant = Cloud
+version = 21_Alpha
+packagedir = 
+arch = x86_64
+
+[stage2]
+mainimage = LiveOS/squashfs.img
+
+[images-x86_64]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+boot.iso = images/boot.iso
+
+[images-xen]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+
+[checksums]
+images/efiboot.img = sha256:c522fb674a5e983be2416c268315393095a981834f3216763fbf8d4a44f87dc4
+images/macboot.img = sha256:a076c21a11407db59580f889771dd755b1f769a97d0c1fc6689ac0a4f6641f17
+images/boot.iso = sha256:ad833a1f46673a91423cfa806d7a9e7831e337bb42af3f074582482e18bb453a
+images/pxeboot/vmlinuz = sha256:974cbed883608046bacfc7a4f232320750150c2821edcd4650fbbe709a6c1d3d
+images/pxeboot/initrd.img = sha256:312014ac0ae005d37b6dfd385d7bba9c83565f8603efea32be40f944c2b41640
+images/pxeboot/upgrade.img = sha256:ab912cd6d7848e40fa3987813a4434afd93c5d5bd0f8d6d8209e9b107ccf074f
+repodata/repomd.xml = sha256:ecb11ab3da75a989fd7ce50e805c6ed1dd68cfa453a5bbe36928c5b5271b705a
+

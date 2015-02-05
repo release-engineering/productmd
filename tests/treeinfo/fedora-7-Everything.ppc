@@ -1,0 +1,10 @@
+[general]
+family = Fedora
+timestamp = 1180107162.78
+variant = Everything
+totaldiscs = 1
+version = 7
+discnum = 1
+packagedir = Fedora
+arch = ppcppc
+

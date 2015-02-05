@@ -1,0 +1,20 @@
+[general]
+family = Fedora
+timestamp = 1180276728.92
+variant = Fedora
+totaldiscs = 1
+version = 7
+discnum = 1
+packagedir = Fedora
+arch = i386
+
+[images-i386]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+boot.iso = images/boot.iso
+diskboot.img = images/diskboot.img
+
+[images-xen]
+kernel = images/xen/vmlinuz
+initrd = images/xen/initrd.img
+

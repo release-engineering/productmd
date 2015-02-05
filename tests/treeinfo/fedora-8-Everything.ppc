@@ -1,0 +1,23 @@
+[general]
+family = Fedora
+timestamp = 1193822676.58
+variant = 
+totaldiscs = 1
+version = development
+discnum = 1
+packagedir = Packages
+arch = ppc
+
+[images-ppc64]
+kernel = ppc/ppc64/vmlinuz
+initrd = ppc/ppc64/ramdisk.image.gz
+zimage = images/netboot/ppc64.img
+
+[images-ppc]
+kernel = ppc/ppc32/vmlinuz
+initrd = ppc/ppc32/ramdisk.image.gz
+zimage = images/netboot/ppc32.img
+
+[stage2]
+instimage = images/minstg2.img
+mainimage = images/stage2.img

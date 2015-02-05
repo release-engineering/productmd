@@ -1,0 +1,41 @@
+[checksums]
+ppc/efika.forth = sha256:e3dbce45be61d79e595caa954028cb88a7422135da66b5d3ccf6bb7bf1842d10
+images/netboot/ppc64.img = sha256:5b49e30e8f234202aa2d034a3b371e6614874dac6251c50bd2d59a569824b136
+ppc/ppc64/yaboot.conf = sha256:24460252949802dc5fbd7fd2d63c8838bc7087d06dff8fb5fde5df24548491e9
+ppc/ppc64/ramdisk.image.gz = sha256:cff2c886477a6cb70d95fed45e2bf4e2c33bb0cd9f1965f3a9a46b6f2115970e
+ppc/ppc32/yaboot.conf = sha256:f50cbd12dae6a4612e8a675a2eefc5840f4dc0ffad39673366a4f33b46eda258
+ppc/mac/yaboot = sha256:7879f6bef6e22859ee2d26a8e05246b40fec5ea7682f29c3e962776374e32e78
+images/boot.iso = sha256:de73d1849eb9773aa11670f25f25295203c851c9e5922a23ca699cc1dc83bff9
+ppc/ppc32/ramdisk.image.gz = sha256:23b01783d0c566acbea1d197970f6d5d71bf00e8dad304fdd48298e44d9195e7
+images/install.img = sha256:97d774e21dee8b81512ae4a29a75a4255e6e37fdfcafcd93c52de09b4aeff369
+ppc/bootinfo.txt = sha256:6c4093f9e9f7f73d8faeffd6a19efb17e8e7fb6cb66a0906b458d253249f55d0
+ppc/mac/ofboot.b = sha256:314012808e6882cd2d691bf84e30b540271d7901ae07c706f7c004ea8c6f7684
+repodata/repomd.xml = sha256:6c15dc9032065c792e481d574bc0e6226b12d027320f9bcc8cecb3db0deea0a5
+ppc/ppc64/vmlinuz = sha256:9695aa575c28a6b16e936d5754d68fba73599e9ece824f7168af7236b9bc99b8
+ppc/ppc32/vmlinuz = sha256:24f604ef279f943443bee7ad7578f8f65cd026d3d760d70101dbebff3e2cda17
+images/netboot/ppc32.img = sha256:213f4e0716561e06f65c08bc431ea998de016cf16020e02a16e4fc7b3c8822e4
+ppc/chrp/yaboot = sha256:ec3f1864c0261273575f382f77a1f01327040562dd050920b88fa9b88598f843
+
+[images-ppc]
+initrd = ppc/ppc32/ramdisk.image.gz
+zimage = images/netboot/ppc32.img
+kernel = ppc/ppc32/vmlinuz
+
+[stage2]
+mainimage = images/install.img
+
+[images-ppc64]
+initrd = ppc/ppc64/ramdisk.image.gz
+zimage = images/netboot/ppc64.img
+kernel = ppc/ppc64/vmlinuz
+
+[general]
+family = Fedora
+timestamp = 1257725853.31
+variant = Fedora
+totaldiscs = 1
+version = 12
+discnum = 1
+packagedir = 
+arch = ppc
+

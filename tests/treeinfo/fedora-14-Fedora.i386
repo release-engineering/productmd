@@ -1,0 +1,33 @@
+[general]
+version = 14
+arch = i386
+family = Fedora
+packagedir = 
+timestamp = 1287684850.15
+discnum = 1
+variant = Fedora
+totaldiscs = 1
+
+[images-i386]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+boot.iso = images/boot.iso
+
+[images-xen]
+kernel = images/pxeboot/vmlinuz-PAE
+initrd = images/pxeboot/initrd-PAE.img
+
+[stage2]
+mainimage = images/install.img
+
+[checksums]
+images/efidisk.img = sha256:ee202d3e26a307d51766fde0a67c77ad859a368a740ad34da5dfed4e421ab0ff
+images/boot.iso = sha256:12699dec80c78afc5ad2c6754cd65bbcac140e4aa8d8471946c3a15433cf846d
+images/efiboot.img = sha256:feb23683e76253d331cabc592722fb6dac58984976f1756ba15bb488670c26b6
+images/install.img = sha256:8ed333c45adda7ff331b86d80ac4e378462304519f4e10357d15f7c6db133ea3
+images/pxeboot/initrd-PAE.img = sha256:1d87b1d4c30d629c4369ae5955259ba9790acd5c192a0599fff93ee772ccc0c5
+images/pxeboot/vmlinuz-PAE = sha256:b8a62b7b1b59d749f8dbc9f2965b6ace857776dfd835263b75d51f199893bf1a
+images/pxeboot/initrd.img = sha256:532640cf5527e29fd88a95a56346ba160f3a81cdf237905b11222a8496fc6b16
+images/pxeboot/vmlinuz = sha256:4448e7187e5e325930487bcd86cfe0b86263d3a8c8f8198e1348c8637f813b1a
+repodata/repomd.xml = sha256:875dace1603fbbb34bc379eb8e0a98afbf2635bf4a31c9075816afd77a9f98a1
+

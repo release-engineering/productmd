@@ -1,0 +1,7 @@
+include AUTHORS
+include LICENSE
+include MANIFEST.in
+include Makefile
+include setup.py
+recursive-include doc Makefile *.py *.rst
+recursive-include productmd *.py

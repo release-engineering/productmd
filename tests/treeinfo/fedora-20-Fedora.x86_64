@@ -1,0 +1,32 @@
+[general]
+name = Fedora-20
+family = Fedora
+timestamp = 1386857206.37
+variant = Fedora
+version = 20
+packagedir = 
+arch = x86_64
+
+[stage2]
+mainimage = LiveOS/squashfs.img
+
+[images-x86_64]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+boot.iso = images/boot.iso
+
+[images-xen]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+
+[checksums]
+images/efiboot.img = sha256:3bcba2a9b45366ab3f6d82dbe512421ddcb693f3bcbd9e30cc57aa0fa13c7835
+images/macboot.img = sha256:698b3492534399e31fa1033f51f25b85d463e743f6a26322a9b117f9aac4fdf3
+images/boot.iso = sha256:376be7d4855ad6281cb139430606a782fd6189dcb01d7b61448e915802cc350f
+images/pxeboot/vmlinuz = sha256:d3a2fbfcf08ac76dfb8135771380ec97ae3129b4e623891adb21bb1cd8ba59f6
+images/pxeboot/upgrade.img = sha256:a274b8756290447950f1e48cff9d9d6fd1144579ad98ed9f91929ff9ac1bbfa9
+images/pxeboot/initrd.img = sha256:d0a81824e3425b6871ec4896a66e891aed35e291c50dfa30b08f6fc6ab04ca8b
+repodata/repomd.xml = sha256:108b4102829c0839c7712832577fe7da24f0a9491f4dc25d4145efe6aced2ebf
+

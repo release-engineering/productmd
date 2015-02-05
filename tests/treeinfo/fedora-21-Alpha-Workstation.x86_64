@@ -1,0 +1,32 @@
+[general]
+name = Fedora-Workstation-21_Alpha
+family = Fedora-Workstation
+timestamp = 1410861804.17
+variant = Workstation
+version = 21_Alpha
+packagedir = 
+arch = x86_64
+
+[stage2]
+mainimage = LiveOS/squashfs.img
+
+[images-x86_64]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+boot.iso = images/boot.iso
+
+[images-xen]
+kernel = images/pxeboot/vmlinuz
+initrd = images/pxeboot/initrd.img
+upgrade = images/pxeboot/upgrade.img
+
+[checksums]
+images/efiboot.img = sha256:06314f8d3a320f2e36ac0bd6fa4c97859b04c5a1086f9bf0f6726240db2b77ea
+images/macboot.img = sha256:5cd2de2578efc6c3162c802ab936394bd017e5ef25a996c28d16d4cc081fa7fc
+images/boot.iso = sha256:1f59f1c34cef5319df3ab37547727c7d07765284b54d6e69707120151ed1bd72
+images/pxeboot/vmlinuz = sha256:974cbed883608046bacfc7a4f232320750150c2821edcd4650fbbe709a6c1d3d
+images/pxeboot/initrd.img = sha256:be84569e2f4b4ef4e5948a0cbb93f574415bb61d86a8138d8bfdd4d0c314c929
+images/pxeboot/upgrade.img = sha256:9194294e46f22e6ea4685625e93389a39d814e3c8179325917add77e92b63573
+repodata/repomd.xml = sha256:5e7dc8ec89035b5815c4643e1a940ec3dfb1787104acd31d072abbc378bef288
+
