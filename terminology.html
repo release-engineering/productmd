@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Terminology &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="common – Base classes and common functions" href="common.html" />
+    <link rel="prev" title="ProductMD library documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="common.html" title="common – Base classes and common functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ProductMD library documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="terminology">
+<h1>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="release">
+<span id="id1"></span><h2>Release<a class="headerlink" href="#release" title="Permalink to this headline">¶</a></h2>
+<p>(Product) <a class="reference internal" href="#release"><em>Release</em></a> is a collection of software with unique identity and life cycle.</p>
+<dl class="docutils">
+<dt><strong>Notes</strong></dt>
+<dd><ul class="first last simple">
+<li>It is advised to separate updates from minor releases for better content tracking.</li>
+<li>Release should be immutable - once a release is finished, it&#8217;s content or definition must never change.</li>
+<li>When designing metadata or data schemas, <a class="reference internal" href="#release"><em>Releases</em></a> should carry all information even if there is certain duplicity.
+<a class="reference internal" href="#product-version"><em>Product Versions</em></a> and <a class="reference internal" href="#product"><em>Products</em></a> should not carry any data. These are only for grouping and organizing <a class="reference internal" href="#release"><em>Releases</em></a>.</li>
+</ul>
+</dd>
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>Fedora 21 (f-21)</li>
+<li>Fedora 21 Updates (f-21-updates)</li>
+<li>Red Hat Enterprise Linux 7.0 (rhel-7.0)</li>
+<li>Red Hat Enterprise Linux 7.1 (rhel-7.1)</li>
+<li>Satellite 5.6.0 for Red Hat Enterprise Linux 7 (satellite-5.6.0-rhel7)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="product-version">
+<span id="id2"></span><h2>Product Version<a class="headerlink" href="#product-version" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#product-version"><em>Product Version</em></a> is a group of product <a class="reference internal" href="#release"><em>Releases</em></a> with the same name and major version.</p>
+<dl class="docutils">
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>Fedora 21 (f-21)</li>
+<li>Red Hat Enterprise Linux 7 (rhel-7)</li>
+<li>Satellite 5.6 (satellite-5.6)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="product">
+<span id="id3"></span><h2>Product<a class="headerlink" href="#product" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#product"><em>Product</em></a> is a group of <a class="reference internal" href="#product-version"><em>Product Versions</em></a> with the same name.</p>
+<dl class="docutils">
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>Fedora (f)</li>
+<li>Red Hat Enterprise Linux (rhel)</li>
+<li>Satellite (satellite)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="base-product">
+<span id="id4"></span><h2>Base Product<a class="headerlink" href="#base-product" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#base-product"><em>Base Product</em></a> usually indicates operating system a <a class="reference internal" href="#release"><em>Release</em></a> runs on.
+In reality it often matches with <a class="reference internal" href="#product-version"><em>Product Version</em></a> of that OS.</p>
+<dl class="docutils">
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>Fedora 21</li>
+<li>Red Hat Enteprise Linux 7</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="compose">
+<span id="id5"></span><h2>Compose<a class="headerlink" href="#compose" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#compose"><em>Compose</em></a> is a <a class="reference internal" href="#release"><em>Release</em></a> snapshot with an unique ID derived from <a class="reference internal" href="#release"><em>Release</em></a> and compose date.</p>
+<dl class="docutils">
+<dt><strong>Notes</strong></dt>
+<dd><ul class="first last simple">
+<li><a class="reference internal" href="#compose"><em>Compose</em></a> should consist of well defined building blocks, ideally described by metadata (.treeinfo, repodata, ...)</li>
+</ul>
+</dd>
+<dt><strong>Example IDs</strong></dt>
+<dd><ul class="first last simple">
+<li>RHEL-7.0-YYYYMMDD.0</li>
+<li>Satellite-5.6.0-RHEL-7-YYYYMMDD.0</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="variant">
+<span id="id6"></span><h2>Variant<a class="headerlink" href="#variant" title="Permalink to this headline">¶</a></h2>
+<p>Both <a class="reference internal" href="#compose"><em>Composes</em></a> and <a class="reference internal" href="#release"><em>Releases</em></a> are divide into <a class="reference internal" href="#variant"><em>Variants</em></a>.
+These contain different <a class="reference internal" href="#release"><em>Release</em></a> content subsets targeting different users (Server, Workstation).</p>
+<dl class="docutils">
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>RHEL-7.0-YYYYMMDD.0 / Server</li>
+<li>RHEL-7.0-YYYYMMDD.0 / Workstation</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="tree">
+<span id="id7"></span><h2>Tree<a class="headerlink" href="#tree" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#tree"><em>Trees</em></a> is a ref:<cite>Variant</cite> for specified architecture.</p>
+<dl class="docutils">
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>RHEL-7.0-YYYYMMDD.0 / Server / x86_64</li>
+<li>RHEL-7.0-YYYYMMDD.0 / Server / ppc64</li>
+<li>RHEL-7.0-YYYYMMDD.0 / Workstation / x86_64</li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="versioning">
+<h1>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h1>
+<p>Versioning should be as simple as possible.
+Recommended schema is dot separated numbers:</p>
+<ul class="simple">
+<li><strong>X</strong> &#8211; major version / product version</li>
+<li><strong>X.Y</strong> &#8211; minor version / update version / release version</li>
+<li><strong>X.Y.Z</strong> &#8211; bugfix version / hotfix version</li>
+</ul>
+</div>
+<div class="section" id="milestones">
+<span id="id8"></span><h1>Milestones<a class="headerlink" href="#milestones" title="Permalink to this headline">¶</a></h1>
+<p>Milestones are just labels on a <a class="reference internal" href="#release"><em>Release</em></a>.
+They shouldn&#8217;t affect how a <a class="reference internal" href="#release"><em>Release</em></a> is versioned (e.g. no <a class="reference internal" href="#release"><em>Release</em></a> version change on Beta).</p>
+<dl class="docutils">
+<dt><strong>Milestone Labels</strong></dt>
+<dd><ul class="first last simple">
+<li>&lt;milestone_name&gt;-&lt;version&gt;.&lt;respin&gt;</li>
+<li>&lt;milestone_name&gt;-&lt;version&gt; stands for planned milestone</li>
+<li>&lt;respin&gt; is internal-only numbering</li>
+</ul>
+</dd>
+<dt><strong>Milestone Names</strong></dt>
+<dd><ul class="first last simple">
+<li>DevelPhaseExit</li>
+<li>InternalAlpha</li>
+<li>Alpha</li>
+<li>InternalSnapshot</li>
+<li>Beta</li>
+<li>Snapshot</li>
+<li>RC</li>
+</ul>
+</dd>
+<dt><strong>Examples</strong></dt>
+<dd><ul class="first last simple">
+<li>(rhel-7.0) Alpha-1.0</li>
+<li>(rhel-7.0) Beta-1.0</li>
+<li>(rhel-7.0) Beta-1.1</li>
+</ul>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Terminology</a><ul>
+<li><a class="reference internal" href="#release">Release</a></li>
+<li><a class="reference internal" href="#product-version">Product Version</a></li>
+<li><a class="reference internal" href="#product">Product</a></li>
+<li><a class="reference internal" href="#base-product">Base Product</a></li>
+<li><a class="reference internal" href="#compose">Compose</a></li>
+<li><a class="reference internal" href="#variant">Variant</a></li>
+<li><a class="reference internal" href="#tree">Tree</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#versioning">Versioning</a></li>
+<li><a class="reference internal" href="#milestones">Milestones</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">ProductMD library documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="common.html"
+                        title="next chapter">common &#8211; Base classes and common functions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/terminology.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="common.html" title="common – Base classes and common functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="ProductMD library documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>rpms – RPM metadata &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="treeinfo – Instalable trees metadata" href="treeinfo.html" />
+    <link rel="prev" title="images – Image metadata" href="images.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="treeinfo.html" title="treeinfo – Instalable trees metadata"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="images.html" title="images – Image metadata"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-productmd.rpms">
+<span id="rpms-rpm-metadata"></span><h1>rpms &#8211; RPM metadata<a class="headerlink" href="#module-productmd.rpms" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes for manipulating rpms.json files.
+rpms.json files provide details about RPMs included in composes.</p>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="productmd.rpms.Rpms">
+<em class="property">class </em><tt class="descclassname">productmd.rpms.</tt><tt class="descname">Rpms</tt><a class="headerlink" href="#productmd.rpms.Rpms" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="productmd.rpms.Rpms.add">
+<tt class="descname">add</tt><big>(</big><em>variant</em>, <em>arch</em>, <em>nevra</em>, <em>path</em>, <em>sigkey</em>, <em>category</em>, <em>srpm_nevra=None</em><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map RPM to to variant and arch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>variant</strong> (<em>str</em>) &#8211; compose variant UID</li>
+<li><strong>arch</strong> (<em>str</em>) &#8211; compose architecture</li>
+<li><strong>nevra</strong> (<em>str</em>) &#8211; name-epoch:version-release.arch</li>
+<li><strong>sigkey</strong> (<em>str or None</em>) &#8211; sigkey hash</li>
+<li><strong>category</strong> (<em>str</em>) &#8211; RPM category, one of binary, debug, source</li>
+<li><strong>srpm_nevra</strong> (<em>str</em>) &#8211; name-epoch:version-release.arch of RPM&#8217;s SRPM</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.rpms.Rpms.dump">
+<tt class="descname">dump</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.rpms.Rpms.dumps">
+<tt class="descname">dumps</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.dumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.rpms.Rpms.load">
+<tt class="descname">load</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.rpms.Rpms.loads">
+<tt class="descname">loads</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) &#8211; input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.rpms.Rpms.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.rpms.Rpms.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate attributes by running all self._validate_*() methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>TypeError</strong> &#8211; if an attribute has invalid type</li>
+<li><strong>ValueError</strong> &#8211; if an attribute contains invalid value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">rpms &#8211; RPM metadata</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="images.html"
+                        title="previous chapter">images &#8211; Image metadata</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="treeinfo.html"
+                        title="next chapter">treeinfo &#8211; Instalable trees metadata</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rpms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="treeinfo.html" title="treeinfo – Instalable trees metadata"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="images.html" title="images – Image metadata"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>treeinfo – Instalable trees metadata &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="Composeinfo file format 1.0" href="composeinfo-1.0.html" />
+    <link rel="prev" title="rpms – RPM metadata" href="rpms.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="composeinfo-1.0.html" title="Composeinfo file format 1.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rpms.html" title="rpms – RPM metadata"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-productmd.treeinfo">
+<span id="treeinfo-instalable-trees-metadata"></span><h1>treeinfo &#8211; Instalable trees metadata<a class="headerlink" href="#module-productmd.treeinfo" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes for manipulating .treeinfo files.
+Treeinfo files provide details about installable trees in Fedora composes and media.</p>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="productmd.treeinfo.TreeInfo">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">TreeInfo</tt><a class="headerlink" href="#productmd.treeinfo.TreeInfo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.header">
+<tt class="descname">header</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="common.html#productmd.common.Header" title="productmd.common.Header"><tt class="xref py py-class docutils literal"><span class="pre">productmd.common.Header</span></tt></a>) &#8211; Metadata header</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.release">
+<tt class="descname">release</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.Release" title="productmd.treeinfo.Release"><tt class="xref py py-class docutils literal"><span class="pre">Release</span></tt></a>) &#8211; Release details</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.base_product">
+<tt class="descname">base_product</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.base_product" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.BaseProduct" title="productmd.treeinfo.BaseProduct"><tt class="xref py py-class docutils literal"><span class="pre">BaseProduct</span></tt></a>) &#8211; Base product details (optional)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.tree">
+<tt class="descname">tree</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<tt class="xref py py-class docutils literal"><span class="pre">Tree</span></tt>) &#8211; Tree details</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.variants">
+<tt class="descname">variants</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.Variants" title="productmd.treeinfo.Variants"><tt class="xref py py-class docutils literal"><span class="pre">Variants</span></tt></a>) &#8211; Release variants</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.checksums">
+<tt class="descname">checksums</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.checksums" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<tt class="xref py py-class docutils literal"><span class="pre">Checksums</span></tt>) &#8211; Checksums of images included in a tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.images">
+<tt class="descname">images</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.images" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.Images" title="productmd.treeinfo.Images"><tt class="xref py py-class docutils literal"><span class="pre">Images</span></tt></a>) &#8211; Paths to images included in a tree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.stage2">
+<tt class="descname">stage2</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.stage2" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<tt class="xref py py-class docutils literal"><span class="pre">Stage2</span></tt>) &#8211; Stage 2 image path (for Anaconda installer)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.TreeInfo.media">
+<tt class="descname">media</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.TreeInfo.media" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<tt class="xref py py-class docutils literal"><span class="pre">Media</span></tt>) &#8211; Media set information (optional)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.treeinfo.TreeInfo.dump">
+<tt class="descname">dump</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.TreeInfo.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.treeinfo.TreeInfo.dumps">
+<tt class="descname">dumps</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.treeinfo.TreeInfo.dumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.treeinfo.TreeInfo.load">
+<tt class="descname">load</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.TreeInfo.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.treeinfo.TreeInfo.loads">
+<tt class="descname">loads</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.TreeInfo.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) &#8211; input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.treeinfo.TreeInfo.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.treeinfo.TreeInfo.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate attributes by running all self._validate_*() methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>TypeError</strong> &#8211; if an attribute has invalid type</li>
+<li><strong>ValueError</strong> &#8211; if an attribute contains invalid value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.Release">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">Release</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.Release" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.treeinfo.Release.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Release.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; release name, for example: &#8220;Fedora&#8221;, &#8220;Red Hat Enterprise Linux&#8221;, &#8220;Spacewalk&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Release.short">
+<tt class="descname">short</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Release.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; release short name, for example: &#8220;F&#8221;, &#8220;RHEL&#8221;, &#8220;Spacewalk&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Release.version">
+<tt class="descname">version</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Release.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; release version, for example: &#8220;21&#8221;, &#8220;7.0&#8221;, &#8220;2.1&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Release.is_layered">
+<tt class="descname">is_layered</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Release.is_layered" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>bool</em>) &#8211; typically False for an operating system, True otherwise</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Release.major_version">
+<tt class="descname">major_version</tt><a class="headerlink" href="#productmd.treeinfo.Release.major_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version string without the last part.
+For example: version == 1.2.0 -&gt; major_version == 1.2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Release.minor_version">
+<tt class="descname">minor_version</tt><a class="headerlink" href="#productmd.treeinfo.Release.minor_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last part of the version string.
+For example: version == 1.2.0 -&gt; minor_version == 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.BaseProduct">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">BaseProduct</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.BaseProduct" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#productmd.treeinfo.BaseProduct" title="productmd.treeinfo.BaseProduct"><tt class="xref py py-class docutils literal"><span class="pre">BaseProduct</span></tt></a> provides information about operating system a <a class="reference internal" href="#productmd.treeinfo.Release" title="productmd.treeinfo.Release"><tt class="xref py py-class docutils literal"><span class="pre">Release</span></tt></a> runs on.</p>
+<dl class="attribute">
+<dt id="productmd.treeinfo.BaseProduct.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.BaseProduct.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; base product name, for example: &#8220;Fedora&#8221;, &#8220;Red Hat Enterprise Linux&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.BaseProduct.short">
+<tt class="descname">short</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.BaseProduct.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; base product short name, for example: &#8220;F&#8221;, &#8220;RHEL&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.BaseProduct.version">
+<tt class="descname">version</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.BaseProduct.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; base product <em>major</em> version, for example: &#8220;21&#8221;, &#8220;7&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.Variants">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">Variants</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.Variants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.Variant">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">Variant</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.Variant" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.treeinfo.Variant.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant ID, for example &#8220;Server&#8221;, &#8220;optional&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.uid">
+<tt class="descname">uid</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant UID ($parent_UID.$ID), for example &#8220;Server&#8221;, &#8220;Server-optional&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant name, for example &#8220;Server&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.type">
+<tt class="descname">type</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; &#8220;variant&#8221;, &#8220;addon&#8221;, &#8220;optional&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.parent">
+<tt class="descname">parent</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.Variant" title="productmd.treeinfo.Variant"><tt class="xref py py-class docutils literal"><span class="pre">Variant</span></tt></a> or <em>None</em>) &#8211; reference to parent <a class="reference internal" href="#productmd.treeinfo.Variant" title="productmd.treeinfo.Variant"><tt class="xref py py-class docutils literal"><span class="pre">Variant</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.variants">
+<tt class="descname">variants</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>dict</em>) <a class="reference internal" href="#productmd.treeinfo.Variant" title="productmd.treeinfo.Variant"><tt class="xref py py-class docutils literal"><span class="pre">Variant</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.treeinfo.Variant.paths">
+<tt class="descname">paths</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.treeinfo.Variant.paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.treeinfo.VariantPaths" title="productmd.treeinfo.VariantPaths"><tt class="xref py py-class docutils literal"><span class="pre">VariantPaths</span></tt></a>) &#8211; relative paths to repositories, packages, etc.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.VariantPaths">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">VariantPaths</tt><big>(</big><em>variant</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.VariantPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class stores paths for a variant in a tree.
+All paths are relative to .treeinfo location.</p>
+<p><strong>Binary</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>packages</strong> &#8211; directory with binary RPMs</li>
+<li><strong>repository</strong> &#8211; YUM repository with binary RPMs</li>
+</ul>
+</div></blockquote>
+<p><strong>Source</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>source_packages</strong> &#8211; directory with source RPMs</li>
+<li><strong>source_repository</strong> &#8211; YUM repository with source RPMs</li>
+</ul>
+</div></blockquote>
+<p><strong>Debug</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>debug_packages</strong> &#8211; directory with debug RPMs</li>
+<li><strong>debug_repository</strong> &#8211; YUM repository with debug RPMs</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt><strong>Others</strong></dt>
+<dd><ul class="first last simple">
+<li><strong>identity</strong> &#8211; path to a pem file which identifies a product</li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">variant</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">variant</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">packages</span> <span class="o">=</span> <span class="s">&quot;Packages&quot;</span>
+<span class="n">variant</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">repository</span> <span class="o">=</span> <span class="s">&quot;.&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.treeinfo.Images">
+<em class="property">class </em><tt class="descclassname">productmd.treeinfo.</tt><tt class="descname">Images</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.treeinfo.Images" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.treeinfo.Images.platforms">
+<tt class="descname">platforms</tt><a class="headerlink" href="#productmd.treeinfo.Images.platforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all platforms with available images</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">treeinfo &#8211; Instalable trees metadata</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rpms.html"
+                        title="previous chapter">rpms &#8211; RPM metadata</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="composeinfo-1.0.html"
+                        title="next chapter">Composeinfo file format 1.0</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/treeinfo.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="composeinfo-1.0.html" title="Composeinfo file format 1.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rpms.html" title="rpms – RPM metadata"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

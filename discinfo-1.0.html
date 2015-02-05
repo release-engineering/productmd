@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Discinfo file format 1.0 &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="Images file format 1.0" href="images-1.0.html" />
+    <link rel="prev" title="Composeinfo file format 1.0" href="composeinfo-1.0.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="images-1.0.html" title="Images file format 1.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="composeinfo-1.0.html" title="Composeinfo file format 1.0"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="discinfo-file-format-1-0">
+<h1>Discinfo file format 1.0<a class="headerlink" href="#discinfo-file-format-1-0" title="Permalink to this headline">¶</a></h1>
+<p>.discinfo files can be found on Fedora installation media and
+provide media information to Anaconda installer.</p>
+<div class="section" id="file-format">
+<h2>File Format<a class="headerlink" href="#file-format" title="Permalink to this headline">¶</a></h2>
+<p>.discinfo is a plain-text file containing following fields, one value per line:</p>
+<div class="highlight-python"><div class="highlight"><pre>timestamp: float
+release: str
+architecture: str
+disc_numbers: ALL or comma separated numbers
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Fedora 21 Server.x86_64, disc_numbers: ALL:</p>
+<div class="highlight-python"><div class="highlight"><pre>1417653453.026288
+Fedora Server 21
+x86_64
+ALL
+</pre></div>
+</div>
+<p>Fedora 21 Server.x86_64, disc_numbers: [1, 2, 3]:</p>
+<div class="highlight-python"><div class="highlight"><pre>1417653453.026288
+Fedora Server 21
+x86_64
+1,2,3
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Discinfo file format 1.0</a><ul>
+<li><a class="reference internal" href="#file-format">File Format</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="composeinfo-1.0.html"
+                        title="previous chapter">Composeinfo file format 1.0</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="images-1.0.html"
+                        title="next chapter">Images file format 1.0</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/discinfo-1.0.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="images-1.0.html" title="Images file format 1.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="composeinfo-1.0.html" title="Composeinfo file format 1.0"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

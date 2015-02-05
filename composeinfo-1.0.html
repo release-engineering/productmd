@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Composeinfo file format 1.0 &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="Discinfo file format 1.0" href="discinfo-1.0.html" />
+    <link rel="prev" title="treeinfo – Instalable trees metadata" href="treeinfo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="discinfo-1.0.html" title="Discinfo file format 1.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="treeinfo.html" title="treeinfo – Instalable trees metadata"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="composeinfo-file-format-1-0">
+<h1>Composeinfo file format 1.0<a class="headerlink" href="#composeinfo-file-format-1-0" title="Permalink to this headline">¶</a></h1>
+<p>composeifo.json files provide details about composes which includes
+product information, variants, architectures and paths.</p>
+<div class="section" id="file-format">
+<h2>File Format<a class="headerlink" href="#file-format" title="Permalink to this headline">¶</a></h2>
+<p>Composeinfo is stored as a JSON serialized dictionary.
+It&#8217;s recommended to sort keys alphabetically and use 4 spaces for indentation
+in order to read and diff composeinfo.json files easily.</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+    &quot;header&quot;: {
+        &quot;version&quot;: &quot;1.0&quot;                            # metadata version; format: $major&lt;int&gt;.$minor&lt;int&gt;
+    },
+    &quot;payload&quot;: {
+        &quot;compose&quot;: {
+            &quot;id&quot;: &lt;str&gt;,
+            &quot;date&quot;: &lt;str&gt;,
+            &quot;respin&quot;: &lt;int&gt;,
+            &quot;type&quot;: &lt;str&gt;,
+            &quot;label&quot;: &lt;str|unset&gt;,
+            &quot;final&quot;: &lt;bool=false&gt;                   # true if a compose is final for a milestone (for example latest Beta-1.x)
+        },
+        &quot;release&quot;: {
+            &quot;name&quot;: &lt;str&gt;,
+            &quot;version&quot;: &lt;str&gt;,
+            &quot;short&quot;: &lt;str&gt;,
+            &quot;is_layered&quot;: &lt;bool=false&gt;,
+        },
+        &quot;base_product&quot;: {
+            &quot;name&quot;: &lt;str&gt;,
+            &quot;version&quot;: &lt;str&gt;,
+            &quot;short&quot;: &lt;str&gt;,
+        },
+        &quot;variants&quot;: {
+            variant_uid&lt;str&gt;: {
+                &quot;id&quot;: &lt;str&gt;,
+                &quot;uid&quot;: &lt;str&gt;,
+                &quot;name&quot;: &lt;str&gt;,
+                &quot;type&quot;: &lt;str&gt;,
+                &quot;arches&quot;: [&lt;str&gt;],
+                &quot;paths&quot;: {
+                    path_category&lt;str&gt;: {
+                        arch&lt;str&gt;: &lt;str&gt;,
+                    },
+                },
+            },
+        },
+    },
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Composeinfo file format 1.0</a><ul>
+<li><a class="reference internal" href="#file-format">File Format</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="treeinfo.html"
+                        title="previous chapter">treeinfo &#8211; Instalable trees metadata</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="discinfo-1.0.html"
+                        title="next chapter">Discinfo file format 1.0</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/composeinfo-1.0.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="discinfo-1.0.html" title="Discinfo file format 1.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="treeinfo.html" title="treeinfo – Instalable trees metadata"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

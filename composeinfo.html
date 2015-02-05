@@ -1,0 +1,464 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>composeinfo – Compose metadata &mdash; productmd 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="productmd 1.0 documentation" href="index.html" />
+    <link rel="next" title="discinfo – Installation media metadata" href="discinfo.html" />
+    <link rel="prev" title="common – Base classes and common functions" href="common.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="discinfo.html" title="discinfo – Installation media metadata"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="common.html" title="common – Base classes and common functions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-productmd.composeinfo">
+<span id="composeinfo-compose-metadata"></span><h1>composeinfo &#8211; Compose metadata<a class="headerlink" href="#module-productmd.composeinfo" title="Permalink to this headline">¶</a></h1>
+<p>This module provides classes for manipulating composeinfo.json files.
+composeifo.json files provide details about composes which includes
+product information, variants, architectures and paths.</p>
+<div class="section" id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="compose-types"></span><dl class="data">
+<dt id="productmd.composeinfo.COMPOSE_TYPES">
+<tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">COMPOSE_TYPES</tt><em class="property"> = ['test', 'nightly', 'production']</em><a class="headerlink" href="#productmd.composeinfo.COMPOSE_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>supported compose types</p>
+</dd></dl>
+
+<span class="target" id="label-names"></span><dl class="data">
+<dt id="productmd.composeinfo.LABEL_NAMES">
+<tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">LABEL_NAMES</tt><em class="property"> = ['DevelPhaseExit', 'InternalAlpha', 'Alpha', 'InternalSnapshot', 'Beta', 'Snapshot', 'RC']</em><a class="headerlink" href="#productmd.composeinfo.LABEL_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>supported milestone label names</p>
+</dd></dl>
+
+<span class="target" id="variant-types"></span><dl class="data">
+<dt id="productmd.composeinfo.VARIANT_TYPES">
+<tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">VARIANT_TYPES</tt><em class="property"> = ['variant', 'optional', 'addon', 'layered-product']</em><a class="headerlink" href="#productmd.composeinfo.VARIANT_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>supported variant types</p>
+</dd></dl>
+
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="productmd.composeinfo.ComposeInfo">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">ComposeInfo</tt><a class="headerlink" href="#productmd.composeinfo.ComposeInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class only encapsulates other classes with actual data.</p>
+<dl class="attribute">
+<dt id="productmd.composeinfo.ComposeInfo.header">
+<tt class="descname">header</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="common.html#productmd.common.Header" title="productmd.common.Header"><tt class="xref py py-class docutils literal"><span class="pre">Header</span></tt></a>) &#8211; Metadata header</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.ComposeInfo.compose">
+<tt class="descname">compose</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.compose" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.Compose" title="productmd.composeinfo.Compose"><tt class="xref py py-class docutils literal"><span class="pre">Compose</span></tt></a>) &#8211; Compose details</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.ComposeInfo.release">
+<tt class="descname">release</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.Release" title="productmd.composeinfo.Release"><tt class="xref py py-class docutils literal"><span class="pre">Release</span></tt></a>) &#8211; Release details</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.ComposeInfo.base_product">
+<tt class="descname">base_product</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.base_product" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.BaseProduct" title="productmd.composeinfo.BaseProduct"><tt class="xref py py-class docutils literal"><span class="pre">BaseProduct</span></tt></a>) &#8211; Base product details (optional)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.ComposeInfo.variants">
+<tt class="descname">variants</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.Variants" title="productmd.composeinfo.Variants"><tt class="xref py py-class docutils literal"><span class="pre">Variants</span></tt></a>) &#8211; release variants</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.composeinfo.ComposeInfo.dump">
+<tt class="descname">dump</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.composeinfo.ComposeInfo.dumps">
+<tt class="descname">dumps</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.dumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump data to a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.composeinfo.ComposeInfo.load">
+<tt class="descname">load</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> (<em>file or str</em>) &#8211; file-like object or path to file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.composeinfo.ComposeInfo.loads">
+<tt class="descname">loads</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) &#8211; input data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="productmd.composeinfo.ComposeInfo.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="headerlink" href="#productmd.composeinfo.ComposeInfo.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate attributes by running all self._validate_*() methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>TypeError</strong> &#8211; if an attribute has invalid type</li>
+<li><strong>ValueError</strong> &#8211; if an attribute contains invalid value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.Compose">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">Compose</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.Compose" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.composeinfo.Compose.label_major_version">
+<tt class="descname">label_major_version</tt><a class="headerlink" href="#productmd.composeinfo.Compose.label_major_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return major version for a label.</p>
+<p>Examples: Beta-1.2 -&gt; Beta-1, GA -&gt; GA</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.Release">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">Release</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.Release" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents a product release.</p>
+<dl class="attribute">
+<dt id="productmd.composeinfo.Release.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Release.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Release name, for example: &#8220;Fedora&#8221;, &#8220;Red Hat Enterprise Linux&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Release.version">
+<tt class="descname">version</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Release.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Release version (incl. minor version), for example: &#8220;20&#8221;, &#8220;7.0&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Release.short">
+<tt class="descname">short</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Release.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Release short name, for example: &#8220;f&#8221;, &#8220;rhel&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Release.is_layered">
+<tt class="descname">is_layered</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Release.is_layered" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>bool=False</em>) &#8211; Determines if release is a layered product</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.BaseProduct">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">BaseProduct</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.BaseProduct" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents a base product a release is based on.
+For example: Spacewalk 2.2 release requires Fedora 20 base product.
+Information from this class is used only if release.is_layered is set.</p>
+<dl class="attribute">
+<dt id="productmd.composeinfo.BaseProduct.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.BaseProduct.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Product name, for example: &#8220;Fedora&#8221;, &#8220;Red Hat Enterprise Linux&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.BaseProduct.version">
+<tt class="descname">version</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.BaseProduct.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Product version (typically major version), for example: &#8220;20&#8221;, &#8220;7&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.BaseProduct.short">
+<tt class="descname">short</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.BaseProduct.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; Product short name, for example: &#8220;f&#8221;, &#8220;rhel&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.Variants">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">Variants</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.Variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is a container for compose variants.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.Variant">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">Variant</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.Variant" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="productmd.composeinfo.Variant.id">
+<tt class="descname">id</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant ID, for example: &#8220;Client&#8221;, &#8220;Server&#8221;, &#8220;optional&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.uid">
+<tt class="descname">uid</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant unique ID: $PARENT_UID-$ID, for example: &#8220;Server-optional&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant name (pretty text), for example: &#8220;Enterprise Server&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.type">
+<tt class="descname">type</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>str</em>) &#8211; variant type, see VARIANT_TYPES for supported values</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.arches">
+<tt class="descname">arches</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.arches" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>set(&lt;str&gt;)</em>) &#8211; set of arches for a variant</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.variants">
+<tt class="descname">variants</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<em>dict</em>) &#8211; child variants</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.parent">
+<tt class="descname">parent</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.Variant" title="productmd.composeinfo.Variant"><tt class="xref py py-class docutils literal"><span class="pre">Variant</span></tt></a> or <em>None</em>) &#8211; parent variant</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.paths">
+<tt class="descname">paths</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.VariantPaths" title="productmd.composeinfo.VariantPaths"><tt class="xref py py-class docutils literal"><span class="pre">VariantPaths</span></tt></a>) &#8211; path mappings for a variant</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="productmd.composeinfo.Variant.release">
+<tt class="descname">release</tt><em class="property"> = None</em><a class="headerlink" href="#productmd.composeinfo.Variant.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>(<a class="reference internal" href="#productmd.composeinfo.Release" title="productmd.composeinfo.Release"><tt class="xref py py-class docutils literal"><span class="pre">Release</span></tt></a>) &#8211;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="productmd.composeinfo.VariantPaths">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">VariantPaths</tt><big>(</big><em>variant</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.VariantPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class stores relative paths for a variant in a compose.
+Paths are represented as dictionaries mapping arches to actual paths.
+List of supported paths follows.</p>
+<p><strong>Binary</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>os_tree</strong> &#8211; installable tree with binary RPMs, kickstart trees, readme etc.</li>
+<li><strong>packages</strong> &#8211; directory with binary RPMs</li>
+<li><strong>repository</strong> &#8211; YUM repository with binary RPMs</li>
+<li><strong>isos</strong> &#8211; Binary ISOs</li>
+<li><strong>jigdos</strong> &#8211; Jigdo files for binary ISOs</li>
+</ul>
+</div></blockquote>
+<p><strong>Source</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>source_tree</strong> &#8211; tree with source RPMs</li>
+<li><strong>source_packages</strong> &#8211; directory with source RPMs</li>
+<li><strong>source_repository</strong> &#8211; YUM repository with source RPMs</li>
+<li><strong>source_isos</strong> &#8211; Source ISOs</li>
+<li><strong>source_jigdos</strong> &#8211; Jigdo files for source ISOs</li>
+</ul>
+</div></blockquote>
+<p><strong>Debug</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>debug_tree</strong> &#8211; tree with debug RPMs</li>
+<li><strong>debug_packages</strong> &#8211; directory with debug RPMs</li>
+<li><strong>debug_repository</strong> &#8211; YUM repository with debug RPMs</li>
+</ul>
+</div></blockquote>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">os_tree</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;i386&quot;</span><span class="p">:</span> <span class="s">&quot;Server/i386/os&quot;</span><span class="p">,</span>
+    <span class="s">&quot;x86_64&quot;</span><span class="p">:</span> <span class="s">&quot;Server/x86_64/os&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">packages</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&quot;i386&quot;</span><span class="p">:</span> <span class="s">&quot;Server/i386/os/Packages&quot;</span><span class="p">,</span>
+    <span class="s">&quot;x86_64&quot;</span><span class="p">:</span> <span class="s">&quot;Server/x86_64/os/Packages&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="private-classes">
+<h2>Private Classes<a class="headerlink" href="#private-classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="productmd.composeinfo.VariantBase">
+<em class="property">class </em><tt class="descclassname">productmd.composeinfo.</tt><tt class="descname">VariantBase</tt><big>(</big><em>metadata</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.VariantBase" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="productmd.composeinfo.VariantBase.get_variants">
+<tt class="descname">get_variants</tt><big>(</big><em>arch=None</em>, <em>types=None</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#productmd.composeinfo.VariantBase.get_variants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all variants of given arch and types.</p>
+<dl class="docutils">
+<dt>Supported variant types:</dt>
+<dd>self     - include the top-level (&#8220;self&#8221;) variant as well
+addon
+variant
+optional</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">composeinfo &#8211; Compose metadata</a><ul>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#private-classes">Private Classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="common.html"
+                        title="previous chapter">common &#8211; Base classes and common functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="discinfo.html"
+                        title="next chapter">discinfo &#8211; Installation media metadata</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/composeinfo.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="discinfo.html" title="discinfo – Installation media metadata"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="common.html" title="common – Base classes and common functions"
+             >previous</a> |</li>
+        <li><a href="index.html">productmd 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Copyright (C) 2015  Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
