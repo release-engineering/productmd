@@ -13,6 +13,15 @@ http://release-engineering.github.io/productmd
 Building
 --------
 
+### Build requires
+
+* Six: Python 2 and 3 Compatibility Library
+ * `pip install six`
+ * Fedora: python-six python3-six
+
+
+### Build
+
 To see all options run:
 
     make help
