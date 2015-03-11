@@ -68,7 +68,7 @@ Compose
 **Notes**
   * :ref:`Compose` should consist of well defined building blocks, ideally described by metadata (.treeinfo, repodata, ...)
 
-**Example IDs**
+**Examples**
   * RHEL-7.0-YYYYMMDD.0
   * Satellite-5.6.0-RHEL-7-YYYYMMDD.0
 
@@ -89,7 +89,7 @@ These contain different :ref:`Release` content subsets targeting different users
 
 Tree
 ====
-:ref:`Trees <Tree>` is a ref:`Variant` for specified architecture.
+:ref:`Tree` is a :ref:`Variant` for specified architecture.
 
 **Examples**
   * RHEL-7.0-YYYYMMDD.0 / Server / x86_64
