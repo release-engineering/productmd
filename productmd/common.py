@@ -93,14 +93,11 @@ class MetadataBase(object):
 
     def _assert_matches_re(self, field, expected_patterns):
         value = getattr(self, field)
-        matches = False
         for pattern in expected_patterns:
             if re.match(pattern, value):
-                matches = True
-                break
-        if not matches:
-            raise ValueError("%s: Field '%s' has invalid value: %s. It does not match any provided REs: %s"
-                             % (self.__class__.__name__, field, value, expected_patterns))
+                return
+        raise ValueError("%s: Field '%s' has invalid value: %s. It does not match any provided REs: %s"
+                         % (self.__class__.__name__, field, value, expected_patterns))
 
     def validate(self):
         """
