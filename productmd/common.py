@@ -73,13 +73,10 @@ def parse_nvra(nvra):
 class MetadataBase(object):
     def _assert_type(self, field, expected_types):
         value = getattr(self, field)
-        found = False
         for atype in expected_types:
             if isinstance(value, atype):
-                found = True
-                break
-        if not found:
-            raise TypeError("%s: Field '%s' has invalid type: %s" % (self.__class__.__name__, field, type(value)))
+                return
+        raise TypeError("%s: Field '%s' has invalid type: %s" % (self.__class__.__name__, field, type(value)))
 
     def _assert_value(self, field, expected_values):
         value = getattr(self, field)
