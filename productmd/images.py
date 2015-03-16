@@ -122,10 +122,10 @@ class Image(productmd.common.MetadataBase):
         self._assert_not_blank("path")
 
     def _validate_mtime(self):
-        self._assert_type("mtime", [int])
+        self._assert_type("mtime", list(six.integer_types))
 
     def _validate_size(self):
-        self._assert_type("size", [int])
+        self._assert_type("size", list(six.integer_types))
         self._assert_not_blank("size")
 
     def _validate_volume_id(self):
@@ -146,10 +146,10 @@ class Image(productmd.common.MetadataBase):
         self._assert_not_blank("arch")
 
     def _validate_disc_number(self):
-        self._assert_type("disc_number", [int])
+        self._assert_type("disc_number", list(six.integer_types))
 
     def _validate_disc_count(self):
-        self._assert_type("disc_count", [int])
+        self._assert_type("disc_count", list(six.integer_types))
 
     def _validate_checksums(self):
         self._assert_type("checksums", [dict])

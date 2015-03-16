@@ -256,7 +256,7 @@ class Compose(productmd.common.MetadataBase):
         self._assert_value("type", COMPOSE_TYPES)
 
     def _validate_respin(self):
-        self._assert_type("respin", [int])
+        self._assert_type("respin", list(six.integer_types))
 
     def _validate_label(self):
         self._assert_type("label", [type(None)] + list(six.string_types))

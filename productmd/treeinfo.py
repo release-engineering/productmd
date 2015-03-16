@@ -282,7 +282,7 @@ class Tree(productmd.common.MetadataBase):
         self._assert_not_blank("arch")
 
     def _validate_build_timestamp(self):
-        self._assert_type("build_timestamp", [int, float])
+        self._assert_type("build_timestamp", list(six.integer_types) + [float])
         self._assert_not_blank("build_timestamp")
 
     def serialize(self, parser):
@@ -927,10 +927,10 @@ class Media(productmd.common.MetadataBase):
         self.totaldiscs = None          #: number of discs in media set
 
     def _validate_discnum(self):
-        self._assert_type("discnum", [int, type(None)])
+        self._assert_type("discnum", list(six.integer_types) + [type(None)])
 
     def _validate_totaldiscs(self):
-        self._assert_type("totaldiscs", [int, type(None)])
+        self._assert_type("totaldiscs", list(six.integer_types) + [type(None)])
 
     def serialize(self, parser):
         if not self.discnum and not self.totaldiscs:
