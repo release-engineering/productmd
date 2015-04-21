@@ -39,10 +39,10 @@ from productmd.composeinfo import Compose
 import six
 
 #: supported image types
-SUPPORTED_IMAGE_TYPES = ["boot", "cd", "dvd", "ec2", "kvm", "live", "netinst", "p2v", "rescue"]
+SUPPORTED_IMAGE_TYPES = ["boot", "cd", "container", "dvd", "ec2", "kvm", "live", "netinst", "p2v", "rescue"]
 
 #: supported image formats, they match with file suffix
-SUPPORTED_IMAGE_FORMATS = ["iso", "qcow", "qcow2", "raw", "rhevm.ova", "sda.raw", "vdi", "vmdk", "vmx", "vsphere.ova"]
+SUPPORTED_IMAGE_FORMATS = ["iso", "qcow", "qcow2", "raw", "rhevm.ova", "sda.raw", "tar.gz", "vdi", "vmdk", "vmx", "vsphere.ova"]
 
 
 class Images(productmd.common.MetadataBase):
