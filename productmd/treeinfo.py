@@ -31,13 +31,14 @@ __all__ = (
 )
 
 
+import os
+import hashlib
 import re
 
 import six
 
 import productmd.common
 import productmd.composeinfo
-from productmd.common import Header
 
 
 #: supported variant types
@@ -46,6 +47,18 @@ VARIANT_TYPES = [
     "optional",
     "addon",
 ]
+
+
+def compute_checksum(path, checksum_type):
+    checksum = hashlib.new(checksum_type)
+    fo = open(path, "rb")
+    while True:
+        chunk = fo.read(1024**2)
+        if not chunk:
+            break
+        checksum.update(chunk)
+    fo.close()
+    return checksum.hexdigest().lower()
 
 
 class TreeInfo(productmd.common.MetadataBase):
@@ -263,7 +276,6 @@ class Release(BaseProduct):
         if self.version is None:
             return None
         return productmd.common.get_minor_version(self.version)
-
 
 
 # Note: [tree]/variants is read/written in the Variants class
@@ -911,9 +923,12 @@ class Checksums(productmd.common.MetadataBase):
             if path.startswith("/"):
                 raise ValueError("Only relative paths are allowed for checksums: %s" % path)
 
-    def add(self, relative_path, checksum_type, checksum_value):
+    def add(self, relative_path, checksum_type, checksum_value=None, root_dir=None):
         if relative_path.startswith("/"):
             raise ValueError("Relative path expected: %s" % relative_path)
+        if not checksum_value:
+            absolute_path = os.path.join(root_dir, relative_path)
+            checksum_value = compute_checksum(absolute_path, checksum_type)
         self.checksums[relative_path] = [checksum_type, checksum_value]
 
 

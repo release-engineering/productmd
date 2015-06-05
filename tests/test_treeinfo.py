@@ -230,6 +230,14 @@ class TestTreeInfo(unittest.TestCase):
             self.assertEqual(ti.release.name, "Fedora")
             self.assertEqual(ti.release.version, str(int(ti.release.version)))
 
+    def test_treeinfo_compute_checksum(self):
+        tmp_file = os.path.join(self.tmp_dir, "file")
+        open(tmp_file, "w").write("test")
+        expected_checksum = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        ti = TreeInfo()
+        ti.checksums.add("file", "sha256", None, self.tmp_dir)
+        self.assertEqual(ti.checksums.checksums["file"], ["sha256", expected_checksum])
+
 
 if __name__ == "__main__":
     unittest.main()
