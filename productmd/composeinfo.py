@@ -41,6 +41,11 @@ from productmd.common import Header
 import six
 
 
+if six.PY3:
+    def cmp(a, b):
+        return (a > b) - (a < b)
+
+
 # order matters - used in __cmp__
 # least important come first
 #: supported compose types
@@ -248,6 +253,7 @@ class Compose(productmd.common.MetadataBase):
         self._assert_type("id", list(six.string_types))
         self._assert_not_blank("id")
         self._assert_matches_re("id", [r".*\d{8}(\.nightly|\.n|\.test|\.t)?(\.\d+)?"])
+
     def _validate_date(self):
         self._assert_type("date", list(six.string_types))
         self._assert_matches_re("date", [r"^\d{8}$"])
