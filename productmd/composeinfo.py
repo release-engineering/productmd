@@ -688,10 +688,10 @@ class Variant(VariantBase):
         self._assert_matches_re("id", [r"^[a-zA-Z]+$"])
 
     def _validate_uid(self):
-        if self.parent:
-            uid = "%s-%s" % (self.parent.uid, self.id)
-        else:
+        if self.parent is None:
             uid = self.id
+        else:
+            uid = "%s-%s" % (self.parent.uid, self.id)
 
         if self.uid != uid:
             raise ValueError("UID '%s' doesn't align with parent UID '%s'" % (self.uid, uid))
@@ -717,7 +717,7 @@ class Variant(VariantBase):
     def compose_id(self):
         if self.type == "layered-product":
             result = "%s-%s" % (self.release.short, self.release.version)
-            result += "-%s-%s" % (self._metadata.release.short, self._metadata.product.major_version)
+            result += "-%s-%s" % (self._metadata.release.short, self._metadata.release.major_version)
             result += "-%s%s.%s" % (self._metadata.compose.date, self._metadata.compose.type_suffix, self._metadata.compose.respin)
             return result
         return self._metadata.compose.id
