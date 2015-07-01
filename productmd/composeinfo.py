@@ -744,6 +744,7 @@ class Variant(VariantBase):
             variant_uids = ["%s-%s" % (self.uid, i) for i in variant_ids]
             for variant_uid in variant_uids:
                 variant = Variant(self._metadata)
+                variant.parent = self
                 variant.deserialize(full_data, variant_uid)
                 self.add(variant)
 
@@ -782,4 +783,3 @@ class Variant(VariantBase):
 
     def add(self, variant):
         VariantBase.add(self, variant)
-        variant.parent = self
