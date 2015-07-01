@@ -70,24 +70,39 @@ class Rpms(productmd.common.MetadataBase):
         data["payload"]["rpms"] = {}
         self.compose.serialize(data["payload"])
         data["payload"]["rpms"] = self.rpms
-#        for variant in self.rpms:
-#            for arch in self.rpms[variant]:
-#                for image_obj in self.rpms[variant][arch]:
-#                    rpms = data["payload"]["rpms"].setdefault(variant, {}).setdefault(arch, [])
-#                    image_obj.serialize(es)
         return data
 
     def deserialize(self, data):
         self.header.deserialize(data)
+        if self.header.version_tuple <= (0, 3):
+            self.deserialize_0_3(data)
+        else:
+            self.deserialize_1_0(data)
+        self.validate()
+
+        self.header.set_current_version()
+
+    def deserialize_0_3(self, data):
+        self.compose.deserialize(data["payload"])
+        payload = data["payload"]["manifest"]
+        self.rpms = {}
+        for variant in payload:
+            for arch in payload[variant]:
+                if arch == "src":
+                    continue
+                for srpm_nevra, rpms in payload[variant][arch].items():
+                    srpm_data = payload[variant].get("src", {}).get(srpm_nevra, None)
+                    for rpm_nevra, rpm_data in rpms.items():
+                        category = rpm_data["type"]
+                        if category == "package":
+                            category = "binary"
+                        self.add(variant, arch, rpm_nevra, rpm_data["path"], rpm_data["sigkey"], category, srpm_nevra)
+                        if srpm_data is not None:
+                            self.add(variant, arch, srpm_nevra, srpm_data["path"], srpm_data["sigkey"], "source")
+
+    def deserialize_1_0(self, data):
         self.compose.deserialize(data["payload"])
         self.rpms = data["payload"]["rpms"]
-#        for variant in data["payload"]["images"]:
-#            for arch in data["payload"]["images"][variant]:
-#                for image in data["payload"]["images"][variant][arch]:
-#                    image_obj = Image(self)
-#                    image_obj.deserialize(image)
-#                    self.add(variant, arch, image_obj)
-        self.header.set_current_version()
 
     def add(self, variant, arch, nevra, path, sigkey, category, srpm_nevra=None):
         """
