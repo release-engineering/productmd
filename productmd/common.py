@@ -49,8 +49,8 @@ import six
 # HACK: dumped from rpmUtils.arch which is not available on python3
 # one less dependency at least :)
 RPM_ARCHES = [
-    "alpha", "alphaev4", "alphaev45", "alphaev5", "alphaev56", "alphaev6", "alphaev67", "alphaev68",
-    "alphaev7", "alphapca56", "amd64", "arm64", "armhfp", "armv5tejl", "armv5tel", "armv6l", "armv7hl",
+    "aarch64", "alpha", "alphaev4", "alphaev45", "alphaev5", "alphaev56", "alphaev6", "alphaev67", "alphaev68",
+    "alphaev7", "alphapca56", "amd64", "arm64", "armhfp", "armv5tejl", "armv5tel", "armv6hl", "armv6l", "armv7hl",
     "armv7hnl", "armv7l", "athlon", "geode", "i386", "i486", "i586", "i686", "ia32e", "ia64", "ppc", "ppc64",
     "ppc64iseries", "ppc64le", "ppc64p7", "ppc64pseries", "s390", "s390x", "sh3", "sh4", "sh4a",
     "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64",
