@@ -926,6 +926,7 @@ class Checksums(productmd.common.MetadataBase):
     def add(self, relative_path, checksum_type, checksum_value=None, root_dir=None):
         if relative_path.startswith("/"):
             raise ValueError("Relative path expected: %s" % relative_path)
+        relative_path = os.path.normpath(relative_path)
         if not checksum_value:
             absolute_path = os.path.join(root_dir, relative_path)
             checksum_value = compute_checksum(absolute_path, checksum_type)
