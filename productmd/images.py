@@ -44,7 +44,8 @@ SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd', 'ec2', 'kvm', 'live',
 
 #: supported image formats, they match with file suffix
 SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
-                           'sda.raw', 'tar.gz', 'tar.xz', 'vagrant-libvirt.box', 'vagrant-virtualbox.box', 'vdi', 'vmdk', 'vmx', 'vsphere.ova']
+                           'sda.raw', 'tar.gz', 'tar.xz', 'vagrant-libvirt.box', 'vagrant-virtualbox.box',
+                           'vdi', 'vmdk', 'vmx', 'vsphere.ova']
 
 
 class Images(productmd.common.MetadataBase):
