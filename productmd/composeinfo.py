@@ -273,6 +273,15 @@ class Compose(productmd.common.MetadataBase):
             self._assert_type("final", [bool])
 
     @property
+    def is_ga(self):
+        if not self.label:
+            return False
+        label_name = self.label.split("-")[0]
+        if label_name == "RC" and self.final:
+            return True
+        return False
+
+    @property
     def full_label(self):
         if not self.label:
             return None
