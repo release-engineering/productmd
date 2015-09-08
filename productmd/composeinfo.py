@@ -34,6 +34,7 @@ __all__ = (
 
 
 import re
+import os
 
 import productmd.common
 from productmd.common import Header
@@ -174,6 +175,22 @@ class ComposeInfo(productmd.common.MetadataBase):
 
     def get_variants(self, *args, **kwargs):
         return self.variants.get_variants(*args, **kwargs)
+
+    def from_compose(self, compose_path):
+        """
+        return ComposeInfo object from a pungi compose or None
+        """
+        compose_path = os.path.normpath(compose_path)
+        ci_locations = [
+            (self.load, os.path.join(compose_path, "compose", "metadata", "composeinfo.json")),
+            (self.load, os.path.join(compose_path, "metadata", "composeinfo.json")),
+        ]
+        for method, loc in ci_locations:
+            if os.path.exists(loc):
+                method(loc)
+                return
+
+        raise RuntimeError("Could not find composeinfo in %s" % compose_path)
 
 
 def verify_label(label):
