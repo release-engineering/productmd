@@ -122,13 +122,14 @@ They shouldn't affect how a :ref:`Release` is versioned (e.g. no :ref:`Release` 
   * <respin> is internal-only numbering
 
 **Milestone Names**
-  * DevelPhaseExit
-  * InternalAlpha
-  * Alpha
-  * InternalSnapshot
-  * Beta
-  * Snapshot
-  * RC
+  * DevelPhaseExit -- DEV finished major features, QE performs acceptance testing for entering the Testing phase
+  * InternalAlpha -- Internal Alpha, usually tweaking compose for the first public release
+  * Alpha -- Public Alpha
+  * InternalSnapshot -- Snapshots between Alpha and Beta, usually only for QE purposes
+  * Beta -- Public Beta
+  * Snapshot -- Snapshots between Beta and RC
+  * RC -- Release Candidates
+  * Update -- post-GA updates
 
 **Examples**
   * (rhel-7.0) Alpha-1.0
