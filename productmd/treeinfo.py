@@ -532,7 +532,9 @@ class VariantPaths(productmd.common.MetadataBase):
         for field in self._fields:
             lookup = [
                 ("variant-%s" % self._variant.uid, field),
+                ("variant-%s" % self._variant.id, field),
                 ("addon-%s" % self._variant.uid, field),
+                ("addon-%s" % self._variant.id, field),
             ]
             value = parser.option_lookup(lookup, None)
             setattr(self, field, value)
@@ -999,9 +1001,11 @@ class General(productmd.common.MetadataBase):
         parser.set(self._section, "platforms", ",".join(sorted(self._metadata.tree.platforms | set([self._metadata.tree.arch]))))
         parser.set(self._section, "timestamp", str(int(self._metadata.tree.build_timestamp)))
 
-        # HACK: if there are more variants, use the first variant
         variants = list(self._metadata.variants)
         variants.sort()
+        parser.set(self._section, "variants", ",".join(variants))
+
+        # HACK: if there are more variants, use the first variant
         variant = variants[0]
         parser.set(self._section, "variant", variant)
 
