@@ -65,6 +65,7 @@ LABEL_NAMES = [
     "Beta",
     "Snapshot",
     "RC",
+    "UPDATE",
 ]
 
 
