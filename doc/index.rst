@@ -18,6 +18,7 @@ Python modules:
     :maxdepth: 2
     
     common
+    compose
     composeinfo
     discinfo
     images

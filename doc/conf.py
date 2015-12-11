@@ -217,6 +217,8 @@ man_pages = [
      [u'Daniel Mach <dmach@redhat.com>'], 7),
 
     # modules
+    ('compose', 'compose', u'productmd Documentation',
+     [u'Daniel Mach <dmach@redhat.com>'], 1),
     ('composeinfo', 'composeinfo', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 1),
     ('discinfo', 'discinfo', u'productmd Documentation',
