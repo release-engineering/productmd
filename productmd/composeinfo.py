@@ -56,6 +56,17 @@ COMPOSE_TYPES = [
 ]
 
 
+#: supported release types
+RELEASE_TYPES = [
+    "fast",
+    "ga",
+    "updates",
+    "eus",
+    "aus",
+    "els",
+]
+
+
 #: supported milestone label names
 LABEL_NAMES = [
     "DevelPhaseExit",
@@ -136,6 +147,8 @@ class ComposeInfo(productmd.common.MetadataBase):
 
     def create_compose_id(self):
         result = "%s-%s" % (self.release.short, self.release.version)
+        if self.release.type and self.release.type.lower() != "ga":
+            result += "-%s" % self.release.type.lower()
         if self.release.is_layered:
             result += "-%s-%s" % (self.base_product.short, self.base_product.version)
 
@@ -357,6 +370,7 @@ class BaseProduct(productmd.common.MetadataBase):
         self.name = None        #: (*str*) -- Product name, for example: "Fedora", "Red Hat Enterprise Linux"
         self.version = None     #: (*str*) -- Product version (typically major version), for example: "20", "7"
         self.short = None       #: (*str*) -- Product short name, for example: "f", "rhel"
+        self.type = None        #: (*str*) -- Product type, for example: "ga", "eus"
 
     def __cmp__(self, other):
         if self.name != other.name:
@@ -384,6 +398,10 @@ class BaseProduct(productmd.common.MetadataBase):
     def _validate_short(self):
         self._assert_type("short", list(six.string_types))
 
+    def _validate_type(self):
+        self._assert_type("type", list(six.string_types))
+        self._assert_value("type", RELEASE_TYPES)
+
     @property
     def major_version(self):
         if self.version is None:
@@ -402,11 +420,13 @@ class BaseProduct(productmd.common.MetadataBase):
         data[self._section]["name"] = self.name
         data[self._section]["version"] = self.version
         data[self._section]["short"] = self.short
+        data[self._section]["type"] = self.type
 
     def deserialize(self, data):
         self.name = data[self._section]["name"]
         self.version = data[self._section]["version"]
         self.short = data[self._section]["short"]
+        self.type = data[self._section].get("type", "ga")
         self.validate()
 
 
@@ -422,12 +442,17 @@ class Release(BaseProduct):
         self.name = None                #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
         self.version = None             #: (*str*) -- Release version (incl. minor version), for example: "20", "7.0"
         self.short = None               #: (*str*) -- Release short name, for example: "f", "rhel"
+        self.type = None                #: (*str*) -- Release type, for example: "ga", "updates"
         self.is_layered = False         #: (*bool=False*) -- Determines if release is a layered product
 
     def __cmp__(self, other):
         if self.is_layered != other.is_layered:
             raise ValueError("Comparing layered with non-layered product: %s vs %s" % (self, other))
         return BaseProduct.__cmp__(self, other)
+
+    def _validate_type(self):
+        self._assert_type("type", list(six.string_types))
+        self._assert_value("type", RELEASE_TYPES)
 
     def _validate_is_layered(self):
         self._assert_type("is_layered", [bool])
@@ -438,6 +463,7 @@ class Release(BaseProduct):
         data[self._section]["name"] = self.name
         data[self._section]["version"] = self.version
         data[self._section]["short"] = self.short
+        data[self._section]["type"] = self.type
         if self.is_layered:
             data[self._section]["is_layered"] = bool(self.is_layered)
 
@@ -452,12 +478,14 @@ class Release(BaseProduct):
         self.name = data["product"]["name"]
         self.version = data["product"]["version"]
         self.short = data["product"]["short"]
+        self.type = data["product"].get("type", "ga").lower()
         self.is_layered = bool(data["product"].get("is_layered", False))
 
     def deserialize_1_0(self, data):
         self.name = data[self._section]["name"]
         self.version = data[self._section]["version"]
         self.short = data[self._section]["short"]
+        self.type = data[self._section].get("type", "ga").lower()
         self.is_layered = bool(data[self._section].get("is_layered", False))
 
 
