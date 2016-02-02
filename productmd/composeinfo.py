@@ -374,8 +374,12 @@ class BaseProduct(productmd.common.MetadataBase):
         self._assert_type("name", list(six.string_types))
 
     def _validate_version(self):
+        """If the version starts with a digit, it must be a sematic-versioning
+        style string.
+        """
         self._assert_type("version", list(six.string_types))
-        self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
+        if re.match('^\d', self.version):
+            self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
 
     def _validate_short(self):
         self._assert_type("short", list(six.string_types))

@@ -108,6 +108,12 @@ Recommended schema is dot separated numbers:
 * **X.Y.Z** -- bugfix version / hotfix version
 
 
+.. note ::
+    It is technically possible to use arbitrary string as a version, but this
+    is highly discouraged as it does not allow sorting. If you need it, just
+    start your version with any non-digit character.
+
+
 .. _Milestones:
 
 ==========
