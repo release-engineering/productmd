@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.composeinfo import ComposeInfo, Variant
+from productmd.composeinfo import ComposeInfo, Variant, Release
 
 
 class TestComposeInfo(unittest.TestCase):
@@ -116,6 +116,14 @@ class TestComposeInfo(unittest.TestCase):
         # GA is not a valid label; GA is the last RC that is marked as final
         ci.compose.label = "GA"
         self.assertRaises(ValueError, ci.dump, self.ci_path)
+
+    def test_release_non_numeric_version(self):
+        r = Release(None)
+        r.name = "Fedora"
+        r.short = "f"
+        r.version = "Rawhide"
+
+        r.validate()
 
 
 if __name__ == "__main__":
