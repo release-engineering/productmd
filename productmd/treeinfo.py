@@ -166,7 +166,8 @@ class BaseProduct(productmd.common.MetadataBase):
 
     def _validate_version(self):
         self._assert_type("version", list(six.string_types))
-        self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
+        if re.match('^\d', self.version):
+            self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
 
     def _validate_short(self):
         self._assert_type("short", list(six.string_types))
