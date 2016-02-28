@@ -72,7 +72,7 @@ class TestImages(unittest.TestCase):
         im.compose.respin = 0
 
         i = Image(im)
-        i.path = "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso"
+        i.path = "Fedora/x86_64/iso/Fedora-Server-dvd-x86_64-20.iso"
         i.mtime = 1410855216
         i.size = 4603248640
         i.arch = "x86_64"
@@ -80,7 +80,8 @@ class TestImages(unittest.TestCase):
         i.format = "iso"
         i.disc_number = 1
         i.disc_count = 1
-        i.volume_id = "Fedora 20 x86_64"
+        i.volume_id = "Fedora-S-dvd-x86_64-20"
+        i.sub_variant = "Server"
 
         # checksums
         i.add_checksum(root=None, checksum_type="sha256", checksum_value="f2eeed5102b8890e9e6f4b9053717fe73031e699c4b76dc7028749ab66e7f917")
@@ -98,15 +99,16 @@ class TestImages(unittest.TestCase):
         im.add("Fedora", "x86_64", i)
 
         i = Image(im)
-        i.path = "Fedora/x86_64/iso/Fedora-20-x86_64-netinst.iso"
+        i.path = "Fedora/x86_64/iso/Fedora-Server-boot-x86_64-20.iso"
         i.mtime = 1410855243
         i.size = 336592896
         i.arch = "x86_64"
-        i.type = "netinst"
+        i.type = "boot"
         i.format = "iso"
         i.disc_number = 1
         i.disc_count = 1
-        i.volume_id = "Fedora 20 x86_64"
+        i.volume_id = "Fedora-S-boot-x86_64-20"
+        i.sub_variant = "Server"
 
         # checksums
         i.add_checksum(root=None, checksum_type="sha256", checksum_value="376be7d4855ad6281cb139430606a782fd6189dcb01d7b61448e915802cc350f")
