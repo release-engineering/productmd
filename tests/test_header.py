@@ -40,17 +40,17 @@ class TestHeader(unittest.TestCase):
         self.assertRaises(TypeError, hdr.validate)
 
         # invalid version
-        hdr.version = "first"
-        self.assertRaises(ValueError, hdr.validate)
-
         hdr.version = "1.alpha2"
         self.assertRaises(ValueError, hdr.validate)
 
-        hdr.version = "1"
-        self.assertRaises(ValueError, hdr.validate)
-
         # valid version
+        hdr.version = "1"
+        hdr.validate()
+
         hdr.version = "1.22"
+        hdr.validate()
+
+        hdr.version = "first"
         hdr.validate()
 
     def test_deserialize(self):
