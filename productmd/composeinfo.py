@@ -56,17 +56,6 @@ COMPOSE_TYPES = [
 ]
 
 
-#: supported release types
-RELEASE_TYPES = [
-    "fast",
-    "ga",
-    "updates",
-    "eus",
-    "aus",
-    "els",
-]
-
-
 #: supported milestone label names
 LABEL_NAMES = [
     "DevelPhaseExit",
@@ -400,7 +389,7 @@ class BaseProduct(productmd.common.MetadataBase):
 
     def _validate_type(self):
         self._assert_type("type", list(six.string_types))
-        self._assert_value("type", RELEASE_TYPES)
+        self._assert_value("type", productmd.common.RELEASE_TYPES)
 
     @property
     def major_version(self):
@@ -452,7 +441,7 @@ class Release(BaseProduct):
 
     def _validate_type(self):
         self._assert_type("type", list(six.string_types))
-        self._assert_value("type", RELEASE_TYPES)
+        self._assert_value("type", productmd.common.RELEASE_TYPES)
 
     def _validate_is_layered(self):
         self._assert_type("is_layered", [bool])
