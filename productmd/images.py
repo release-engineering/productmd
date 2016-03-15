@@ -119,6 +119,7 @@ class Image(productmd.common.MetadataBase):
         self.checksums = {}             #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
         self.implant_md5 = None         #: (*str* or *None*) -- value of implanted md5
         self.bootable = False           #: (*bool=False*) --
+        self.payload = None             #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
 
     def __repr__(self):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
@@ -169,6 +170,10 @@ class Image(productmd.common.MetadataBase):
     def _validate_bootable(self):
         self._assert_type("bootable", [bool])
 
+    def _validate_payload(self):
+        self._assert_type("payload", list(six.string_types))
+        self._assert_not_blank("payload")
+
     def serialize(self, parser):
         data = parser
         self.validate()
@@ -185,6 +190,7 @@ class Image(productmd.common.MetadataBase):
             "checksums": self.checksums,
             "implant_md5": self.implant_md5,
             "bootable": self.bootable,
+            "payload": self.payload,
         }
         data.append(result)
 
@@ -201,6 +207,7 @@ class Image(productmd.common.MetadataBase):
         self.checksums = data["checksums"]
         self.implant_md5 = data["implant_md5"]
         self.bootable = bool(data["bootable"])
+        self.payload = data["payload"]
         self.validate()
 
     def add_checksum(self, root, checksum_type, checksum_value):
