@@ -133,6 +133,27 @@ class TestImages(unittest.TestCase):
         # 2 images
         self.assertEqual(len(im["Fedora"]["x86_64"]), 2)
 
+    def test_image_repr(self):
+        i = Image(None)
+        i.path = "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso"
+        i.mtime = 1410855216
+        i.size = 4603248640
+        i.arch = "x86_64"
+        i.type = "dvd"
+        i.format = "iso"
+        i.disc_number = 1
+        i.disc_count = 1
+        i.volume_id = "Fedora 20 x86_64"
+
+        self.assertEqual(
+            repr(i),
+            '<Image:Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso:iso:x86_64>')
+
+    def test_image_repr_incomplete(self):
+        i = Image(None)
+
+        self.assertEqual(repr(i), '<Image:None:None:None>')
+
 
 if __name__ == "__main__":
     unittest.main()

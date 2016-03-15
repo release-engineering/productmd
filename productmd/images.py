@@ -120,6 +120,9 @@ class Image(productmd.common.MetadataBase):
         self.implant_md5 = None         #: (*str* or *None*) -- value of implanted md5
         self.bootable = False           #: (*bool=False*) --
 
+    def __repr__(self):
+        return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
+
     def _validate_path(self):
         self._assert_type("path", list(six.string_types))
         self._assert_not_blank("path")
