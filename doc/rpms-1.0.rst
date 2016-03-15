@@ -32,7 +32,7 @@ in order to read and diff rpms.json files easily.
                             rpm_nevra<str>: {           # %name-%epoch:%version-%release-%arch of RPM file
                                 "path": <str>,          # relative path to RPM file
                                 "sigkey": <str|null>,   # sigkey ID: hex string 8 characters long, lower case; null for unsigned RPMs
-                                "type": <str>           # binary, debug, source
+                                "category": <str>       # binary, debug, source
                             }
                         }
                     }
@@ -65,12 +65,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.armv7hl": {
                                 "path": "Server/armhfp/os/Packages/b/bash-4.3.30-2.fc21.armv7hl.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Server/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     },
@@ -79,12 +79,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.i686": {
                                 "path": "Server/i386/os/Packages/b/bash-4.3.30-2.fc21.i686.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Server/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     },
@@ -93,12 +93,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.x86_64": {
                                 "path": "Server/x86_64/os/Packages/b/bash-4.3.30-2.fc21.x86_64.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Server/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     }
@@ -109,12 +109,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.armv7hl": {
                                 "path": "Workstation/armhfp/os/Packages/b/bash-4.3.30-2.fc21.armv7hl.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Workstation/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     },
@@ -123,12 +123,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.i686": {
                                 "path": "Workstation/i386/os/Packages/b/bash-4.3.30-2.fc21.i686.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Workstation/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     },
@@ -137,12 +137,12 @@ Bash in Fedora 21::
                             "bash-0:4.3.30-2.fc21.x86_64": {
                                 "path": "Workstation/x86_64/os/Packages/b/bash-4.3.30-2.fc21.x86_64.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             },
                             "bash-0:4.3.30-2.fc21.src": {
                                 "path": "Workstation/source/SRPMS/b/bash-4.3.30-2.fc21.src.rpm",
                                 "sigkey": "95a43f54",
-                                "type": "binary"
+                                "category": "binary"
                             }
                         }
                     }
