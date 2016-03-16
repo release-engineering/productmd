@@ -32,6 +32,20 @@ __all__ = (
     "MetadataBase",
     "Header",
     "VERSION",
+
+    "RELEASE_SHORT_RE",
+    "RELEASE_VERSION_RE",
+    "RELEASE_TYPES",
+
+    "parse_nvra",
+    "is_valid_release_short",
+    "is_valid_release_version",
+    "is_valid_release_type",
+    "split_version",
+    "get_major_version",
+    "get_minor_version",
+    "create_release_id",
+    "parse_release_id",
 )
 
 
@@ -58,16 +72,78 @@ RPM_ARCHES = [
 ]
 
 
+#: Pattern to parse RPM N-E:V-R.A
 RPM_NVRA_RE = re.compile(r"^(.*/)?(?P<name>.*)-((?P<epoch>\d+):)?(?P<version>.*)-(?P<release>.*)\.(?P<arch>.*)$")
 
 
 def parse_nvra(nvra):
+    """
+    Parse RPM N-E:V-R.A string to a dict.
+
+    :param nvra: N-E:V-R.A string, eventually a file name or a file path incl. '.rpm' suffix
+    :type nvra: str
+    :rtype: dict
+    """
     if nvra.endswith(".rpm"):
         nvra = nvra[:-4]
     result = RPM_NVRA_RE.match(nvra).groupdict()
     result["epoch"] = result["epoch"] or 0
     result["epoch"] = int(result["epoch"])
     return result
+
+
+#: Validation regex for release short name: [a-z] followed by [a-z0-9] separated with dashes.
+RELEASE_SHORT_RE = re.compile("^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+
+
+#: Validation regex for release version: any string or [0-9] separated with dots.
+RELEASE_VERSION_RE = re.compile("^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
+
+
+#: Supported release types.
+RELEASE_TYPES = [
+    "fast",
+    "ga",
+    "updates",
+    "eus",
+    "aus",
+    "els",
+]
+
+
+def is_valid_release_short(short):
+    """
+    Determine if given release short name is valid.
+
+    :param short: Release short name
+    :type short: str
+    :rtype: bool
+    """
+    match = RELEASE_SHORT_RE.match(short)
+    return match is not None
+
+
+def is_valid_release_version(version):
+    """
+    Determine if given release version is valid.
+
+    :param version: Release version
+    :type version: str
+    :rtype: bool
+    """
+    match = RELEASE_VERSION_RE.match(version)
+    return match is not None
+
+
+def is_valid_release_type(release_type):
+    """
+    Determine if given release type is valid.
+
+    :param release_type: Release type
+    :type release_type: str
+    :rtype: bool
+    """
+    return release_type in RELEASE_TYPES
 
 
 class MetadataBase(object):
@@ -219,14 +295,30 @@ class Header(MetadataBase):
         self.validate()
 
 
-def split_version(version_str):
-    result = version_str.split(".")
-    for i in range(len(result)):
-        result[i] = int(result[i])
-    return result
+def split_version(version):
+    """
+    Split version to a list of integers
+    that can be easily compared.
+
+    :param version: Release version
+    :type version: str
+    :rtype: [int] or [string]
+    """
+    if re.match("^[^0-9].*", version):
+        return [version]
+    return [int(i) for i in version.split(".")]
 
 
 def get_major_version(version, remove=1):
+    """
+    Return major version of a provided version string.
+
+    :param version: Version string
+    :type version: str
+    :param remove: Number of version parts to remove; defaults to 1
+    :type remove: int
+    :rtype: str
+    """
     version_split = version.split(".")
     if len(version_split) <= remove:
         return version
@@ -234,10 +326,93 @@ def get_major_version(version, remove=1):
 
 
 def get_minor_version(version, remove=1):
+    """
+    Return minor version of a provided version string.
+
+    :param version: Version string
+    :type version: str
+    :param remove: Number of version parts to remove; defaults to 1
+    :type remove: int
+    :rtype: str
+    """
     version_split = version.split(".")
     if len(version_split) <= remove:
         return None
     return ".".join(version_split[-remove:])
+
+
+def create_release_id(short, version, type, bp_short=None, bp_version=None, bp_type=None):
+    """
+    Create release_id from given parts.
+
+    :param short: Release short name
+    :type short: str
+    :param version: Release version
+    :type version: str
+    :param version: Release type
+    :type version: str
+    :param bp_short: Base Product short name
+    :type bp_short: str
+    :param bp_version: Base Product version
+    :type bp_version: str
+    :param bp_version: Base Product type
+    :rtype: str
+    """
+    if not is_valid_release_short(short):
+        raise ValueError("Release short name is not valid: %s" % short)
+    if not is_valid_release_version(version):
+        raise ValueError("Release short version is not valid: %s" % version)
+    if not is_valid_release_type(type):
+        raise ValueError("Release type is not valid: %s" % type)
+
+    if type == "ga":
+        result = "%s-%s" % (short, version)
+    else:
+        result = "%s-%s-%s" % (short, version, type)
+
+    if bp_short:
+        result += "@%s" % create_release_id(bp_short, bp_version, bp_type)
+
+    return result
+
+
+def parse_release_id(release_id):
+    """
+    Parse release_id to parts:
+    {short, version, type}
+    or
+    {short, version, type, bp_short, bp_version, bp_type}
+
+    :param release_id: Release ID string
+    :type release_id: str
+    :rtype: dict
+    """
+    if "@" in release_id:
+        release, base_product = release_id.split("@")
+    else:
+        release = release_id
+        base_product = None
+
+    result = _parse_release_id_part(release)
+    if base_product is not None:
+        result.update(_parse_release_id_part(base_product, prefix="bp_"))
+    return result
+
+
+def _parse_release_id_part(release_id, prefix=""):
+    if release_id.count("-") == 1:
+        # TODO: what if short contains '-'?
+        short, version = release_id.split("-")
+        release_type = "ga"
+    else:
+        short, version, release_type = release_id.rsplit("-", 2)
+    result = {
+        "short": short,
+        "version": version,
+        "type": release_type,
+    }
+    result = dict([("%s%s" % (prefix, key), value) for key, value in result.items()])
+    return result
 
 
 class SortedDict(dict):

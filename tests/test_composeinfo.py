@@ -73,6 +73,7 @@ class TestComposeInfo(unittest.TestCase):
         ci.release.name = "Fedora"
         ci.release.short = "F"
         ci.release.version = "22"
+        ci.release.type = "ga"
 
         ci.compose.id = "F-22-20150522.0"
         ci.compose.type = "production"
@@ -122,6 +123,7 @@ class TestComposeInfo(unittest.TestCase):
         r.name = "Fedora"
         r.short = "f"
         r.version = "Rawhide"
+        r.type = "ga"
 
         r.validate()
 
