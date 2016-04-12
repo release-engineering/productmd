@@ -119,7 +119,7 @@ class Image(productmd.common.MetadataBase):
         self.checksums = {}             #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
         self.implant_md5 = None         #: (*str* or *None*) -- value of implanted md5
         self.bootable = False           #: (*bool=False*) --
-        self.subvariant = None             #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
+        self.subvariant = None          #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
 
     def __repr__(self):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
@@ -172,7 +172,6 @@ class Image(productmd.common.MetadataBase):
 
     def _validate_subvariant(self):
         self._assert_type("subvariant", list(six.string_types))
-        self._assert_not_blank("subvariant")
 
     def serialize(self, parser):
         data = parser
@@ -207,7 +206,11 @@ class Image(productmd.common.MetadataBase):
         self.checksums = data["checksums"]
         self.implant_md5 = data["implant_md5"]
         self.bootable = bool(data["bootable"])
-        self.subvariant = data["subvariant"]
+        if self.parent.header.version_tuple <= (1, 0):
+            self.subvariant = data.get("subvariant", "")
+        else:
+            # 1.1+
+            self.subvariant = data["subvariant"]
         self.validate()
 
     def add_checksum(self, root, checksum_type, checksum_value):
