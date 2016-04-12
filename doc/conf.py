@@ -231,15 +231,15 @@ man_pages = [
      [u'Daniel Mach <dmach@redhat.com>'], 1),
 
     # file formats
-    ('composeinfo-1.0', 'composeinfo', u'productmd Documentation',
+    ('composeinfo-1.1', 'composeinfo', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 5),
     ('discinfo-1.0', 'discinfo', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 5),
-    ('images-1.0', 'images', u'productmd Documentation',
+    ('images-1.1', 'images', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 5),
     ('rpms-1.0', 'rpms', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 5),
-    ('treeinfo-1.0', 'treeinfo', u'productmd Documentation',
+    ('treeinfo-1.1', 'treeinfo', u'productmd Documentation',
      [u'Daniel Mach <dmach@redhat.com>'], 5),
 ]
 

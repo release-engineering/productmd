@@ -31,10 +31,19 @@ File formats:
 .. toctree::
     :maxdepth: 2
     
-    composeinfo-1.0
+    composeinfo-1.1
     discinfo-1.0
-    images-1.0
+    images-1.1
     rpms-1.0
+    treeinfo-1.1
+
+Old file formats:
+
+.. toctree::
+    :maxdepth: 2
+    
+    composeinfo-1.0
+    images-1.0
     treeinfo-1.0
 
 
