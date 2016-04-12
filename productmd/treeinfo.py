@@ -64,7 +64,7 @@ def compute_checksum(path, checksum_type):
 class TreeInfo(productmd.common.MetadataBase):
     def __init__(self):
         super(productmd.common.MetadataBase, self)
-        self.header = Header(self)              #: (:class:`productmd.common.Header`) -- Metadata header
+        self.header = Header(self, "productmd.treeinfo")        #: (:class:`productmd.common.Header`) -- Metadata header
         self.release = Release(self)            #: (:class:`.Release`) -- Release details
         self.base_product = BaseProduct(self)   #: (:class:`.BaseProduct`) -- Base product details (optional)
         self.tree = Tree(self)                  #: (:class:`.Tree`) -- Tree details
@@ -141,10 +141,15 @@ class Header(productmd.common.Header):
         parser.add_section(self._section)
         # write *current* version, because format gets converted on save
         parser.set(self._section, "version", ".".join([str(i) for i in productmd.common.VERSION]))
+        parser.set(self._section, "type", self.metadata_type)
 
     def deserialize(self, parser):
         if parser.has_option(self._section, "version"):
             self.version = parser.get(self._section, "version")
+            if self.version_tuple >= (1, 1):
+                metadata_type = parser.get(self._section, "type")
+                if metadata_type != self.metadata_type:
+                    raise ValueError("Invalid metadata type '%s', expected '%s'" % (metadata_type, self.metadata_type))
         self.validate()
 
 

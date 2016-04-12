@@ -1,0 +1,55 @@
+{
+    "header": {
+        "version": "1.0"
+    }, 
+    "payload": {
+        "compose": {
+            "date": "20131212", 
+            "id": "Fedora-20-20131212.0", 
+            "respin": 0, 
+            "type": "production"
+        }, 
+        "images": {
+            "Fedora": {
+                "x86_64": [
+                    {
+                        "arch": "x86_64", 
+                        "bootable": true, 
+                        "checksums": {
+                            "md5": "9a190c8b2bd382c2d046dbc855cd2f2b", 
+                            "sha1": "36dd25d7a6df45cdf19b85ad1bf2a2ccbf34f991", 
+                            "sha256": "f2eeed5102b8890e9e6f4b9053717fe73031e699c4b76dc7028749ab66e7f917"
+                        }, 
+                        "disc_count": 1, 
+                        "disc_number": 1, 
+                        "format": "iso", 
+                        "implant_md5": "b39b2f6770ca015f300af01cb54db75c", 
+                        "mtime": 1410855216, 
+                        "path": "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso", 
+                        "size": 4603248640, 
+                        "type": "dvd", 
+                        "volume_id": "Fedora 20 x86_64"
+                    }, 
+                    {
+                        "arch": "x86_64", 
+                        "bootable": true, 
+                        "checksums": {
+                            "md5": "82716caf39ce9fd88e7cfc66ca219db8", 
+                            "sha1": "cb8b3e285fc1336cbbd7ba4b0381095dd0e159b0", 
+                            "sha256": "376be7d4855ad6281cb139430606a782fd6189dcb01d7b61448e915802cc350f"
+                        }, 
+                        "disc_count": 1, 
+                        "disc_number": 1, 
+                        "format": "iso", 
+                        "implant_md5": "62cc05b03d28881c88ff1e949d6fc0b7", 
+                        "mtime": 1410855243, 
+                        "path": "Fedora/x86_64/iso/Fedora-20-x86_64-netinst.iso", 
+                        "size": 336592896, 
+                        "type": "netinst", 
+                        "volume_id": "Fedora 20 x86_64"
+                    }
+                ]
+            }
+        }
+    }
+}

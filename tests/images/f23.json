@@ -1,0 +1,75 @@
+{
+    "header": {
+        "type": "productmd.images", 
+        "version": "1.1"
+    }, 
+    "payload": {
+        "compose": {
+            "date": "20151030", 
+            "id": "Fedora-23-20151030.0", 
+            "respin": 0, 
+            "type": "production"
+        }, 
+        "images": {
+            "Live": {
+                "x86_64": [
+                    {
+                        "arch": "x86_64", 
+                        "bootable": true, 
+                        "checksums": {
+                            "sha256": "ef7e5ed9eee6dbcde1e0a4d69c76ce6fb552f75ccad879fa0f93031ceb950f27"
+                        }, 
+                        "disc_count": 1, 
+                        "disc_number": 1, 
+                        "format": "iso", 
+                        "implant_md5": "8bc179ecdd48e0b019365104f081a83e", 
+                        "mtime": 1446154932, 
+                        "path": "Live/x86_64/iso/Fedora-Live-KDE-x86_64-23-10.iso", 
+                        "size": 1291845632, 
+                        "subvariant": "KDE", 
+                        "type": "live", 
+                        "volume_id": "Fedora-Live-KDE-x86_64-23-10"
+                    }
+                ]
+            }, 
+            "Server": {
+                "x86_64": [
+                    {
+                        "arch": "x86_64", 
+                        "bootable": true, 
+                        "checksums": {
+                            "sha256": "30758dc821d1530de427c9e35212bd79b058bd4282e64b7b34ae1a40c87c05ae"
+                        }, 
+                        "disc_count": 1, 
+                        "disc_number": 1, 
+                        "format": "iso", 
+                        "implant_md5": "1cd120922a791d03e829392a2b6b2107", 
+                        "mtime": 1446169817, 
+                        "path": "Server/x86_64/iso/Fedora-Server-DVD-x86_64-23.iso", 
+                        "size": 2149580800, 
+                        "subvariant": "", 
+                        "type": "dvd", 
+                        "volume_id": "Fedora-S-23-x86_64"
+                    }, 
+                    {
+                        "arch": "x86_64", 
+                        "bootable": true, 
+                        "checksums": {
+                            "sha256": "32e0a15a1c71d0e2fd36a0af5b67a3b3af82976d2dfca0aefcb90d42f2ae6844"
+                        }, 
+                        "disc_count": 1, 
+                        "disc_number": 1, 
+                        "format": "iso", 
+                        "implant_md5": "6ccc75afc55855ece24ee84e62e6dcc0", 
+                        "mtime": 1458057407, 
+                        "path": "Server/x86_64/iso/Fedora-Server-netinst-x86_64-23.iso", 
+                        "size": 8011776, 
+                        "subvariant": "", 
+                        "type": "netinst", 
+                        "volume_id": "Fedora-S-23-x86_64"
+                    }
+                ]
+            }
+        }
+    }
+}

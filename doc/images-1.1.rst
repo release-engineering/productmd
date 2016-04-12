@@ -1,8 +1,15 @@
 ======================
-Images file format 1.0
+Images file format 1.1
 ======================
 
 images.json files provide details about images included in composes.
+
+
+Changes from 1.0
+================
+
+* Added 'type' field to 'header', "productmd.images" required
+* Added 'subvariant' field to image
 
 
 File Format
@@ -16,7 +23,8 @@ in order to read and diff images.json files easily.
 
     {
         "header": {
-            "version": "1.0"                            # metadata version; format: $major<int>.$minor<int>
+            "type": "productmd.images",                 # metadata type; "productmd.images" required; [new in 1.1]
+            "version": "1.1"                            # metadata version; format: $major<int>.$minor<int>
         },
         "payload": {
             "compose": {                                # see composeinfo for details
@@ -40,6 +48,7 @@ in order to read and diff images.json files easily.
                             "implant_md5": <str|null>,  # md5 checksum implanted directly on media (see implantisomd5 and checkisomd5 commands)
                             "mtime": <int>,             # mtime of the image stored as a decimal unix timestamp
                             "path": <str>,              # relative path to the image
+                            "subvariant": <str>,        # image content (e.g. 'Workstation' or 'KDE'); [new in 1.1]
                             "size": <int>,              # file size of the image
                             "type": <str>,              # see productmd.images.SUPPORTED_IMAGE_TYPES
                             "volume_id": <str|null>     # volume ID; null if not available/applicable

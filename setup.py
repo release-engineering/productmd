@@ -24,7 +24,7 @@ packages = sorted(packages)
 
 setup(
     name            = "productmd",
-    version         = "1.0",
+    version         = "1.1",
     description     = "Product, compose and installation media metadata library",
     url             = "https://github.com/release-engineering/productmd",
     author          = "Daniel Mach",

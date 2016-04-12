@@ -92,7 +92,7 @@ class ComposeInfo(productmd.common.MetadataBase):
     def __init__(self):
         super(ComposeInfo, self).__init__()
 
-        self.header = Header(self)              #: (:class:`.Header`) -- Metadata header
+        self.header = Header(self, "productmd.composeinfo")     #: (:class:`.Header`) -- Metadata header
         self.compose = Compose(self)            #: (:class:`.Compose`) -- Compose details
         self.release = Release(self)            #: (:class:`.Release`) -- Release details
         self.base_product = BaseProduct(self)   #: (:class:`.BaseProduct`) -- Base product details (optional)
