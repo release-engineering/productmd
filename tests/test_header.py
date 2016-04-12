@@ -70,7 +70,7 @@ class TestHeader(unittest.TestCase):
         hdr.serialize(serialized_data)
         expected_data = {
             "header": {
-                "version": "1.0",
+                "version": "1.1",
             }
         }
         self.assertEqual(serialized_data, expected_data)

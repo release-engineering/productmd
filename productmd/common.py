@@ -25,7 +25,7 @@ used in other productmd modules.
 """
 
 
-VERSION = (1, 0)
+VERSION = (1, 1)
 
 
 __all__ = (
