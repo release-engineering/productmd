@@ -1,5 +1,6 @@
 {
     "header": {
+        "type": "productmd.images", 
         "version": "1.1"
     }, 
     "payload": {

@@ -8,6 +8,7 @@ Treeinfo files provide details about installable trees in Fedora composes and me
 Changes from 1.0
 ================
 
+* Added 'type' field to 'header', "productmd.treeinfo" required
 * Added 'type' field to 'release'
 * Added 'type' field to 'base_product'
 
@@ -22,6 +23,7 @@ in order to diff .treeinfo files easily.
 ::
 
   [header]
+  type = <str>                          ; metadata type; "productmd.treeinfo" required; [new in 1.1]
   version = 1.1                         ; metadata version; format: $major<int>.$minor<int>
 
   [release]

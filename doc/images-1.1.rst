@@ -8,6 +8,7 @@ images.json files provide details about images included in composes.
 Changes from 1.0
 ================
 
+* Added 'type' field to 'header', "productmd.images" required
 * Added 'subvariant' field to image
 
 
@@ -22,6 +23,7 @@ in order to read and diff images.json files easily.
 
     {
         "header": {
+            "type": "productmd.images",                 # metadata type; "productmd.images" required; [new in 1.1]
             "version": "1.1"                            # metadata version; format: $major<int>.$minor<int>
         },
         "payload": {

@@ -51,7 +51,7 @@ SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
 class Images(productmd.common.MetadataBase):
     def __init__(self):
         super(Images, self).__init__()
-        self.header = Header(self)
+        self.header = Header(self, "productmd.images")
         self.compose = Compose(self)
         self.images = {}
 

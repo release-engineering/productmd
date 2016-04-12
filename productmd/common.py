@@ -264,10 +264,11 @@ class MetadataBase(object):
 
 class Header(MetadataBase):
 
-    def __init__(self, parent):
+    def __init__(self, parent, metadata_type):
         self._section = "header"
         self.parent = parent
         self.version = "0.0"
+        self.metadata_type = metadata_type
 
     def _validate_version(self):
         self._assert_type("version", six.string_types)
@@ -287,11 +288,16 @@ class Header(MetadataBase):
         self.validate()
         data = parser
         data[self._section] = {}
+        data[self._section]["type"] = self.metadata_type
         data[self._section]["version"] = self.version
 
     def deserialize(self, parser):
         data = parser
         self.version = data[self._section]["version"]
+        if self.version_tuple >= (1, 1):
+            metadata_type = data[self._section]["type"]
+            if metadata_type != self.metadata_type:
+                raise ValueError("Invalid metadata type '%s', expected '%s'" % (metadata_type, self.metadata_type))
         self.validate()
 
 

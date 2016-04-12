@@ -9,6 +9,7 @@ product information, variants, architectures and paths.
 Changes from 1.0
 ================
 
+* Added 'type' field to 'header', "productmd.composeinfo" required
 * Added 'type' field to 'release'
 * Added 'type' field to 'base_product'
 
@@ -24,6 +25,7 @@ in order to read and diff composeinfo.json files easily.
 
     {
         "header": {
+            "type": "productmd.composeinfo",            # metadata type; "productmd.composeinfo" required; [new in 1.1]
             "version": "1.1"                            # metadata version; format: $major<int>.$minor<int>
         },
         "payload": {

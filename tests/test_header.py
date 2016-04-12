@@ -33,7 +33,7 @@ from productmd.common import Header
 class TestHeader(unittest.TestCase):
 
     def test_version(self):
-        hdr = Header(None)
+        hdr = Header(None, "productmd.header")
 
         # empty version
         hdr.version = None
@@ -54,9 +54,10 @@ class TestHeader(unittest.TestCase):
         hdr.validate()
 
     def test_deserialize(self):
-        hdr = Header(None)
+        hdr = Header(None, "productmd.header")
         data = {
             "header": {
+                "type": "productmd.header",
                 "version": "1.0",
             }
         }
@@ -64,12 +65,13 @@ class TestHeader(unittest.TestCase):
         self.assertEqual(hdr.version, "1.0")
 
     def test_serialize(self):
-        hdr = Header(None)
+        hdr = Header(None, "productmd.header")
         hdr.version = "1.0"
         serialized_data = {}
         hdr.serialize(serialized_data)
         expected_data = {
             "header": {
+                "type": "productmd.header",
                 "version": "1.1",
             }
         }

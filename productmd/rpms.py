@@ -40,7 +40,7 @@ SUPPORTED_CATEGORIES = ["binary", "debug", "source"]
 class Rpms(productmd.common.MetadataBase):
     def __init__(self):
         super(Rpms, self).__init__()
-        self.header = Header(self)
+        self.header = Header(self, "productmd.rpms")
         self.compose = Compose(self)
         self.rpms = {}
 
