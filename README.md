@@ -1,6 +1,8 @@
 ProductMD
 =========
 
+[![Build Status](https://travis-ci.org/release-engineering/productmd.svg?branch=master)](https://travis-ci.org/release-engineering/productmd)
+
 ProductMD is a Python library providing parsers for metadata related to composes and installation media.
 
 
