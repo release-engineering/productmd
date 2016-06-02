@@ -8,3 +8,4 @@ recursive-include productmd *.py
 recursive-include tests *.py
 recursive-include tests/treeinfo *
 recursive-include tests/discinfo *
+recursive-include tests/images *
