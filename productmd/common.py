@@ -36,7 +36,7 @@ except ImportError:
 import six
 
 
-VERSION = (1, 1)
+VERSION = (1, 2)
 
 
 __all__ = (

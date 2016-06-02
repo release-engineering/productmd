@@ -72,7 +72,7 @@ class TestHeader(unittest.TestCase):
         expected_data = {
             "header": {
                 "type": "productmd.header",
-                "version": "1.1",
+                "version": "1.2",
             }
         }
         self.assertEqual(serialized_data, expected_data)
