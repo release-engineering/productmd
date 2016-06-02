@@ -23,15 +23,13 @@ import unittest
 
 import os
 import sys
-import tempfile
-import shutil
 
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.common import is_valid_release_short, is_valid_release_version
-from productmd.common import split_version
-from productmd.common import create_release_id
+from productmd.common import is_valid_release_short, is_valid_release_version  # noqa
+from productmd.common import split_version  # noqa
+from productmd.common import create_release_id  # noqa
 
 
 class TestRelease(unittest.TestCase):

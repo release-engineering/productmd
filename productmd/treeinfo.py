@@ -24,13 +24,6 @@ Treeinfo files provide details about installable trees in Fedora composes and me
 """
 
 
-__all__ = (
-    "TreeInfo",
-    "Variant",
-    "VARIANT_TYPES",
-)
-
-
 import os
 import hashlib
 import re
@@ -39,6 +32,13 @@ import six
 
 import productmd.common
 import productmd.composeinfo
+
+
+__all__ = (
+    "TreeInfo",
+    "Variant",
+    "VARIANT_TYPES",
+)
 
 
 #: supported variant types

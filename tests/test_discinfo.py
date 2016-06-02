@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.discinfo import DiscInfo
+from productmd.discinfo import DiscInfo  # noqa
 
 
 class TestDiscInfo(unittest.TestCase):

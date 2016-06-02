@@ -25,6 +25,17 @@ used in other productmd modules.
 """
 
 
+import sys
+import re
+import json
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser as ConfigParser
+
+import six
+
+
 VERSION = (1, 1)
 
 
@@ -47,17 +58,6 @@ __all__ = (
     "create_release_id",
     "parse_release_id",
 )
-
-
-import sys
-import re
-import json
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser as ConfigParser
-
-import six
 
 
 # HACK: dumped from rpmUtils.arch which is not available on python3

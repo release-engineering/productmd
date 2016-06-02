@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.images import Images, Image
+from productmd.images import Images, Image  # noqa
 
 
 class TestImages(unittest.TestCase):

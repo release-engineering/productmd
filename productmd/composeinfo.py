@@ -25,20 +25,20 @@ product information, variants, architectures and paths.
 """
 
 
-__all__ = (
-    "ComposeInfo",
-    "COMPOSE_TYPES",
-    "LABEL_NAMES",
-    "VARIANT_TYPES",
-)
-
-
 import re
 
 import productmd.common
 from productmd.common import Header
 
 import six
+
+
+__all__ = (
+    "ComposeInfo",
+    "COMPOSE_TYPES",
+    "LABEL_NAMES",
+    "VARIANT_TYPES",
+)
 
 
 if six.PY3:

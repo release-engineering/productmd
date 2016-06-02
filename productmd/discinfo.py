@@ -25,14 +25,14 @@ provide media information to Anaconda installer.
 """
 
 
-__all__ = (
-    "DiscInfo",
-)
-
-
 import time
 
 import productmd.common
+
+
+__all__ = (
+    "DiscInfo",
+)
 
 
 class DiscInfo(productmd.common.MetadataBase):

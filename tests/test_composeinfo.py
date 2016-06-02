@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.composeinfo import ComposeInfo, Variant, Release
+from productmd.composeinfo import ComposeInfo, Variant, Release  # noqa
 
 
 class TestComposeInfo(unittest.TestCase):

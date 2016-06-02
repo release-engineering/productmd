@@ -24,6 +24,13 @@ images.json files provide details about images included in composes.
 """
 
 
+import productmd.common
+from productmd.common import Header
+from productmd.composeinfo import Compose
+
+import six
+
+
 __all__ = (
     "Image",
     "Images",
@@ -31,12 +38,6 @@ __all__ = (
     "SUPPORTED_IMAGE_FORMATS",
 )
 
-
-import productmd.common
-from productmd.common import Header
-from productmd.composeinfo import Compose
-
-import six
 
 #: supported image types
 SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd', 'ec2', 'kvm', 'live',

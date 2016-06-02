@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.rpms import Rpms
+from productmd.rpms import Rpms  # noqa
 
 
 class TestRpms(unittest.TestCase):

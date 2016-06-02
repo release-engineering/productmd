@@ -24,14 +24,14 @@ rpms.json files provide details about RPMs included in composes.
 """
 
 
-__all__ = (
-    "Rpms",
-)
-
-
 import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
+
+
+__all__ = (
+    "Rpms",
+)
 
 
 SUPPORTED_CATEGORIES = ["binary", "debug", "source"]

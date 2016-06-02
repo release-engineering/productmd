@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.treeinfo import TreeInfo, Variant
+from productmd.treeinfo import TreeInfo, Variant  # noqa
 
 
 class TestTreeInfo(unittest.TestCase):

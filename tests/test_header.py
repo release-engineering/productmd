@@ -27,7 +27,7 @@ import sys
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.common import Header
+from productmd.common import Header  # noqa
 
 
 class TestHeader(unittest.TestCase):
