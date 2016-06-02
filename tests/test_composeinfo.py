@@ -127,6 +127,42 @@ class TestComposeInfo(unittest.TestCase):
 
         r.validate()
 
+    def test_create_variants_with_dash(self):
+        ci = ComposeInfo()
+        ci.release.name = "Fedora"
+        ci.release.short = "F"
+        ci.release.version = "22"
+        ci.release.type = "ga"
+
+        ci.compose.id = "F-22-20150522.0"
+        ci.compose.type = "production"
+        ci.compose.date = "20150522"
+        ci.compose.respin = 0
+
+        # 2 Tools variants: one for Server, one for Workstation
+        # but parent variants are not part of the compose
+        variant = Variant(ci)
+        variant.id = "ServerTools"
+        variant.uid = "Server-Tools"
+        variant.name = "Tools"
+        variant.type = "variant"
+        variant.arches = ["x86_64"]
+        ci.variants.add(variant)
+        ci.variants["Server-Tools"]
+
+        variant = Variant(ci)
+        variant.id = "WorkstationTools"
+        variant.uid = "Workstation-Tools"
+        variant.name = "Tools"
+        variant.type = "variant"
+        variant.arches = ["x86_64"]
+        ci.variants.add(variant)
+        ci.variants["Workstation-Tools"]
+
+        ci.dump(self.ci_path)
+        self._test_identity(ci)
+        return ci
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -489,6 +489,12 @@ class VariantBase(productmd.common.MetadataBase):
         # There can be exceptions, like $variant-optional on top-level,
         # because optional lives in a separate tree
         if name not in self.variants and "-" in name:
+            # look for the UID first
+            for i in self.variants:
+                var = self.variants[i]
+                if var.uid == name:
+                    return var
+            # if UID is not found, split and look for variant matching the parts
             head, tail = name.split("-", 1)
             return self.variants[head][tail]
         return self.variants[name]
@@ -589,12 +595,21 @@ class Variants(VariantBase):
 
     def deserialize(self, data):
         # variant UIDs should be identical to IDs at the top level
-        variant_ids = sorted(data[self._section].keys())
+        all_variants = data[self._section].keys()
 
+        variant_ids = []
+        for variant_uid, var in data[self._section].items():
+            if "-" in variant_uid:
+                head, tail = variant_uid.rsplit("-", 1)
+                if head in all_variants:
+                    # has parent
+                    continue
+                variant_ids.append(variant_uid)
+            else:
+                variant_ids.append(variant_uid)
+
+        variant_ids.sort()
         for variant_id in variant_ids:
-            if "-" in variant_id:
-                # skip child variants
-                continue
             variant = Variant(self._metadata)
             variant.deserialize(data[self._section], variant_id)
             self.add(variant)
@@ -721,10 +736,12 @@ class Variant(VariantBase):
     def _validate_uid(self):
         if self.parent is None:
             uid = self.id
+            self_uid = self.uid.replace("-", "")
         else:
             uid = "%s-%s" % (self.parent.uid, self.id)
+            self_uid = self.uid
 
-        if self.uid != uid:
+        if self_uid != uid:
             raise ValueError("UID '%s' doesn't align with parent UID '%s'" % (self.uid, uid))
 
     def _validate_name(self):
