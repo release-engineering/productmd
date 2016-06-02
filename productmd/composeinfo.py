@@ -731,7 +731,7 @@ class Variant(VariantBase):
 
     def _validate_id(self):
         self._assert_type("id", list(six.string_types))
-        self._assert_matches_re("id", [r"^[a-zA-Z]+$"])
+        self._assert_matches_re("id", [r"^[a-zA-Z0-9]+$"])
 
     def _validate_uid(self):
         if self.parent is None:
