@@ -84,8 +84,21 @@ class Images(productmd.common.MetadataBase):
                 for image in data["payload"]["images"][variant][arch]:
                     image_obj = Image(self)
                     image_obj.deserialize(image)
-                    self.add(variant, arch, image_obj)
+                    if self.header.version_tuple <= (1, 1):
+                        self._add_1_1(data, variant, arch, image_obj)
+                    else:
+                        self.add(variant, arch, image_obj)
         self.header.set_current_version()
+
+    def _add_1_1(self, data, variant, arch, image):
+        if arch == "src":
+            # move src under binary arches
+            for variant_arch in data["payload"]["images"][variant]:
+                if variant_arch == "src":
+                    continue
+                self.add(variant, variant_arch, image)
+        else:
+            self.add(variant, arch, image)
 
     def add(self, variant, arch, image):
         """

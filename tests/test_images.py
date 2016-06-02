@@ -259,6 +259,22 @@ class TestImages(unittest.TestCase):
         i = Image(im)
         self.assertRaises(ValueError, im.add, "Server", "src", i)
 
+    def test_move_src_images_under_binary_arches(self):
+        """
+        Test if src images were moved under binary arches correctly.
+        """
+        before = os.path.join(DIR, "images/src_move_before.json")
+        after = os.path.join(DIR, "images/src_move_after.json")
+        converted = os.path.join(self.tmp_dir, "converted")
+
+        im = Images()
+        im.load(before)
+
+        self._test_identity(im)
+
+        im.dump(converted)
+        self.assertSameFiles(converted, after)
+
 
 if __name__ == "__main__":
     unittest.main()
