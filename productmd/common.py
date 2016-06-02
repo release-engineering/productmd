@@ -263,6 +263,13 @@ class MetadataBase(object):
 
 
 class Header(MetadataBase):
+    """
+    This class represents the header used in serialized metadata files.
+
+    It consists of a type and a version. The type is meant purely for consumers
+    of the file to know what they are dealing with without having to check
+    filename. The version is used by productmd when parsing the file.
+    """
 
     def __init__(self, parent, metadata_type):
         self._section = "header"
