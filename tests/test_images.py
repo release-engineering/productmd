@@ -251,6 +251,14 @@ class TestImages(unittest.TestCase):
         im = Images()
         im.load(os.path.join(DIR, "images/f23.json"))
 
+    def test_forbidden_src_arch(self):
+        """
+        Test: ValueError("Source arch is not allowed. Map source files under binary arches.")
+        """
+        im = Images()
+        i = Image(im)
+        self.assertRaises(ValueError, im.add, "Server", "src", i)
+
 
 if __name__ == "__main__":
     unittest.main()

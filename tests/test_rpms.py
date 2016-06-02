@@ -112,6 +112,22 @@ class TestRpms(unittest.TestCase):
         # 3 RPMs (including 1 SRPM)
         self.assertEqual(len(rm["Fedora"]["x86_64"]["glibc-0:2.18-11.fc20.src"]), 3)
 
+    def test_forbidden_src_arch(self):
+        """
+        Test: ValueError("Source arch is not allowed. Map source files under binary arches.")
+        """
+        rm = Rpms()
+        self.assertRaises(
+            ValueError,
+            rm.add,
+            "Fedora",
+            "src",
+            "glibc-0:2.18-11.fc20.src.rpm",
+            path="Fedora/source/SRPMS/g/glibc-2.18-11.fc20.x86_64.rpm",
+            sigkey="246110c1",
+            category="source",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

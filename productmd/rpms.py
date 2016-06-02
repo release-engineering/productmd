@@ -125,6 +125,9 @@ class Rpms(productmd.common.MetadataBase):
         if arch not in productmd.common.RPM_ARCHES:
             raise ValueError("Arch not found in RPM_ARCHES: %s" % arch)
 
+        if arch in ["src", "nosrc"]:
+            raise ValueError("Source arch is not allowed. Map source files under binary arches.")
+
         if category not in SUPPORTED_CATEGORIES:
             raise ValueError("Invalid category value: %s" % category)
 
