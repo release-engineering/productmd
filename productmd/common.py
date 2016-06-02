@@ -165,10 +165,19 @@ class MetadataBase(object):
             raise ValueError("%s: Field '%s' must not be blank" % (self.__class__.__name__, field))
 
     def _assert_matches_re(self, field, expected_patterns):
+        """
+        The list of patterns can contain either strings or compiled regular
+        expressions.
+        """
         value = getattr(self, field)
         for pattern in expected_patterns:
-            if re.match(pattern, value):
-                return
+            try:
+                if pattern.match(value):
+                    return
+            except AttributeError:
+                # It's not a compiled regex, treat it as string.
+                if re.match(pattern, value):
+                    return
         raise ValueError("%s: Field '%s' has invalid value: %s. It does not match any provided REs: %s"
                          % (self.__class__.__name__, field, value, expected_patterns))
 

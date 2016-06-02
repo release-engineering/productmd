@@ -127,6 +127,15 @@ class TestComposeInfo(unittest.TestCase):
 
         r.validate()
 
+    def test_release_empty_version(self):
+        r = Release(None)
+        r.name = "Fedora"
+        r.short = "f"
+        r.version = ""
+        r.type = "ga"
+
+        self.assertRaises(ValueError, r.validate)
+
     def test_create_variants_with_dash(self):
         ci = ComposeInfo()
         ci.release.name = "Fedora"
