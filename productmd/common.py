@@ -251,7 +251,7 @@ class MetadataBase(object):
 
     def build_file(self, parser, f):
         # build file from parser or dict with data
-        json.dump(parser, f, indent=4, sort_keys=True)
+        json.dump(parser, f, indent=4, sort_keys=True, separators = (",", ": "))
 
     def deserialize(self, parser):
         # copy data from parser to instance
