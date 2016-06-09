@@ -28,6 +28,7 @@ used in other productmd modules.
 import sys
 import re
 import json
+import contextlib
 try:
     from configparser import ConfigParser
 except ImportError:
@@ -146,6 +147,23 @@ def is_valid_release_type(release_type):
     return release_type in RELEASE_TYPES
 
 
+@contextlib.contextmanager
+def _open_file_obj(f, mode="r"):
+    """
+    A context manager that provides access to a file.
+
+    :param f: the file to be opened
+    :type f: a file-like object or path to file
+    :param mode: how to open the file
+    :type mode: string
+    """
+    if isinstance(f, six.string_types):
+        with open(f, mode) as file_obj:
+            yield file_obj
+    else:
+        yield f
+
+
 class MetadataBase(object):
     def _assert_type(self, field, expected_types):
         value = getattr(self, field)
@@ -194,13 +212,9 @@ class MetadataBase(object):
         :param f: file-like object or path to file
         :type f: file or str
         """
-        open_file = isinstance(f, six.string_types)
-        if open_file:
-            f = open(f, "r")
-        parser = self.parse_file(f)
-        self.deserialize(parser)
-        if open_file:
-            f.close()
+        with _open_file_obj(f) as f:
+            parser = self.parse_file(f)
+            self.deserialize(parser)
 
     def loads(self, s):
         """
@@ -223,14 +237,10 @@ class MetadataBase(object):
         :type f: file or str
         """
         self.validate()
-        open_file = isinstance(f, six.string_types)
-        if open_file:
-            f = open(f, "w")
-        parser = self._get_parser()
-        self.serialize(parser)
-        self.build_file(parser, f)
-        if open_file:
-            f.close()
+        with _open_file_obj(f, "w") as f:
+            parser = self._get_parser()
+            self.serialize(parser)
+            self.build_file(parser, f)
 
     def dumps(self):
         """
