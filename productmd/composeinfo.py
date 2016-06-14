@@ -28,7 +28,7 @@ product information, variants, architectures and paths.
 import re
 
 import productmd.common
-from productmd.common import Header
+from productmd.common import Header, RELEASE_VERSION_RE
 
 import six
 
@@ -381,8 +381,7 @@ class BaseProduct(productmd.common.MetadataBase):
         style string.
         """
         self._assert_type("version", list(six.string_types))
-        if re.match('^\d', self.version):
-            self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
+        self._assert_matches_re("version", [RELEASE_VERSION_RE])
 
     def _validate_short(self):
         self._assert_type("short", list(six.string_types))
