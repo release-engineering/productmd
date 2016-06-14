@@ -59,11 +59,9 @@ class TestDiscInfo(unittest.TestCase):
 
     def assertSameFiles(self, path1, path2):
         self.assertEqual(os.path.getsize(path1), os.path.getsize(path2))
-        file1 = open(path1, "r")
-        file2 = open(path2, "r")
-        self.assertEqual(file1.read(), file2.read())
-        file1.close()
-        file2.close()
+        with open(path1, "r") as file1:
+            with open(path2, "r") as file2:
+                self.assertEqual(file1.read(), file2.read())
 
     def _test_identity(self, di):
         first = os.path.join(self.tmp_dir, "first")

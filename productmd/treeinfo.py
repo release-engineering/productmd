@@ -51,13 +51,12 @@ VARIANT_TYPES = [
 
 def compute_checksum(path, checksum_type):
     checksum = hashlib.new(checksum_type)
-    fo = open(path, "rb")
-    while True:
-        chunk = fo.read(1024**2)
-        if not chunk:
-            break
-        checksum.update(chunk)
-    fo.close()
+    with open(path, "rb") as fo:
+        while True:
+            chunk = fo.read(1024**2)
+            if not chunk:
+                break
+            checksum.update(chunk)
     return checksum.hexdigest().lower()
 
 

@@ -47,11 +47,9 @@ class TestTreeInfo(unittest.TestCase):
 
     def assertSameFiles(self, path1, path2):
         self.assertEqual(os.path.getsize(path1), os.path.getsize(path2))
-        file1 = open(path1, "r")
-        file2 = open(path2, "r")
-        self.assertEqual(file1.read(), file2.read())
-        file1.close()
-        file2.close()
+        with open(path1, "r") as file1:
+            with open(path2, "r") as file2:
+                self.assertEqual(file1.read(), file2.read())
 
     def _test_identity(self, ti):
         first = os.path.join(self.tmp_dir, "first")
@@ -232,7 +230,8 @@ class TestTreeInfo(unittest.TestCase):
 
     def test_treeinfo_compute_checksum(self):
         tmp_file = os.path.join(self.tmp_dir, "file")
-        open(tmp_file, "w").write("test")
+        with open(tmp_file, "w") as f:
+            f.write("test")
         expected_checksum = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
         ti = TreeInfo()
         ti.checksums.add("file", "sha256", None, self.tmp_dir)
