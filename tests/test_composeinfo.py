@@ -171,5 +171,83 @@ class TestComposeInfo(unittest.TestCase):
         return ci
 
 
+class TestCreateComposeID(unittest.TestCase):
+    def setUpRelease(self, compose_type, release_type, bp_type=None):
+        self.ci = ComposeInfo()
+        self.ci.release.name = 'Fedora'
+        self.ci.release.short = 'F'
+        self.ci.release.version = '22'
+        self.ci.release.type = release_type
+        self.ci.compose.date = '20160622'
+        self.ci.compose.respin = 0
+        self.ci.compose.type = compose_type
+
+        if bp_type:
+            self.ci.release.is_layered = True
+            self.ci.base_product.short = 'BASE'
+            self.ci.base_product.version = '3'
+            self.ci.base_product.type = bp_type
+
+    def test_ga_compose_ga_release(self):
+        self.setUpRelease('production', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-20160622.0')
+
+    def test_nightly_compose_ga_release(self):
+        self.setUpRelease('nightly', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-20160622.n.0')
+
+    def test_ga_compose_updates_release(self):
+        self.setUpRelease('production', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-20160622.0')
+
+    def test_nightly_compose_updates_release(self):
+        self.setUpRelease('nightly', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-20160622.n.0')
+
+    def test_ga_compose_ga_layered_release(self):
+        self.setUpRelease('production', 'ga', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-BASE-3-20160622.0')
+
+    def test_nightly_compose_ga_layered_release(self):
+        self.setUpRelease('nightly', 'ga', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-BASE-3-20160622.n.0')
+
+    def test_ga_compose_updates_layered_release(self):
+        self.setUpRelease('production', 'updates', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-BASE-3-20160622.0')
+
+    def test_nightly_compose_updates_layered_release(self):
+        self.setUpRelease('nightly', 'updates', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-BASE-3-20160622.n.0')
+
+    def test_ga_compose_ga_layered_release_updates_base(self):
+        self.setUpRelease('production', 'ga', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-BASE-3-updates-20160622.0')
+
+    def test_nightly_compose_ga_layered_release_updates_base(self):
+        self.setUpRelease('nightly', 'ga', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-BASE-3-updates-20160622.n.0')
+
+    def test_ga_compose_updates_layered_release_updates_base(self):
+        self.setUpRelease('production', 'updates', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-BASE-3-updates-20160622.0')
+
+    def test_nightly_compose_updates_layered_release_updates_base(self):
+        self.setUpRelease('nightly', 'updates', 'updates')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-updates-BASE-3-updates-20160622.n.0')
+
+
 if __name__ == "__main__":
     unittest.main()

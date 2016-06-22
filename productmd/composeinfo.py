@@ -135,11 +135,12 @@ class ComposeInfo(productmd.common.MetadataBase):
         return self.get_release_id()
 
     def create_compose_id(self):
-        result = "%s-%s" % (self.release.short, self.release.version)
-        if self.release.type and self.release.type.lower() != "ga":
-            result += "-%s" % self.release.type.lower()
+        result = "%s-%s%s" % (self.release.short, self.release.version,
+                              self.release.type_suffix)
         if self.release.is_layered:
-            result += "-%s-%s" % (self.base_product.short, self.base_product.version)
+            result += "-%s-%s%s" % (self.base_product.short,
+                                    self.base_product.version,
+                                    self.base_product.type_suffix)
 
         rhel5 = (self.release.short == "RHEL" and self.release.major_version == "5")
         rhel5 &= (self.base_product.short == "RHEL" and self.base_product.major_version == "5")
@@ -401,6 +402,13 @@ class BaseProduct(productmd.common.MetadataBase):
         if self.version is None:
             return None
         return productmd.common.get_minor_version(self.version)
+
+    @property
+    def type_suffix(self):
+        """This is used in compose ID."""
+        if not self.type or self.type.lower() == 'ga':
+            return ''
+        return '-%s' % self.type.lower()
 
     def serialize(self, data):
         self.validate()
