@@ -66,7 +66,7 @@ class Compose(object):
             path = os.path.join(self.compose_path, i)
             if os.path.exists(path):
                 return path
-        return None
+        raise RuntimeError('Failed to load metadata from %s' % self.compose_path)
 
     @property
     def info(self):
