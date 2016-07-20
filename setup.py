@@ -21,6 +21,10 @@ for package_root_dir in package_root_dirs:
             packages.add(root.replace("/", "."))
 packages = sorted(packages)
 
+with open(os.path.join(os.path.dirname(__file__),
+          "requirements.txt"), "r") as requirements:
+    install_requires = [x.strip() for x in requirements.readlines()]
+
 
 setup(
     name            = "productmd",
@@ -34,4 +38,6 @@ setup(
     packages        = packages,
     scripts         = [],
     test_suite      = "tests",
+
+    install_requires = install_requires,
 )
