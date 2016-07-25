@@ -94,11 +94,11 @@ def parse_nvra(nvra):
 
 
 #: Validation regex for release short name: [a-z] followed by [a-z0-9] separated with dashes.
-RELEASE_SHORT_RE = re.compile("^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+RELEASE_SHORT_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
 
 
 #: Validation regex for release version: any string or [0-9] separated with dots.
-RELEASE_VERSION_RE = re.compile("^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
+RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
 
 
 #: Supported release types.
@@ -480,7 +480,7 @@ class SortedConfigParser(ConfigParser):
             ConfigParser.__init__(self, *args, **kwargs)
         else:
             kwargs["dict_type"] = SortedDict
-            super(ConfigParser, self).__init__(*args, **kwargs)
+            super(SortedConfigParser, self).__init__(*args, **kwargs)
         self.seen = set()
 
     def optionxform(self, optionstr):
