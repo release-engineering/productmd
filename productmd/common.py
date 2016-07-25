@@ -480,7 +480,7 @@ class SortedConfigParser(ConfigParser):
             ConfigParser.__init__(self, *args, **kwargs)
         else:
             kwargs["dict_type"] = SortedDict
-            super(ConfigParser, self).__init__(*args, **kwargs)
+            super(SortedConfigParser, self).__init__(*args, **kwargs)
         self.seen = set()
 
     def optionxform(self, optionstr):
