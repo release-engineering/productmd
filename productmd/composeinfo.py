@@ -239,6 +239,9 @@ class Compose(productmd.common.MetadataBase):
         self.label = None
         self.final = False
 
+    def __repr__(self):
+        return u'<%s:%s>' % (self.__class__.__name__, self.id)
+
     def __cmp__(self, other):
         result = cmp(self.date, other.date)
         if result != 0:
@@ -361,6 +364,9 @@ class BaseProduct(productmd.common.MetadataBase):
         self.version = None     #: (*str*) -- Product version (typically major version), for example: "20", "7"
         self.short = None       #: (*str*) -- Product short name, for example: "f", "rhel"
         self.type = None        #: (*str*) -- Product type, for example: "ga", "eus"
+
+    def __repr__(self):
+        return u'<%s:%s:%s>' % (self.__class__.__name__, self.name, self.version)
 
     def __cmp__(self, other):
         if self.name != other.name:
@@ -491,6 +497,9 @@ class VariantBase(productmd.common.MetadataBase):
         self._metadata = metadata
         self.parent = None
         self.variants = {}
+
+    def __repr__(self):
+        return u'<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
 
     def __getitem__(self, name):
         # There can be exceptions, like $variant-optional on top-level,
@@ -694,6 +703,9 @@ class VariantPaths(productmd.common.MetadataBase):
         for name in self._fields:
             setattr(self, name, {})
 
+    def __repr__(self):
+        return u'<%s:variant=%s>' % (self.__class__.__name__, self._variant.uid)
+
     def deserialize(self, data):
         paths = data
         for arch in sorted(self._variant.arches):
@@ -735,6 +747,9 @@ class Variant(VariantBase):
 
     def __str__(self):
         return self.uid
+
+    def __repr__(self):
+        return u'<%s:%s>' % (self.__class__.__name__, self.uid)
 
     def _validate_id(self):
         self._assert_type("id", list(six.string_types))
