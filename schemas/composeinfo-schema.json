@@ -1,0 +1,166 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "ProductMD ComposeInfo metadata",
+    "description": "Metadata describing a compose",
+    "type": "object",
+
+    "definitions": {
+        "release_type": {
+            "type": "string",
+            "enum": ["fast", "ga", "updates", "eus", "aus", "els"]
+        },
+        "release_version": {
+            "type": "string",
+            "pattern": "^([0-9]+(\\.[0-9]+)*)|([^0-9].*)$"
+        }
+    },
+
+    "properties": {
+
+        "header": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "enum": ["1.2"]
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["productmd.composeinfo"]
+                }
+            },
+            "required": ["version", "type"],
+            "additionalProperties": false
+        },
+
+        "payload": {
+            "type": "object",
+            "properties": {
+
+                "compose": {
+                    "type": "object",
+                    "properties": {
+                        "date": {
+                            "type": "string",
+                            "pattern": "^[0-9]{8}$"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "respin": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["production", "nightly", "test"]
+                        },
+                        "label": {
+                            "type": "string"
+                        },
+                        "final": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": ["date", "id", "respin", "type"],
+                    "additionalProperties": false
+                },
+
+                "release": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "short": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "$ref": "#/definitions/release_version"
+                        },
+                        "type": {
+                            "$ref": "#/definitions/release_type"
+                        },
+                        "is_layered": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": ["name", "short", "version"],
+                    "additionalProperties": false
+                },
+
+                "base_product": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "short": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "$ref": "#/definitions/release_version"
+                        },
+                        "type": {
+                            "$ref": "#/definitions/release_type"
+                        }
+                    },
+                    "required": ["name", "short", "version"],
+                    "additionalProperties": false
+                },
+
+                "variants": {
+                    "type": "object",
+                    "patternProperties": {
+                        "[a-zA-Z0-9]+": {
+                            "type": "object",
+                            "properties": {
+                                "uid": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["variant", "optional", "addon", "layered-product"]
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "arches": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "paths": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^.+$": {
+                                            "type": "object",
+                                            "patternProperties": {
+                                                "^.+$": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+
+            },
+            "required": ["compose", "release", "variants"],
+            "additionalProperties": false
+        }
+    },
+    "required": ["header", "payload"],
+    "additionalProperties": false
+}
