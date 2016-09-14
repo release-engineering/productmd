@@ -20,7 +20,7 @@
 
 """
 This module provides classes for manipulating composeinfo.json files.
-composeifo.json files provide details about composes which includes
+composeinfo.json files provide details about composes which includes
 product information, variants, architectures and paths.
 """
 

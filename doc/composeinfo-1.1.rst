@@ -2,7 +2,7 @@
 Composeinfo file format 1.1
 ===========================
 
-composeifo.json files provide details about composes which includes
+composeinfo.json files provide details about composes which includes
 product information, variants, architectures and paths.
 
 
