@@ -387,7 +387,7 @@ def create_release_id(short, version, type, bp_short=None, bp_version=None, bp_t
     :type bp_short: str
     :param bp_version: Base Product version
     :type bp_version: str
-    :param bp_version: Base Product type
+    :param bp_type: Base Product type
     :rtype: str
     """
     if not is_valid_release_short(short):
