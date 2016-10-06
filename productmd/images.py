@@ -140,6 +140,7 @@ class Image(productmd.common.MetadataBase):
         self.implant_md5 = None         #: (*str* or *None*) -- value of implanted md5
         self.bootable = False           #: (*bool=False*) --
         self.subvariant = None          #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
+        self.unified = False            #: (*bool=False*) -- indicates if the ISO contains content from multiple variants
 
     def __repr__(self):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
@@ -193,6 +194,9 @@ class Image(productmd.common.MetadataBase):
     def _validate_subvariant(self):
         self._assert_type("subvariant", list(six.string_types))
 
+    def _validate_unified(self):
+        self._assert_type("unified", [bool])
+
     def serialize(self, parser):
         data = parser
         self.validate()
@@ -211,6 +215,9 @@ class Image(productmd.common.MetadataBase):
             "bootable": self.bootable,
             "subvariant": self.subvariant,
         }
+        if self.unified:
+            # Only add the `unified` field if it doesn't have the default value.
+            result['unified'] = self.unified
         data.append(result)
 
     def deserialize(self, data):
@@ -231,6 +238,7 @@ class Image(productmd.common.MetadataBase):
         else:
             # 1.1+
             self.subvariant = data["subvariant"]
+        self.unified = data.get('unified', False)
         self.validate()
 
     def add_checksum(self, root, checksum_type, checksum_value):
