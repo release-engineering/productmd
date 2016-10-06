@@ -40,8 +40,12 @@ __all__ = (
 
 
 #: supported image types
-SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd', 'ec2', 'kvm', 'live',
-                         'netinst', 'p2v', 'qcow2', 'raw-xz', 'rescue', 'vagrant-libvirt', 'vagrant-virtualbox']
+SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd',
+                         # installer image that deploys a payload containing an
+                         # ostree-based distribution
+                         'dvd-ostree',
+                         'ec2', 'kvm', 'live', 'netinst', 'p2v', 'qcow2', 'raw-xz',
+                         'rescue', 'vagrant-libvirt', 'vagrant-virtualbox']
 
 #: supported image formats, they match with file suffix
 SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
