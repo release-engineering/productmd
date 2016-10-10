@@ -198,6 +198,11 @@ class TestCreateComposeID(unittest.TestCase):
         self.assertEqual(self.ci.create_compose_id(),
                          'F-22-20160622.n.0')
 
+    def test_ci_compose_ga_release(self):
+        self.setUpRelease('ci', 'ga')
+        self.assertEqual(self.ci.create_compose_id(),
+                         'F-22-20160622.ci.0')
+
     def test_ga_compose_updates_release(self):
         self.setUpRelease('production', 'updates')
         self.assertEqual(self.ci.create_compose_id(),

@@ -50,9 +50,10 @@ if six.PY3:
 # least important come first
 #: supported compose types
 COMPOSE_TYPES = [
-    "test",
-    "nightly",
-    "production",
+    "test",             # for test purposes only
+    "ci",               # continuous integration, frequently from an automatically generated package set
+    "nightly",          # nightly composes from production package set
+    "production",       # production composes
 ]
 
 
@@ -259,7 +260,7 @@ class Compose(productmd.common.MetadataBase):
     def _validate_id(self):
         self._assert_type("id", list(six.string_types))
         self._assert_not_blank("id")
-        self._assert_matches_re("id", [r".*\d{8}(\.nightly|\.n|\.test|\.t)?(\.\d+)?"])
+        self._assert_matches_re("id", [r".*\d{8}(\.nightly|\.n|\.ci|\.test|\.t)?(\.\d+)?"])
 
     def _validate_date(self):
         self._assert_type("date", list(six.string_types))
@@ -309,6 +310,8 @@ class Compose(productmd.common.MetadataBase):
     def type_suffix(self):
         if self.type == "production":
             return ""
+        if self.type == "ci":
+            return ".ci"
         if self.type == "nightly":
             return ".n"
         if self.type == "test":
