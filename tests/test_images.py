@@ -273,6 +273,55 @@ class TestImages(unittest.TestCase):
         im.dump(converted)
         self.assertSameFiles(converted, after)
 
+    def test_unified_iso_serialized_only_with_true(self):
+        i = Image(None)
+        i.arch = 'x86_64'
+        i.disc_count = 1
+        i.disc_number = 1
+        i.format = 'iso'
+        i.type = 'dvd'
+        i.mtime = 1410855216
+        i.path = "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso"
+        i.size = 4603248640
+        i.subvariant = 'Workstation'
+        i.checksums = {'sha256': 'XXXXXX'}
+
+        data = []
+        i.serialize(data)
+        self.assertFalse('unified' in data[0])
+
+        i.unified = True
+        data = []
+        i.serialize(data)
+        self.assertTrue(data[0]['unified'])
+
+    def test_unified_iso_deserialize(self):
+        im = Images()
+        i = Image(im)
+
+        data = {
+            'arch': 'x86_64',
+            'disc_count': 1,
+            'disc_number': 1,
+            'format': 'iso',
+            'type': 'dvd',
+            'mtime': 1410855216,
+            'path': "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso",
+            'size': 4603248640,
+            'subvariant': 'Workstation',
+            'volume_id': None,
+            'implant_md5': None,
+            'bootable': True,
+            'checksums': {'sha256': 'XXXXXX'},
+        }
+
+        i.deserialize(data)
+        self.assertFalse(i.unified)
+
+        data['unified'] = True
+        i.deserialize(data)
+        self.assertTrue(i.unified)
+
 
 if __name__ == "__main__":
     unittest.main()
