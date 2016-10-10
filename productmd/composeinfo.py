@@ -446,6 +446,7 @@ class Release(BaseProduct):
         self.short = None               #: (*str*) -- Release short name, for example: "f", "rhel"
         self.type = None                #: (*str*) -- Release type, for example: "ga", "updates"
         self.is_layered = False         #: (*bool=False*) -- Determines if release is a layered product
+        self.internal = False           #: (*bool=False*) -- Determine if release is meant for public consumption
 
     def __cmp__(self, other):
         if self.is_layered != other.is_layered:
@@ -459,6 +460,9 @@ class Release(BaseProduct):
     def _validate_is_layered(self):
         self._assert_type("is_layered", [bool])
 
+    def _validate_internal(self):
+        self._assert_type("internal", [bool])
+
     def serialize(self, data):
         self.validate()
         data[self._section] = {}
@@ -468,6 +472,7 @@ class Release(BaseProduct):
         data[self._section]["type"] = self.type
         if self.is_layered:
             data[self._section]["is_layered"] = bool(self.is_layered)
+        data[self._section]["internal"] = bool(self.internal)
 
     def deserialize(self, data):
         if self._metadata.header.version_tuple <= (0, 3):
@@ -489,6 +494,7 @@ class Release(BaseProduct):
         self.short = data[self._section]["short"]
         self.type = data[self._section].get("type", "ga").lower()
         self.is_layered = bool(data[self._section].get("is_layered", False))
+        self.internal = bool(data[self._section].get("internal", False))
 
 
 class VariantBase(productmd.common.MetadataBase):
