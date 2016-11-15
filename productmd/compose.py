@@ -39,6 +39,7 @@ import os
 import productmd.composeinfo
 import productmd.images
 import productmd.rpms
+from productmd.common import _file_exists
 
 
 __all__ = (
@@ -54,7 +55,7 @@ class Compose(object):
     def __init__(self, compose_path):
         self.compose_path = compose_path
         compose_path = os.path.join(compose_path, "compose")
-        if os.path.isdir(compose_path):
+        if _file_exists(compose_path):
             self.compose_path = compose_path
 
         self._composeinfo = None
@@ -64,7 +65,7 @@ class Compose(object):
     def _find_metadata_file(self, paths):
         for i in paths:
             path = os.path.join(self.compose_path, i)
-            if os.path.exists(path):
+            if _file_exists(path):
                 return path
         raise RuntimeError('Failed to load metadata from %s' % self.compose_path)
 
