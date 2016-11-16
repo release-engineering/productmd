@@ -25,10 +25,13 @@ used in other productmd modules.
 """
 
 
+import os
 import sys
 import re
 import json
+import codecs
 import contextlib
+import ssl
 try:
     from configparser import ConfigParser
 except ImportError:
@@ -158,10 +161,28 @@ def _open_file_obj(f, mode="r"):
     :type mode: string
     """
     if isinstance(f, six.string_types):
-        with open(f, mode) as file_obj:
+        if f.startswith(("http://", "https://")):
+            context = ssl._create_unverified_context()
+            file_obj = six.moves.urllib.request.urlopen(f, context=context)
             yield file_obj
+            file_obj.close()
+        else:
+            with open(f, mode) as file_obj:
+                yield file_obj
     else:
         yield f
+
+
+def _file_exists(path):
+    if path.startswith(("http://", "https://")):
+        context = ssl._create_unverified_context()
+        try:
+            file_obj = six.moves.urllib.request.urlopen(path, context=context)
+            file_obj.close()
+        except six.moves.urllib.error.HTTPError:
+            return False
+        return True
+    return os.path.exists(path)
 
 
 class MetadataBase(object):
@@ -264,8 +285,17 @@ class MetadataBase(object):
 
     def parse_file(self, f):
         # parse file, return parser or dict with data
-        f.seek(0)
-        parser = json.load(f)
+        if hasattr(f, "seekable"):
+            if f.seekable():
+                f.seek(0)
+        elif hasattr(f, "seek"):
+            f.seek(0)
+        if six.PY3 and isinstance(f, six.moves.http_client.HTTPResponse):
+            # HTTPResponse needs special handling in py3
+            reader = codecs.getreader("utf-8")
+            parser = json.load(reader(f))
+        else:
+            parser = json.load(f)
         return parser
 
     def build_file(self, parser, f):
