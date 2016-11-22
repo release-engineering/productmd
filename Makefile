@@ -13,6 +13,7 @@ help:
 	@echo " doc                     build documentation"
 	@echo " install                 install program on current system"
 	@echo " log                     prepare changelog for spec file"
+	@echo " rpm                     create a *test* rpm with tito"
 	@echo " source                  create source tarball"
 	@echo
 	@echo " test                    run ./setup.py test"
@@ -37,6 +38,10 @@ doc:
 
 log:
 	@(LC_ALL=C date +"* %a %b %e %Y `git config --get user.name` <`git config --get user.email`> - VERSION"; git log --pretty="format:- %s (%an)" | cat) | less
+
+
+rpm:
+	@tito build --rpm --offline --test
 
 
 source:
