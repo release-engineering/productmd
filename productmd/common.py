@@ -32,12 +32,9 @@ import json
 import codecs
 import contextlib
 import ssl
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser as ConfigParser
 
 import six
+from six.moves.configparser import ConfigParser
 
 
 VERSION = (1, 2)
