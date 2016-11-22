@@ -162,7 +162,9 @@ def _open_file_obj(f, mode="r"):
     """
     if isinstance(f, six.string_types):
         if f.startswith(("http://", "https://")):
-            context = ssl._create_unverified_context()
+            context = None  # py26, py33, py34
+            if hasattr(ssl, '_create_unverified_context'):
+                context = ssl._create_unverified_context()
             file_obj = six.moves.urllib.request.urlopen(f, context=context)
             yield file_obj
             file_obj.close()
@@ -175,7 +177,9 @@ def _open_file_obj(f, mode="r"):
 
 def _file_exists(path):
     if path.startswith(("http://", "https://")):
-        context = ssl._create_unverified_context()
+        context = None  # py26, py33, py34
+        if hasattr(ssl, '_create_unverified_context'):
+            context = ssl._create_unverified_context()
         try:
             file_obj = six.moves.urllib.request.urlopen(path, context=context)
             file_obj.close()
