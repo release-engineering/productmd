@@ -13,6 +13,13 @@
 %global with_python3 0
 %endif
 
+# compatibility with older releases
+%{!?__python2: %global __python2 /usr/bin/python2}
+%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%{!?py2_build: %global py2_build %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} build --executable="%{__python2} -s"}}
+%{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
+
 Name:           python-productmd
 Version:        1.2
 Release:        2%{?dist}
@@ -21,19 +28,23 @@ Summary:        Library providing parsers for metadata related to OS installatio
 Group:          Development/Tools
 License:        LGPLv2+
 URL:            https://github.com/release-engineering/productmd
-Source0:        https://files.pythonhosted.org/packages/source/p/productmd/productmd-%{version}.tar.bz2
+Source0:        https://files.pythonhosted.org/packages/source/p/%{name}/%{name}-%{version}.tar.gz
 
-Obsoletes:     productmd <= %{version}-%{release}
-Provides:      productmd = %{version}-%{release}
-Provides:      python2-productmd = %{version}-%{release}
-Requires:      python-six
+Obsoletes:      productmd <= %{version}-%{release}
+Provides:       productmd = %{version}-%{release}
+Provides:       python2-productmd = %{version}-%{release}
 
-BuildRequires:  python2-devel python-setuptools
+Requires:       python-six
+
+BuildRequires:  python2-devel
+BuildRequires:  python-setuptools
+BuildRequires:  python-six
+
 %if  0%{?with_python3}
-BuildRequires:  python3-devel python3-setuptools
+BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
 BuildRequires:  python3-six
 %endif
-BuildRequires:  python-six
 
 BuildArch:      noarch
 
@@ -53,44 +64,27 @@ and installation media.
 %endif
 
 %prep
-%setup -qc -n productmd-%{version}
-mv productmd-%{version} python2
-
-cp -a python2 python3
-cp python2/LICENSE .
-cp python2/AUTHORS .
+%setup -q
 
 %build
-pushd python2
-CFLAGS="$RPM_OPT_FLAGS" %{__python2} setup.py build
-popd
+%py2_build
 
 %if 0%{?with_python3}
-pushd python3
-CFLAGS="$RPM_OPT_FLAGS" %{__python3} setup.py build
-popd
+%py3_build
 %endif
 
 %install
-pushd python2
-%{__python2} setup.py install --skip-build --root $RPM_BUILD_ROOT
-popd
+%py2_install
 
 %if 0%{?with_python3}
-pushd python3
-%{__python3} setup.py install --skip-build --root $RPM_BUILD_ROOT
-popd
+%py3_install
 %endif
 
 %check
-pushd python2
 %{__python2} ./setup.py test
-popd
 
 %if 0%{?with_python3}
-pushd python3
 %{__python3} ./setup.py test
-popd
 %endif
 
 %files
