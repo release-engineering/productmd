@@ -1,8 +1,5 @@
 %global with_python3 1
 
-# this must go after all 'License:' tags
-%{!?_licensedir:%global license %doc}
-
 %if 0%{?fedora} && 0%{?fedora} <= 12
 %global with_python3 0
 %endif
@@ -86,6 +83,9 @@ and installation media.
 %if 0%{?with_python3}
 %{__python3} ./setup.py test
 %endif
+
+# this must go after all 'License:' tags
+%{!?_licensedir:%global license %doc}
 
 %files
 %license LICENSE
