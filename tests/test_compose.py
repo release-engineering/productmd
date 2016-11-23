@@ -29,8 +29,16 @@ sys.path.insert(0, os.path.join(DIR, ".."))
 
 from productmd.compose import Compose   # noqa
 
+import productmd.common
+from six import StringIO
+from six.moves.urllib.error import HTTPError
+
 
 class TestCompose(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestCompose, self).__init__(*args, **kwargs)
+        self.compose_path = os.path.join(DIR, "compose")
 
     def test_opening_wrong_dir_gives_descriptive_error(self):
         compose = Compose('/a/b/c')
@@ -41,6 +49,27 @@ class TestCompose(unittest.TestCase):
             self.assertEqual(str(e), r"Failed to load metadata from /a/b/c")
         except:
             self.fail('Expected to get RuntimeError')
+
+    def test_opening_http_succeeds(self):
+        def mock_urlopen(url, context=None):
+            """ Return an on-disk JSON file's contents for a given url. """
+            filename = os.path.basename(url)
+            if not filename.endswith('.json'):
+                # This is not parsed; it just needs to be any 200 OK response.
+                return StringIO()
+            try:
+                f = open(os.path.join(self.compose_path, filename), 'r')
+            except IOError as e:
+                raise HTTPError(404, e)
+            return f
+
+        orig_urlopen = productmd.common.six.moves.urllib.request.urlopen
+        try:
+            productmd.common.six.moves.urllib.request.urlopen = mock_urlopen
+            compose = Compose('http://example.noexist/path/to/mycompose')
+            self.assertEqual('MYPRODUCT', compose.info.release.short)
+        finally:
+            productmd.common.six.moves.urllib.request.urlopen = orig_urlopen
 
 
 if __name__ == "__main__":
