@@ -18,7 +18,6 @@ for example:
     [fedora-rawhide]
     releaser = tito.release.FedoraGitReleaser
     branches = master
-    builder.test = 1
 
 ### Create spec file in the project's root dir.
 Make sure the spec is commited to git to make next steps work.
