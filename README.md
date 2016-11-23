@@ -20,7 +20,7 @@ Building
 
 * Six: Python 2 and 3 Compatibility Library
  * `pip install six`
- * Fedora: python-six python3-six
+ * Fedora: `dnf install python-six python3-six`
 
 
 ### Build
@@ -28,6 +28,11 @@ Building
 To see all options run:
 
     make help
+
+
+### Build with Tito
+
+Read [TITO.md](TITO.md) for instructions.
 
 
 Testing
