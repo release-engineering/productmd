@@ -28,7 +28,7 @@ with open('requirements.txt') as f:
 
 setup(
     name            = "productmd",
-    version         = "1.2",
+    version         = "1.3",
     description     = "Product, compose and installation media metadata library",
     url             = "https://github.com/release-engineering/productmd",
     author          = "Daniel Mach",
