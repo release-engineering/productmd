@@ -21,10 +21,6 @@ for package_root_dir in package_root_dirs:
             packages.add(root.replace("/", "."))
 packages = sorted(packages)
 
-# Manage dependencies in requirements.txt
-with open('requirements.txt') as f:
-    reqs = f.read().splitlines()
-
 
 setup(
     name            = "productmd",
@@ -38,5 +34,7 @@ setup(
     packages        = packages,
     scripts         = [],
     test_suite      = "tests",
-    install_requires=reqs,
+    install_requires=[
+        'six',
+    ],
 )
