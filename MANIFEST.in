@@ -3,7 +3,6 @@ include LICENSE
 include MANIFEST.in
 include Makefile
 include setup.py
-include requirements.txt
 recursive-include doc Makefile *.py *.rst
 recursive-include productmd *.py
 recursive-include tests *.py

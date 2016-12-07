@@ -4,12 +4,7 @@
 
 import os
 
-import distutils.command.sdist
 from setuptools import setup
-
-
-# override default tarball format with bzip2
-distutils.command.sdist.sdist.default_format = {"posix": "bztar"}
 
 
 # recursively scan for python modules to be included
@@ -20,10 +15,6 @@ for package_root_dir in package_root_dirs:
         if "__init__.py" in files:
             packages.add(root.replace("/", "."))
 packages = sorted(packages)
-
-# Manage dependencies in requirements.txt
-with open('requirements.txt') as f:
-    reqs = f.read().splitlines()
 
 
 setup(
@@ -38,5 +29,7 @@ setup(
     packages        = packages,
     scripts         = [],
     test_suite      = "tests",
-    install_requires=reqs,
+    install_requires=[
+        'six',
+    ],
 )
