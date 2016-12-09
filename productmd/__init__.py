@@ -16,6 +16,8 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
+__version__ = '1.3'
+
 from .compose import Compose            # noqa
 from .composeinfo import ComposeInfo    # noqa
 from .discinfo import DiscInfo          # noqa
