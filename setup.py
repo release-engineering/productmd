@@ -3,8 +3,19 @@
 
 
 import os
+import re
 
 from setuptools import setup
+
+
+def read_module_contents():
+    with open('productmd/__init__.py') as installer_init:
+        return installer_init.read()
+
+module_file = read_module_contents()
+metadata = dict(re.findall("__([a-z]+)__\s*=\s*'([^']+)'", module_file))
+version = metadata['version']
+long_description = open('README.rst').read()
 
 
 # recursively scan for python modules to be included
@@ -19,11 +30,12 @@ packages = sorted(packages)
 
 setup(
     name            = "productmd",
-    version         = "1.3",
+    version         = version,
     description     = "Product, compose and installation media metadata library",
     url             = "https://github.com/release-engineering/productmd",
     author          = "Daniel Mach",
     author_email    = "dmach@redhat.com",
+    long_description=long_description,
     license         = "LGPLv2.1",
 
     packages        = packages,
