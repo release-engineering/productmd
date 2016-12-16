@@ -585,7 +585,7 @@ class VariantBase(productmd.common.MetadataBase):
         for variant in self.variants.itervalues():
             if types and variant.type not in types:
                 continue
-            if arch and arch not in variant.arches + ["src"]:
+            if arch and arch not in variant.arches.union(["src"]):
                 continue
             result.append(variant)
             if recursive:
