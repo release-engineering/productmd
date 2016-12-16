@@ -83,7 +83,7 @@ class TestComposeInfo(unittest.TestCase):
         variant.uid = "Server"
         variant.name = "Server"
         variant.type = "variant"
-        variant.arches = ["armhfp", "i386", "x86_64"]
+        variant.arches = set(["armhfp", "i386", "x86_64"])
 
         ci.variants.add(variant)
 
@@ -153,7 +153,7 @@ class TestComposeInfo(unittest.TestCase):
         variant.uid = "Server-Tools"
         variant.name = "Tools"
         variant.type = "variant"
-        variant.arches = ["x86_64"]
+        variant.arches = set(["x86_64"])
         ci.variants.add(variant)
         ci.variants["Server-Tools"]
 
@@ -162,7 +162,7 @@ class TestComposeInfo(unittest.TestCase):
         variant.uid = "Workstation-Tools"
         variant.name = "Tools"
         variant.type = "variant"
-        variant.arches = ["x86_64"]
+        variant.arches = set(["x86_64"])
         ci.variants.add(variant)
         ci.variants["Workstation-Tools"]
 
