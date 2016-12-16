@@ -591,7 +591,7 @@ class VariantBase(productmd.common.MetadataBase):
             if recursive:
                 result.extend(variant.get_variants(types=[i for i in types if i != "self"], recursive=True))
 
-        result.sort(lambda x, y: cmp(x.uid, y.uid))
+        result.sort(key=lambda x: x.uid)
         return result
 
 
