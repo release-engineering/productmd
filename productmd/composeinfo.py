@@ -579,9 +579,6 @@ class VariantBase(productmd.common.MetadataBase):
         types = types or []
         result = []
 
-        if arch and arch not in self.arches + ["src"]:
-            return result
-
         if "self" in types:
             result.append(self)
 
