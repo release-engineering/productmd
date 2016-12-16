@@ -582,7 +582,7 @@ class VariantBase(productmd.common.MetadataBase):
         if "self" in types:
             result.append(self)
 
-        for variant in self.variants.itervalues():
+        for variant in six.itervalues(self.variants):
             if types and variant.type not in types:
                 continue
             if arch and arch not in variant.arches.union(["src"]):
