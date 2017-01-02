@@ -579,22 +579,19 @@ class VariantBase(productmd.common.MetadataBase):
         types = types or []
         result = []
 
-        if arch and arch not in self.arches + ["src"]:
-            return result
-
         if "self" in types:
             result.append(self)
 
-        for variant in self.variants.itervalues():
+        for variant in six.itervalues(self.variants):
             if types and variant.type not in types:
                 continue
-            if arch and arch not in variant.arches + ["src"]:
+            if arch and arch not in variant.arches.union(["src"]):
                 continue
             result.append(variant)
             if recursive:
                 result.extend(variant.get_variants(types=[i for i in types if i != "self"], recursive=True))
 
-        result.sort(lambda x, y: cmp(x.uid, y.uid))
+        result.sort(key=lambda x: x.uid)
         return result
 
 
