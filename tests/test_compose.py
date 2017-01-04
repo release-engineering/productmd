@@ -40,6 +40,10 @@ class TestCompose(unittest.TestCase):
         super(TestCompose, self).__init__(*args, **kwargs)
         self.compose_path = os.path.join(DIR, "compose")
 
+    def test_read_composeinfo(self):
+        compose = Compose(self.compose_path)
+        compose.info
+
     def test_opening_wrong_dir_gives_descriptive_error(self):
         compose = Compose('/a/b/c')
         try:
@@ -58,7 +62,7 @@ class TestCompose(unittest.TestCase):
                 # This is not parsed; it just needs to be any 200 OK response.
                 return StringIO()
             try:
-                f = open(os.path.join(self.compose_path, filename), 'r')
+                f = open(os.path.join(self.compose_path, "compose", "metadata", filename), 'r')
             except IOError as e:
                 raise HTTPError(404, e)
             return f
@@ -70,6 +74,17 @@ class TestCompose(unittest.TestCase):
             self.assertEqual('MYPRODUCT', compose.info.release.short)
         finally:
             productmd.common.six.moves.urllib.request.urlopen = orig_urlopen
+
+
+class TestLegacyCompose(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestLegacyCompose, self).__init__(*args, **kwargs)
+        self.compose_path = os.path.join(DIR, "compose-legacy")
+
+    def test_read_composeinfo(self):
+        compose = Compose(self.compose_path)
+        compose.info
 
 
 if __name__ == "__main__":
