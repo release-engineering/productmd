@@ -108,7 +108,7 @@ class ComposeInfo(productmd.common.MetadataBase):
         return result
 
     def __cmp__(self, other):
-        result = cmp(self.release, other.product)
+        result = cmp(self.release, other.release)
         if result != 0:
             return result
 
