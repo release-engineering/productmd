@@ -818,11 +818,16 @@ class Variant(VariantBase):
         if "variants" in data:
             variant_ids = sorted(data["variants"])
             variant_uids = ["%s-%s" % (self.uid, i) for i in variant_ids]
-            for variant_uid in variant_uids:
-                variant = Variant(self._metadata)
-                variant.parent = self
-                variant.deserialize(full_data, variant_uid)
-                self.add(variant)
+        else:
+            # legacy metadata with no "variants" parent-child references
+            variant_uids = full_data.keys()
+            variant_uids = [i for i in variant_uids if i.startswith("%s-" % variant_uid)]
+
+        for variant_uid in variant_uids:
+            variant = Variant(self._metadata)
+            variant.parent = self
+            variant.deserialize(full_data, variant_uid)
+            self.add(variant)
 
         self.validate()
 
