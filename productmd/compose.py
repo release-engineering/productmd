@@ -50,13 +50,29 @@ __all__ = (
 class Compose(object):
     """
     This class provides easy access to compose metadata.
+
+    :param compose_path:        Path to a compose. HTTP(s) URL is also accepted.
+    :type  compose_path:        str
     """
 
     def __init__(self, compose_path):
+        # example: MYPRODUCT-1.0-YYYYMMDD.0/metadata
         self.compose_path = compose_path
-        compose_path = os.path.join(compose_path, "compose")
-        if _file_exists(compose_path):
-            self.compose_path = compose_path
+
+        # example: MYPRODUCT-1.0-YYYYMMDD.0/compose/metadata (preferred location)
+        path = os.path.join(compose_path, "compose")
+        if _file_exists(path):
+            self.compose_path = path
+
+        elif "://" not in compose_path and os.path.exists(compose_path):
+            # Scan all subdirs under compose_path for 'metadata'. Doesn't work over HTTP.
+            # example: MYPRODUCT-1.0-YYYYMMDD.0/1.0/metadata (legacy location)
+            for i in os.listdir(compose_path):
+                path = os.path.join(compose_path, i)
+                metadata_path = os.path.join(path, "metadata")
+                if _file_exists(metadata_path):
+                    self.compose_path = path
+                    break
 
         self._composeinfo = None
         self._images = None

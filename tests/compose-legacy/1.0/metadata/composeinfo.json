@@ -1,0 +1,26 @@
+{
+  "header": {
+    "version": "0.2"
+  },
+  "payload": {
+    "base_product": {
+      "name": "Red Hat Enterprise Linux",
+      "short": "RHEL",
+      "version": "7"
+    },
+    "compose": {
+      "date": "20161110",
+      "id": "MYPRODUCT-2.1-RHEL-7-20161110.t.0",
+      "respin": 0,
+      "type": "test"
+    },
+    "product": {
+      "is_layered": true,
+      "name": "Really Cool Product",
+      "short": "MYPRODUCT",
+      "type": "ga",
+      "version": "2.1"
+    },
+    "variants": {}
+  }
+}
