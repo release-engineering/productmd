@@ -21,6 +21,23 @@
       "type": "ga",
       "version": "2.1"
     },
-    "variants": {}
+    "variants": {
+        "Foo": {
+            "id": "Foo",
+            "uid": "Foo",
+            "name": "Foo Name",
+            "type": "variant",
+            "arches": ["x86_64"],
+            "paths": {}
+        },
+        "Foo-Bar": {
+            "id": "Bar",
+            "uid": "Foo-Bar",
+            "name": "Foo Bar Name",
+            "type": "addon",
+            "arches": ["x86_64"],
+            "paths": {}
+        }
+    }
   }
 }

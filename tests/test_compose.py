@@ -44,6 +44,10 @@ class TestCompose(unittest.TestCase):
         compose = Compose(self.compose_path)
         compose.info
 
+        # try to access a variant and addon
+        variant = compose.info["Foo"]
+        variant = compose.info["Foo-Bar"]
+
     def test_opening_wrong_dir_gives_descriptive_error(self):
         compose = Compose('/a/b/c')
         try:
@@ -86,6 +90,9 @@ class TestLegacyCompose(unittest.TestCase):
         compose = Compose(self.compose_path)
         compose.info
 
+        # try to access a variant and addon
+        variant = compose.info["Foo"]
+        variant = compose.info["Foo-Bar"]
 
 if __name__ == "__main__":
     unittest.main()
