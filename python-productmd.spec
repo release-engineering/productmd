@@ -18,7 +18,7 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.3
+Version:        1.4
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -103,6 +103,25 @@ and installation media.
 %endif
 
 %changelog
+* Tue Jan 10 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.4-1
+- Fix loading variants from legacy composeinfo. (dmach@redhat.com)
+- Fix sorting composes (lsedlar@redhat.com)
+- Compose: scan all subdirs under compose_path for metadata.
+  (dmach@redhat.com)
+- Add Python 3.6 on Travis (lsedlar@redhat.com)
+- tests: add tests for ComposeInfo.get_variants() (kdreyer@redhat.com)
+- tests: composeinfo variant arches are sets (kdreyer@redhat.com)
+- composeinfo: py3 support for sort in get_variants() (kdreyer@redhat.com)
+- composeinfo: py3 support for iter in get_variants() (kdreyer@redhat.com)
+- composeinfo: check variant arches as a set (kdreyer@redhat.com)
+- composeinfo: fix arch kwarg handling in get_arches() (kdreyer@redhat.com)
+- Configure bztar with setup.cfg (lsedlar@redhat.com)
+- Remove requirements.txt (lsedlar@redhat.com)
+- Include requirements.txt in tarball (lsedlar@redhat.com)
+- Move %%license definition just before %%files (lsedlar@redhat.com)
+- Remove builder.test from releasers.conf (lsedlar@redhat.com)
+- Install deps with setup.py on Travis (lsedlar@redhat.com)
+
 * Wed Nov 23 2016 Lubomír Sedlář <lsedlar@redhat.com> 1.3-1
 - new package built with tito
 
