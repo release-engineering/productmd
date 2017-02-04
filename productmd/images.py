@@ -28,6 +28,7 @@ import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
 
+from operator import getitem
 import six
 
 
@@ -36,6 +37,7 @@ __all__ = (
     "Images",
     "SUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
+    "UNIQUE_IMAGE_ATTRIBUTES",
 )
 
 
@@ -51,6 +53,9 @@ SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd',
 SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
                            'sda.raw', 'tar.gz', 'tar.xz', 'vagrant-libvirt.box', 'vagrant-virtualbox.box',
                            'vdi', 'vmdk', 'vmx', 'vsphere.ova']
+
+#: combination of attributes which uniquely identifies an image across composes
+UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number']
 
 
 class Images(productmd.common.MetadataBase):
@@ -120,7 +125,33 @@ class Images(productmd.common.MetadataBase):
             raise ValueError("Arch not found in RPM_ARCHES: %s" % arch)
         if arch in ["src", "nosrc"]:
             raise ValueError("Source arch is not allowed. Map source files under binary arches.")
+        if self.header.version_tuple >= (1, 1):
+            # disallow adding a different image with same 'unique'
+            # attributes. can't do this pre-1.1 as we couldn't truly
+            # identify images before subvariant
+            for checkvar in self.images:
+                for checkarch in self.images[checkvar]:
+                    for curimg in self.images[checkvar][checkarch]:
+                        if identify_image(curimg) == identify_image(image) and curimg.checksums != image.checksums:
+                            raise ValueError("Image {0} shares all UNIQUE_IMAGE_ATTRIBUTES with "
+                                             "image {1}! This is forbidden.".format(image, curimg))
         self.images.setdefault(variant, {}).setdefault(arch, set()).add(image)
+
+
+def identify_image(image):
+    """Provides a tuple of image's UNIQUE_IMAGE_ATTRIBUTES. Note:
+    this is not guaranteed to be unique (and will often not be)
+    for pre-1.1 metadata, as subvariant did not exist. Provided as
+    a function so consumers can use it on plain image dicts read from
+    the metadata or PDC.
+    """
+    attrs = list(UNIQUE_IMAGE_ATTRIBUTES)
+    try:
+        # Image instance case
+        return tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
+    except AttributeError:
+        # Plain dict case
+        return tuple(getitem(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
 
 
 class Image(productmd.common.MetadataBase):

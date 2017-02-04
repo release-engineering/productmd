@@ -19,6 +19,14 @@ Compose images metadata is stored as a JSON serialized dictionary.
 It's recommended to sort keys alphabetically and use 4 spaces for indentation
 in order to read and diff images.json files easily.
 
+Image Identity
+==============
+
+It is required that the combination of subvariant, type, format, arch and
+disc_number attributes is unique to each image in the compose. This is to
+ensure these attributes can be used to identify 'the same' image across
+composes. This may require including the variant string in the subvariant.
+
 ::
 
     {
