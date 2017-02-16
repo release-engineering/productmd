@@ -1,16 +1,24 @@
-%global with_python3 1
+# ** IMPORTANT NOTE **
+# This spec is also tracked in productmd upstream git:
+# https://github.com/release-engineering/productmd
+# Please synchronize changes to it with upstream, and be aware that
+# the spec is used for builds on pure RHEL (i.e. without EPEL packages
+# or macros).
 
-%if 0%{?fedora} && 0%{?fedora} <= 12
-%global with_python3 0
+# Enable Python 3 builds for Fedora + EPEL >5
+# NOTE: do **NOT** change 'epel' to 'rhel' here, as this spec is also
+# used to do RHEL builds without EPEL
+%if 0%{?fedora} || 0%{?epel} > 5
+# If the definition isn't available for python3_pkgversion, define it
+%{?!python3_pkgversion:%global python3_pkgversion 3}
+%bcond_without  python3
+%else
+%bcond_with     python3
 %endif
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-%{!?__python2: %global __python2 /usr/bin/python2}
-%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%global with_python3 0
-%endif
-
-# compatibility with older releases
+# Compatibility with RHEL. These macros have been added to EPEL but
+# not yet to RHEL proper.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1307190
 %{!?__python2: %global __python2 /usr/bin/python2}
 %{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
@@ -19,7 +27,7 @@
 
 Name:           python-productmd
 Version:        1.4
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
 Group:          Development/Tools
@@ -37,10 +45,10 @@ BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
 BuildRequires:  python-six
 
-%if  0%{?with_python3}
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
-BuildRequires:  python3-six
+%if 0%{?with_python3}
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-setuptools
+BuildRequires:  python%{python3_pkgversion}-six
 %endif
 
 BuildArch:      noarch
@@ -50,12 +58,12 @@ Python library providing parsers for metadata related to composes
 and installation media.
 
 %if 0%{?with_python3}
-%package -n python3-productmd
+%package -n python%{python3_pkgversion}-productmd
 Summary:       Library providing parsers for metadata related to OS installation
 Group:         Development/Tools
-Requires:      python3-six
+Requires:      python%{python3_pkgversion}-six
 
-%description -n python3-productmd
+%description -n python%{python3_pkgversion}-productmd
 Python library providing parsers for metadata related to composes
 and installation media.
 %endif
@@ -85,6 +93,7 @@ and installation media.
 %endif
 
 # this must go after all 'License:' tags
+# Implemented in EPEL, but not in RHEL
 %{!?_licensedir:%global license %doc}
 
 %files
@@ -93,9 +102,8 @@ and installation media.
 %{python_sitelib}/productmd/
 %{python_sitelib}/productmd-%{version}-py?.?.egg-info
 
-
 %if 0%{?with_python3}
-%files -n python3-productmd
+%files -n python%{python3_pkgversion}-productmd
 %license LICENSE
 %doc AUTHORS
 %{python3_sitelib}/productmd/
@@ -103,6 +111,15 @@ and installation media.
 %endif
 
 %changelog
+* Wed Feb 15 2017 Adam Williamson <awilliam@redhat.com>
+- Restore compatibility cruft for pure-RHEL builds
+
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Fri Feb 10 2017 Adam Williamson <awilliam@redhat.com> - 1.4-2
+- Enable Python 3 build for EL 6+
+
 * Tue Jan 10 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.4-1
 - Fix loading variants from legacy composeinfo. (dmach@redhat.com)
 - Fix sorting composes (lsedlar@redhat.com)
