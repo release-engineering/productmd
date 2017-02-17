@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.composeinfo import ComposeInfo, Variant, Release  # noqa
+from productmd.composeinfo import ComposeInfo, Variant, Release, get_date_type_respin  # noqa
 
 
 class TestComposeInfo(unittest.TestCase):
@@ -244,6 +244,42 @@ def setup_create_compose_id_case():
         setattr(TestCreateComposeID, test_name, test)
 
 setup_create_compose_id_case()
+
+
+class TestGetDateTypeRespin(unittest.TestCase):
+
+    def test_unknown_type(self):
+        self.assertRaises(ValueError, get_date_type_respin, 'Foo-1.0-20170217.foo.2')
+
+    def test_unknown_type_matching_prefix(self):
+        self.assertRaises(ValueError, get_date_type_respin, 'Foo-1.0-20170217.c.2')
+
+    def test_explicit_production(self):
+        self.assertRaises(ValueError, get_date_type_respin, 'Foo-1.0-20170217.production.2')
+
+
+def setup_get_date_type_case():
+    def test_generator(cid, date, type, respin):
+        def test(self):
+            self.assertEqual(
+                get_date_type_respin(cid),
+                (date, type, respin)
+            )
+        return test
+
+    data = {
+        'bad_format': ('Hello', None, None, None),
+        'production': ('Foo-1.0-20170217.1', '20170217', 'production', 1),
+        'nightly': ('Foo-1.0-20170217.n.1', '20170217', 'nightly', 1),
+        'ci': ('Foo-1.0-20170217.ci.1', '20170217', 'ci', 1),
+        'no_respin': ('Foo-1.0-20170217.ci', '20170217', 'ci', 0),
+    }
+    for name in data:
+        test_name = 'test_%s' % name
+        test = test_generator(*data[name])
+        setattr(TestGetDateTypeRespin, test_name, test)
+
+setup_get_date_type_case()
 
 if __name__ == "__main__":
     unittest.main()
