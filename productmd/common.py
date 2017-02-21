@@ -93,12 +93,12 @@ def parse_nvra(nvra):
     return result
 
 
-#: Validation regex for release short name: [a-z] followed by [a-z0-9] separated with dashes.
-RELEASE_SHORT_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+#: Validation regex for release short name: [a-zA-Z] followed by [a-zA-Z0-9] separated with dashes.
+RELEASE_SHORT_RE = re.compile(r"^[a-zA-Z]+([a-zA-Z0-9]*-?[a-zA-Z0-9]+)*$")
 
 
-#: Validation regex for release version: any string or [0-9] separated with dots.
-RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
+#: Validation regex for release version: 'Rawhide' or [0-9] separated with dots.
+RELEASE_VERSION_RE = re.compile(r"^(Rawhide|[0-9]+(\.?[0-9]+)*)$")
 
 
 #: Supported release types.

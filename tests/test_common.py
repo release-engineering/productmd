@@ -36,10 +36,10 @@ class TestRelease(unittest.TestCase):
 
     def test_valid_short(self):
         self.assertTrue(is_valid_release_short("f"))
-        self.assertFalse(is_valid_release_short("F"))
+        self.assertTrue(is_valid_release_short("F"))
 
         self.assertTrue(is_valid_release_short("fedora"))
-        self.assertFalse(is_valid_release_short("Fedora"))
+        self.assertTrue(is_valid_release_short("Fedora"))
 
         self.assertTrue(is_valid_release_short("fedora-server"))
         self.assertTrue(is_valid_release_short("fedora-server-23"))
@@ -60,7 +60,10 @@ class TestRelease(unittest.TestCase):
         self.assertTrue(is_valid_release_version("1.0"))
         self.assertTrue(is_valid_release_version("1.1"))
 
-        self.assertTrue(is_valid_release_version("a"))
+        self.assertTrue(is_valid_release_version("Rawhide"))
+        self.assertFalse(is_valid_release_version("rawhide"))
+
+        self.assertFalse(is_valid_release_version("a"))
         self.assertFalse(is_valid_release_version("1.a"))
         self.assertFalse(is_valid_release_version("1.1a"))
 
@@ -70,8 +73,6 @@ class TestRelease(unittest.TestCase):
         self.assertFalse(is_valid_release_version("1.."))
         self.assertFalse(is_valid_release_version("1.1."))
         self.assertFalse(is_valid_release_version("1..1"))
-
-        self.assertTrue(is_valid_release_version("rawhide"))
 
     def test_split_version(self):
         self.assertEqual(split_version("0"), [0])
