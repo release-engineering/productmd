@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.composeinfo import ComposeInfo, Variant, Release  # noqa
+from productmd.composeinfo import ComposeInfo, Variant, Release, parse_compose_id  # noqa
 
 
 class TestComposeInfo(unittest.TestCase):
@@ -193,6 +193,200 @@ class TestComposeInfo(unittest.TestCase):
         ci.get_variants()
         self.assertEqual(ci.get_variants(), [variant])
         self.assertEqual(ci.get_variants(arch='x86_64'), [variant])
+
+    def test_parse_compose_id(self):
+        assert parse_compose_id('F-22-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-20160622.ci.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'ci',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-20160622.t.1') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'test',
+            'respin': 1
+        }
+        assert parse_compose_id('F-22-updates-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-updates-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-BASE-3-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'ga',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-BASE-3-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'ga',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-updates-BASE-3-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'ga',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-updates-BASE-3-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'ga',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-BASE-3-updates-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'updates',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-BASE-3-updates-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'ga',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'updates',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-updates-BASE-3-updates-20160622.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'updates',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'production',
+            'respin': 0
+        }
+        assert parse_compose_id('F-22-updates-BASE-3-updates-20160622.n.0') == {
+            'short': 'F',
+            'version': '22',
+            'version_type': 'updates',
+            'bp_short': 'BASE',
+            'bp_version': '3',
+            'bp_type': 'updates',
+            'variant': '',
+            'date': '20160622',
+            'compose_type': 'nightly',
+            'respin': 0
+        }
+        assert parse_compose_id('Fedora-Rawhide-updates-RHEL-6.3.4-20160513.t.1') == {
+            'short': 'Fedora',
+            'version': 'Rawhide',
+            'version_type': 'updates',
+            'bp_short': 'RHEL',
+            'bp_version': '6.3.4',
+            'bp_type': 'ga',
+            'variant': '',
+            'date': '20160513',
+            'compose_type': 'test',
+            'respin': 1
+        }
+        assert parse_compose_id('rhel-5-updates-Server-20160523.2') == {
+            'short': 'rhel',
+            'version': '5',
+            'version_type': 'updates',
+            'bp_short': '',
+            'bp_version': '',
+            'bp_type': '',
+            'variant': 'Server',
+            'date': '20160523',
+            'compose_type': 'production',
+            'respin': 2
+        }
 
 
 class TestCreateComposeID(unittest.TestCase):

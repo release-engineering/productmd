@@ -195,7 +195,7 @@ def verify_label(label):
 
 
 def get_date_type_respin(compose_id):
-    pattern = re.compile(r".*(?P<date>\d{8})(?P<type>\.nightly|\.n|\.test|\.t)?(\.(?P<respin>\d+))?.*")
+    pattern = re.compile(r".*(?P<date>\d{8})(?P<type>\.nightly|\.n|\.test|\.t|\.ci)?(\.(?P<respin>\d+))?.*")
     match = pattern.match(compose_id)
     if not match:
         return None, None, None
@@ -208,9 +208,151 @@ def get_date_type_respin(compose_id):
         result["type"] = "nightly"
     elif result["type"] in (".test", ".t"):
         result["type"] = "test"
+    elif result["type"] == ".ci":
+        result["type"] = "ci"
     else:
         raise ValueError("Unknown compose type: %s" % result["type"])
     return (result["date"], result["type"], int(result["respin"]))
+
+
+def parse_compose_id(compose_id):
+    """Parse a compose ID back into its component values. Returns a
+    dict containing values for 'short', 'version', 'version_type',
+    'bp_short', 'bp_version', 'bp_type', 'variant', 'date',
+    'compose_type' and 'respin'. If the ID is not for a layered
+    compose, the 'bp_*' values will be ''. The 'variant value will
+    only be populated (as 'Client' or 'Server') for RHEL 5 composes
+    (see `ComposeInfo.create_compose_id`). 'date', 'compose_type' and
+    'respin' are the output of `common.get_date_type_respin`. May
+    raise ValueError for pathologically unparseable compose IDs. Can
+    be fooled by very weird shortnames: for instance, if you were to
+    use 'f-26-r' as a shortname, resulting in a compose ID like
+    'f-26-r-23-20170225.n.0', then this parser will read that as a
+    layered product compose ID, where bp_short is 'r', bp_version is
+    '23', short is 'f' and version is '26'.
+    """
+    # init values
+    short = ''
+    version = ''
+    version_type = ''
+    bp_short = ''
+    bp_version = ''
+    bp_type = ''
+    variant = ''
+
+    # find date, type, respin
+    (date, compose_type, respin) = get_date_type_respin(compose_id)
+    # now split on the date, we only care about what comes before
+    part = compose_id.rsplit(date, 1)[0][:-1]
+
+    # Handle "HACK: there are 2 RHEL 5 composes"
+    if part.endswith("-Client"):
+        variant = "Client"
+        part = part[:-len('-Client')]
+    elif part.endswith("-Server"):
+        variant = "Server"
+        part = part[:-len('-Server')]
+
+    # Next part back must be either a version type suffix or a version
+    # we don't know yet if this is the main version or the base
+    # version for a layered product
+    (part, somever) = part.rsplit('-', 1)
+    # See if it's a type_suffix
+    if somever.lower() in productmd.common.RELEASE_TYPES:
+        sometype = somever
+        (part, somever) = part.rsplit('-', 1)
+    else:
+        sometype = ''
+
+    # what remains is either:
+    # short
+    # or:
+    # short-version(-version_type)-bp_short
+    # But this is where things get fun, because sadly, both short
+    # and bp_short could have - in them and version could have a type
+    # suffix. So, life is fun. Let's see if we can spot what looks
+    # like a '-version(-type)' component. Note that particularly evil
+    # shortnames can screw us up here: see the comment where we check
+    # the length of `goodmatches`.
+    elems = part.split('-')
+    # Only do this magic if we have at least 3 elems, because if we
+    # have 1 or 2, we know it's just the shortname.
+    if len(elems) > 2:
+        # use this to track all of the RELEASE_VERSION_RE matches we
+        # find
+        matches = []
+        for (idx, cand) in enumerate(elems):
+            # can't be the first or the last
+            if idx == 0 or idx == len(elems) - 1:
+                continue
+            # now see if the cand looks like a version
+            match = RELEASE_VERSION_RE.match(cand)
+            if match:
+                matchver = match.group(1)
+                # check if the next element looks like a version type
+                nextel = elems[idx+1]
+                if nextel.lower() in productmd.common.RELEASE_TYPES:
+                    # if we got *two* matches that look like
+                    # -version-version_type- , we're pretty screwed
+                    matchtype = nextel
+                else:
+                    matchtype = ''
+                matches.append((matchver, matchtype, idx))
+
+        # find all matches that produce two valid short names
+        goodmatches = []
+        for match in matches:
+            (_version, _version_type, idx) = match
+            _short = '-'.join(elems[:idx])
+            if _version_type:
+                _bp_short = '-'.join(elems[idx+2:])
+            else:
+                _bp_short = '-'.join(elems[idx+1:])
+            if all(productmd.common.is_valid_release_short(shrt) for shrt in (_short, _bp_short)):
+                goodmatches.append(match)
+
+        if len(goodmatches) > 1:
+            # we're boned. you have to work quite hard to get here,
+            # though. this will do it: 'F-26-F-26-RHEL-6-20170225.n.0'
+            # where the shortname and base shortname could be either
+            # 'F' and 'F-26-RHEL' or 'F-26-F' and 'RHEL'.
+            raise ValueError("Cannot parse compose ID %s as it contains more than one possible "
+                             "-version(-version_type)- string" % compose_id)
+
+        if goodmatches:
+            (version, version_type, idx) = goodmatches[0]
+            bp_version = somever
+            bp_type = sometype
+            short = '-'.join(elems[:idx])
+            if version_type:
+                bp_short = '-'.join(elems[idx+2:])
+            else:
+                bp_short = '-'.join(elems[idx+1:])
+
+    # if we didn't establish a version above, we must not be layered,
+    # and what remains is just short, and somever is version
+    if not short:
+        short = part
+        version = somever
+        version_type = sometype
+
+    if not version_type:
+        version_type = 'ga'
+    if bp_version and not bp_type:
+        bp_type = 'ga'
+
+    return {
+        'short': short,
+        'version': version,
+        'version_type': version_type,
+        'bp_short': bp_short,
+        'bp_version': bp_version,
+        'bp_type': bp_type,
+        'variant': variant,
+        'date': date,
+        'compose_type': compose_type,
+        'respin': respin
+    }
 
 
 def cmp_label(label1, label2):
