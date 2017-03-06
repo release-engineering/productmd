@@ -57,6 +57,16 @@ COMPOSE_TYPES = [
 ]
 
 
+def _invert(d):
+    return dict([(v, k) for k in d for v in d[k]])
+
+COMPOSE_TYPE_SUFFIXES = _invert({
+    "test": ['t', 'test'],
+    "ci": ['ci'],
+    "nightly": ['n', 'nightly'],
+})
+
+
 #: supported milestone label names
 LABEL_NAMES = [
     "DevelPhaseExit",
@@ -195,7 +205,7 @@ def verify_label(label):
 
 
 def get_date_type_respin(compose_id):
-    pattern = re.compile(r".*(?P<date>\d{8})(?P<type>\.nightly|\.n|\.test|\.t)?(\.(?P<respin>\d+))?.*")
+    pattern = re.compile(r".*(?P<date>\d{8})(?P<type>\.[a-z]+)?(\.(?P<respin>\d+))?.*")
     match = pattern.match(compose_id)
     if not match:
         return None, None, None
@@ -204,12 +214,11 @@ def get_date_type_respin(compose_id):
         result["respin"] = 0
     if not result["type"]:
         result["type"] = "production"
-    elif result["type"] in (".nightly", ".n"):
-        result["type"] = "nightly"
-    elif result["type"] in (".test", ".t"):
-        result["type"] = "test"
     else:
-        raise ValueError("Unknown compose type: %s" % result["type"])
+        try:
+            result["type"] = COMPOSE_TYPE_SUFFIXES[result["type"][1:]]
+        except KeyError:
+            raise ValueError("Unknown compose type: %s" % result["type"])
     return (result["date"], result["type"], int(result["respin"]))
 
 
