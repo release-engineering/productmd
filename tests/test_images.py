@@ -29,7 +29,7 @@ import shutil
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.images import Images, Image  # noqa
+from productmd.images import Images, Image, identify_image  # noqa
 
 
 class TestImages(unittest.TestCase):
@@ -203,6 +203,13 @@ class TestImages(unittest.TestCase):
             "sha256": "ef7e5ed9eee6dbcde1e0a4d69c76ce6fb552f75ccad879fa0f93031ceb950f27",
         })
         self.assertRaises(ValueError, i.add_checksum, root=None, checksum_type="sha256", checksum_value="foo")
+        # identifier (Image instance)
+        self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1))
+        # identifier (dict)
+        parser = []
+        i.serialize(parser)
+        imgdict = parser[0]
+        self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1))
 
         i.implant_md5 = "8bc179ecdd48e0b019365104f081a83e"
         i.bootable = True
@@ -322,6 +329,48 @@ class TestImages(unittest.TestCase):
         i.deserialize(data)
         self.assertTrue(i.unified)
 
+    def test_unique_id_enforcement(self):
+        """Test that adding two images with different checksums but
+        matching UNIQUE_IMAGE_ATTRIBUTES is disallowed (on 1.1+).
+        """
+        im = Images()
+        im.header.version = '1.1'
+
+        i1 = Image(im)
+        i2 = Image(im)
+        data = {
+            'arch': 'x86_64',
+            'disc_count': 1,
+            'disc_number': 1,
+            'format': 'iso',
+            'type': 'dvd',
+            'mtime': 1410855216,
+            'path': "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso",
+            'size': 4603248640,
+            'subvariant': 'Workstation',
+            'volume_id': None,
+            'implant_md5': None,
+            'bootable': True,
+        }
+        # NOTE: there's a rather subtle behaviour here where when you
+        # deserialize, mutable things in the deserialized object are
+        # not *copies* of the objects in the dict you deserialized
+        # but *are* those objects. So if you modify them in the dict
+        # after deserialization, *the deserialized object changes*.
+        # I'm not sure whether this is intentional, but it means we
+        # must be careful here, we cannot just deserialize i1, change
+        # the checksums in data, then deserialize i2; if we do that,
+        # i1's checksums are changed, the checksums for i1 and i2
+        # match, and the expected error isn't triggered.
+        data1 = dict(data)
+        data1['checksums'] = {'sha256': 'XXXXXX'}
+        i1.deserialize(data1)
+        im.add("Workstation", "x86_64", i1)
+
+        data2 = dict(data)
+        data2['checksums'] = {'sha256': 'YYYYYY'}
+        i2.deserialize(data2)
+        self.assertRaises(ValueError, im.add, "Server", "x86_64", i2)
 
 if __name__ == "__main__":
     unittest.main()
