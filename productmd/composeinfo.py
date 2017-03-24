@@ -69,6 +69,7 @@ COMPOSE_TYPE_SUFFIXES = _invert({
 
 #: supported milestone label names
 LABEL_NAMES = [
+    "EA", # Early Access
     "DevelPhaseExit",
     "InternalAlpha",
     "Alpha",
