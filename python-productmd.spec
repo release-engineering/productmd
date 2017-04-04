@@ -26,8 +26,8 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.4
-Release:        3%{?dist}
+Version:        1.5
+Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
 Group:          Development/Tools
@@ -111,6 +111,15 @@ and installation media.
 %endif
 
 %changelog
+* Tue Apr 04 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.5-1
+- Add 'unified' to unique image attributes (lsedlar@redhat.com)
+- Add EA - Early Access label (lkocman@redhat.com)
+- Correctly parse type from ci compose (lsedlar@redhat.com)
+- Simplify tests for creating compose id (lsedlar@redhat.com)
+- Sync spec file with Fedora (enable Py3 for EPEL) (#79) (awilliam@redhat.com)
+- Support 'unique image identifier' concept, enforce on 1.1+
+  (awilliam@redhat.com)
+
 * Wed Feb 15 2017 Adam Williamson <awilliam@redhat.com>
 - Restore compatibility cruft for pure-RHEL builds
 
