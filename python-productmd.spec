@@ -26,7 +26,7 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.5
+Version:        1.6
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -111,6 +111,10 @@ and installation media.
 %endif
 
 %changelog
+* Thu Apr 06 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.6-1
+- Add a new image type dvd-debuginfo (lsedlar@redhat.com)
+- Add Tito release for F26 (lsedlar@redhat.com)
+
 * Tue Apr 04 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.5-1
 - Add 'unified' to unique image attributes (lsedlar@redhat.com)
 - Add EA - Early Access label (lkocman@redhat.com)
