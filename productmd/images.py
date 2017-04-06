@@ -125,13 +125,16 @@ class Images(productmd.common.MetadataBase):
             raise ValueError("Arch not found in RPM_ARCHES: %s" % arch)
         if arch in ["src", "nosrc"]:
             raise ValueError("Source arch is not allowed. Map source files under binary arches.")
-        if self.header.version_tuple >= (1, 1):
+        if not image.unified and self.header.version_tuple >= (1, 1):
             # disallow adding a different image with same 'unique'
             # attributes. can't do this pre-1.1 as we couldn't truly
-            # identify images before subvariant
+            # identify images before subvariant. and not going to
+            # check this for unified images.
             for checkvar in self.images:
                 for checkarch in self.images[checkvar]:
                     for curimg in self.images[checkvar][checkarch]:
+                        if curimg.unified:
+                            continue
                         if identify_image(curimg) == identify_image(image) and curimg.checksums != image.checksums:
                             raise ValueError("Image {0} shares all UNIQUE_IMAGE_ATTRIBUTES with "
                                              "image {1}! This is forbidden.".format(image, curimg))
@@ -145,7 +148,6 @@ def identify_image(image):
     a function so consumers can use it on plain image dicts read from
     the metadata or PDC.
     """
-    attrs = list(UNIQUE_IMAGE_ATTRIBUTES)
     try:
         # Image instance case
         return tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
