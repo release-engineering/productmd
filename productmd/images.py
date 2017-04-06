@@ -28,7 +28,7 @@ import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
 
-from collections import namedtuple
+from operator import getitem
 import six
 
 
@@ -38,7 +38,6 @@ __all__ = (
     "SUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
     "UNIQUE_IMAGE_ATTRIBUTES",
-    "UniqueImage",
 )
 
 
@@ -56,9 +55,7 @@ SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
                            'vdi', 'vmdk', 'vmx', 'vsphere.ova']
 
 #: combination of attributes which uniquely identifies an image across composes
-UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number', 'unified']
-#: a namedtuple with unique attributes, use ``identify_image`` to create an instance
-UniqueImage = namedtuple('UniqueImage', UNIQUE_IMAGE_ATTRIBUTES)
+UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number']
 
 
 class Images(productmd.common.MetadataBase):
@@ -148,16 +145,13 @@ def identify_image(image):
     a function so consumers can use it on plain image dicts read from
     the metadata or PDC.
     """
+    attrs = list(UNIQUE_IMAGE_ATTRIBUTES)
     try:
         # Image instance case
-        attrs = tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
+        return tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
     except AttributeError:
         # Plain dict case
-        attrs = tuple(image.get(attr, None) for attr in UNIQUE_IMAGE_ATTRIBUTES)
-    ui = UniqueImage(*attrs)
-    # If unified is None (which could happen in the dict case, we want default
-    # value of False instead.
-    return ui._replace(unified=ui.unified or False)
+        return tuple(getitem(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
 
 
 class Image(productmd.common.MetadataBase):
