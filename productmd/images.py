@@ -44,6 +44,9 @@ __all__ = (
 
 #: supported image types
 SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd',
+                         # Usually non-bootable image which contains a repo
+                         # with debuginfo packages.
+                         'dvd-debuginfo',
                          # installer image that deploys a payload containing an
                          # ostree-based distribution
                          'dvd-ostree',
