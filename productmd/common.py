@@ -162,7 +162,10 @@ def _open_file_obj(f, mode="r"):
             context = None  # py26, py33, py34
             if hasattr(ssl, '_create_unverified_context'):
                 context = ssl._create_unverified_context()
-            file_obj = six.moves.urllib.request.urlopen(f, context=context)
+            try:
+                file_obj = six.moves.urllib.request.urlopen(f, context=context)
+            except TypeError:  # py26
+                file_obj = six.moves.urllib.request.urlopen(f)
             yield file_obj
             file_obj.close()
         else:
@@ -178,7 +181,11 @@ def _file_exists(path):
         if hasattr(ssl, '_create_unverified_context'):
             context = ssl._create_unverified_context()
         try:
-            file_obj = six.moves.urllib.request.urlopen(path, context=context)
+            try:
+                file_obj = six.moves.urllib.request.urlopen(path,
+                                                            context=context)
+            except TypeError:  # py26
+                file_obj = six.moves.urllib.request.urlopen(path)
             file_obj.close()
         except six.moves.urllib.error.HTTPError:
             return False
