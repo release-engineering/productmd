@@ -26,7 +26,7 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.6
+Version:        1.7
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -111,6 +111,9 @@ and installation media.
 %endif
 
 %changelog
+* Wed Apr 19 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.7-1
+- common: omit context kwarg to urlopen on old Python (lsedlar@redhat.com)
+
 * Thu Apr 06 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.6-1
 - Add a new image type dvd-debuginfo (lsedlar@redhat.com)
 - Add Tito release for F26 (lsedlar@redhat.com)
