@@ -147,6 +147,16 @@ def is_valid_release_type(release_type):
     return release_type in RELEASE_TYPES
 
 
+def _urlopen(path):
+    kwargs = {}
+    if hasattr(ssl, '_create_unverified_context'):
+        # We only want to use the `context` keyword argument if it has a value.
+        # Older Python versions (<2.7.9) do not support it. In those cases the
+        # ssl module will not have the method to create the context.
+        kwargs['context'] = ssl._create_unverified_context()
+    return six.moves.urllib.request.urlopen(path, **kwargs)
+
+
 @contextlib.contextmanager
 def _open_file_obj(f, mode="r"):
     """
@@ -159,10 +169,7 @@ def _open_file_obj(f, mode="r"):
     """
     if isinstance(f, six.string_types):
         if f.startswith(("http://", "https://")):
-            context = None  # py26, py33, py34
-            if hasattr(ssl, '_create_unverified_context'):
-                context = ssl._create_unverified_context()
-            file_obj = six.moves.urllib.request.urlopen(f, context=context)
+            file_obj = _urlopen(f)
             yield file_obj
             file_obj.close()
         else:
@@ -174,11 +181,8 @@ def _open_file_obj(f, mode="r"):
 
 def _file_exists(path):
     if path.startswith(("http://", "https://")):
-        context = None  # py26, py33, py34
-        if hasattr(ssl, '_create_unverified_context'):
-            context = ssl._create_unverified_context()
         try:
-            file_obj = six.moves.urllib.request.urlopen(path, context=context)
+            file_obj = _urlopen(path)
             file_obj.close()
         except six.moves.urllib.error.HTTPError:
             return False
