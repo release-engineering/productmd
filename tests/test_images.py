@@ -204,12 +204,12 @@ class TestImages(unittest.TestCase):
         })
         self.assertRaises(ValueError, i.add_checksum, root=None, checksum_type="sha256", checksum_value="foo")
         # identifier (Image instance)
-        self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1, False))
+        self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1))
         # identifier (dict)
         parser = []
         i.serialize(parser)
         imgdict = parser[0]
-        self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1, False))
+        self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1))
 
         i.implant_md5 = "8bc179ecdd48e0b019365104f081a83e"
         i.bootable = True
@@ -371,6 +371,43 @@ class TestImages(unittest.TestCase):
         data2['checksums'] = {'sha256': 'YYYYYY'}
         i2.deserialize(data2)
         self.assertRaises(ValueError, im.add, "Server", "x86_64", i2)
+
+    def test_allow_add_multi_unified_images(self):
+        """Test that adding two unified images with different checksums
+        and matching UNIQUE_IMAGE_ATTRIBUTES is allowed.
+        """
+        im = Images()
+        im.header.version = '1.1'
+
+        i1 = Image(im)
+        i2 = Image(im)
+        data = {
+            'arch': 'x86_64',
+            'disc_count': 1,
+            'disc_number': 1,
+            'format': 'iso',
+            'type': 'dvd',
+            'mtime': 1410855216,
+            'path': "Fedora/x86_64/iso/Fedora-20-x86_64-DVD.iso",
+            'size': 4603248640,
+            'subvariant': 'Workstation',
+            'volume_id': None,
+            'implant_md5': None,
+            'bootable': True,
+            'unified': True,
+        }
+        data1 = dict(data)
+        data1['checksums'] = {'sha256': 'XXXXXX'}
+        i1.deserialize(data1)
+        im.add("Workstation", "x86_64", i1)
+
+        data2 = dict(data)
+        data2['checksums'] = {'sha256': 'YYYYYY'}
+        i2.deserialize(data2)
+        im.add("Server", "x86_64", i1)
+        self.assertEqual(identify_image(i1), identify_image(i2))
+        self.assertEqual(len(im['Workstation']['x86_64']), 1)
+        self.assertEqual(len(im['Server']['x86_64']), 1)
 
 if __name__ == "__main__":
     unittest.main()

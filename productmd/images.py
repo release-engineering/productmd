@@ -28,7 +28,7 @@ import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
 
-from collections import namedtuple
+from operator import getitem
 import six
 
 
@@ -38,7 +38,6 @@ __all__ = (
     "SUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
     "UNIQUE_IMAGE_ATTRIBUTES",
-    "UniqueImage",
 )
 
 
@@ -59,9 +58,7 @@ SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
                            'vdi', 'vmdk', 'vmx', 'vsphere.ova']
 
 #: combination of attributes which uniquely identifies an image across composes
-UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number', 'unified']
-#: a namedtuple with unique attributes, use ``identify_image`` to create an instance
-UniqueImage = namedtuple('UniqueImage', UNIQUE_IMAGE_ATTRIBUTES)
+UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number']
 
 
 class Images(productmd.common.MetadataBase):
@@ -131,13 +128,16 @@ class Images(productmd.common.MetadataBase):
             raise ValueError("Arch not found in RPM_ARCHES: %s" % arch)
         if arch in ["src", "nosrc"]:
             raise ValueError("Source arch is not allowed. Map source files under binary arches.")
-        if self.header.version_tuple >= (1, 1):
+        if not image.unified and self.header.version_tuple >= (1, 1):
             # disallow adding a different image with same 'unique'
             # attributes. can't do this pre-1.1 as we couldn't truly
-            # identify images before subvariant
+            # identify images before subvariant. and not going to
+            # check this for unified images.
             for checkvar in self.images:
                 for checkarch in self.images[checkvar]:
                     for curimg in self.images[checkvar][checkarch]:
+                        if curimg.unified:
+                            continue
                         if identify_image(curimg) == identify_image(image) and curimg.checksums != image.checksums:
                             raise ValueError("Image {0} shares all UNIQUE_IMAGE_ATTRIBUTES with "
                                              "image {1}! This is forbidden.".format(image, curimg))
@@ -153,14 +153,10 @@ def identify_image(image):
     """
     try:
         # Image instance case
-        attrs = tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
+        return tuple(getattr(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
     except AttributeError:
         # Plain dict case
-        attrs = tuple(image.get(attr, None) for attr in UNIQUE_IMAGE_ATTRIBUTES)
-    ui = UniqueImage(*attrs)
-    # If unified is None (which could happen in the dict case, we want default
-    # value of False instead.
-    return ui._replace(unified=ui.unified or False)
+        return tuple(getitem(image, attr) for attr in UNIQUE_IMAGE_ATTRIBUTES)
 
 
 class Image(productmd.common.MetadataBase):
