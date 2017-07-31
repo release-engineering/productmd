@@ -27,7 +27,7 @@
 
 Name:           python-productmd
 Version:        1.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
 Group:          Development/Tools
@@ -111,6 +111,9 @@ and installation media.
 %endif
 
 %changelog
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Wed Apr 19 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.7-1
 - common: omit context kwarg to urlopen on old Python (lsedlar@redhat.com)
 
