@@ -27,19 +27,13 @@
 
 Name:           python-productmd
 Version:        1.7
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
 Group:          Development/Tools
 License:        LGPLv2+
 URL:            https://github.com/release-engineering/productmd
 Source0:        https://files.pythonhosted.org/packages/source/p/%{name}/%{name}-%{version}.tar.gz
-
-Obsoletes:      productmd <= %{version}-%{release}
-Provides:       productmd = %{version}-%{release}
-Provides:       python2-productmd = %{version}-%{release}
-
-Requires:       python-six
 
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
@@ -53,9 +47,20 @@ BuildRequires:  python%{python3_pkgversion}-six
 
 BuildArch:      noarch
 
-%description
-Python library providing parsers for metadata related to composes
+%global _description\
+Python library providing parsers for metadata related to composes\
 and installation media.
+
+%description %_description
+
+%package -n python2-productmd
+Summary: %summary
+Obsoletes:      productmd <= %{version}-%{release}
+Provides:       productmd = %{version}-%{release}
+Requires:       python-six
+%{?python_provide:%python_provide python2-productmd}
+
+%description -n python2-productmd %_description
 
 %if 0%{?with_python3}
 %package -n python%{python3_pkgversion}-productmd
@@ -96,7 +101,7 @@ and installation media.
 # Implemented in EPEL, but not in RHEL
 %{!?_licensedir:%global license %doc}
 
-%files
+%files -n python2-productmd
 %license LICENSE
 %doc AUTHORS
 %{python_sitelib}/productmd/
@@ -111,6 +116,10 @@ and installation media.
 %endif
 
 %changelog
+* Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.7-3
+- Python 2 binary package renamed to python2-productmd
+  See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
+
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.7-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
