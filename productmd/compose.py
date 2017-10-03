@@ -91,13 +91,10 @@ class Compose(object):
         if self._composeinfo is not None:
             return self._composeinfo
 
-        composeinfo = productmd.composeinfo.ComposeInfo()
         paths = [
             "metadata/composeinfo.json",
         ]
-        path = self._find_metadata_file(paths)
-        composeinfo.load(path)
-        self._composeinfo = composeinfo
+        self._composeinfo = self._load_metadata(paths, productmd.composeinfo.ComposeInfo)
         return self._composeinfo
 
     @property
@@ -106,14 +103,11 @@ class Compose(object):
         if self._images is not None:
             return self._images
 
-        images = productmd.images.Images()
         paths = [
             "metadata/images.json",
             "metadata/image-manifest.json",
         ]
-        path = self._find_metadata_file(paths)
-        images.load(path)
-        self._images = images
+        self._images = self._load_metadata(paths, productmd.images.Images)
         return self._images
 
     @property
@@ -122,12 +116,18 @@ class Compose(object):
         if self._rpms is not None:
             return self._rpms
 
-        rpms = productmd.rpms.Rpms()
         paths = [
             "metadata/rpms.json",
             "metadata/rpm-manifest.json",
         ]
-        path = self._find_metadata_file(paths)
-        rpms.load(path)
-        self._rpms = rpms
+        self._rpms = self._load_metadata(paths, productmd.rpms.Rpms)
         return self._rpms
+
+    def _load_metadata(self, paths, cls):
+        path = self._find_metadata_file(paths)
+        obj = cls()
+        try:
+            obj.load(path)
+        except ValueError:
+            raise RuntimeError('%s is not a valid JSON file.' % path)
+        return obj
