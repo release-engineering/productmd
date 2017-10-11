@@ -26,8 +26,8 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.7
-Release:        3%{?dist}
+Version:        1.8
+Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
 Group:          Development/Tools
@@ -116,6 +116,11 @@ and installation media.
 %endif
 
 %changelog
+* Wed Oct 11 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.8-1
+- Report better error on parsing invalid JSON (#95) (lubomir.sedlar@gmail.com)
+- Python 2 binary package renamed to python2-productmd (zbyszek@in.waw.pl)
+- Sync spec file with Fedora (#94) (lubomir.sedlar@gmail.com)
+
 * Sat Aug 19 2017 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 1.7-3
 - Python 2 binary package renamed to python2-productmd
   See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3
