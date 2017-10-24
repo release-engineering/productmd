@@ -26,7 +26,7 @@
 %{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
-Version:        1.8
+Version:        1.9
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -116,6 +116,11 @@ and installation media.
 %endif
 
 %changelog
+* Tue Oct 24 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.9-1
+- add updates-testing as a valid compose type (#96)
+  (dgilmore@fedoraproject.org)
+- Update tito configuration (lsedlar@redhat.com)
+
 * Wed Oct 11 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.8-1
 - Report better error on parsing invalid JSON (#95) (lubomir.sedlar@gmail.com)
 - Python 2 binary package renamed to python2-productmd (zbyszek@in.waw.pl)
