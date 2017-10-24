@@ -106,6 +106,7 @@ RELEASE_TYPES = [
     "fast",
     "ga",
     "updates",
+    "updates-testing",
     "eus",
     "aus",
     "els",
