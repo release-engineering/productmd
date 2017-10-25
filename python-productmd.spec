@@ -36,8 +36,13 @@ URL:            https://github.com/release-engineering/productmd
 Source0:        https://files.pythonhosted.org/packages/source/p/%{name}/%{name}-%{version}.tar.gz
 
 BuildRequires:  python2-devel
+%if 0%{?fedora}
+BuildRequires:  python2-setuptools
+BuildRequires:  python2-six
+%else
 BuildRequires:  python-setuptools
 BuildRequires:  python-six
+%endif
 
 %if 0%{?with_python3}
 BuildRequires:  python%{python3_pkgversion}-devel
@@ -57,7 +62,11 @@ and installation media.
 Summary: %summary
 Obsoletes:      productmd <= %{version}-%{release}
 Provides:       productmd = %{version}-%{release}
+%if 0%{?fedora}
+Requires:       python2-six
+%else
 Requires:       python-six
+%endif
 %{?python_provide:%python_provide python2-productmd}
 
 %description -n python2-productmd %_description
