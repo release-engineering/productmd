@@ -1,29 +1,9 @@
 # ** IMPORTANT NOTE **
 # This spec is also tracked in productmd upstream git:
 # https://github.com/release-engineering/productmd
-# Please synchronize changes to it with upstream, and be aware that
-# the spec is used for builds on pure RHEL (i.e. without EPEL packages
-# or macros).
+# Please synchronize changes to it with upstream.
 
-# Enable Python 3 builds for Fedora + EPEL >5
-# NOTE: do **NOT** change 'epel' to 'rhel' here, as this spec is also
-# used to do RHEL builds without EPEL
-%if 0%{?fedora} || 0%{?epel} > 5
-# If the definition isn't available for python3_pkgversion, define it
-%{?!python3_pkgversion:%global python3_pkgversion 3}
 %bcond_without  python3
-%else
-%bcond_with     python3
-%endif
-
-# Compatibility with RHEL. These macros have been added to EPEL but
-# not yet to RHEL proper.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1307190
-%{!?__python2: %global __python2 /usr/bin/python2}
-%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python2_sitearch: %global python2_sitearch %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
-%{!?py2_build: %global py2_build %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} build --executable="%{__python2} -s"}}
-%{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
 
 Name:           python-productmd
 Version:        1.9
@@ -36,11 +16,14 @@ URL:            https://github.com/release-engineering/productmd
 Source0:        https://files.pythonhosted.org/packages/source/p/%{name}/%{name}-%{version}.tar.gz
 
 BuildRequires:  python2-devel
-%if 0%{?fedora}
+%if 0%{?epel} < 7
+BuildRequires:  python-setuptools
+%else
 BuildRequires:  python2-setuptools
+%endif
+%if 0%{?fedora}
 BuildRequires:  python2-six
 %else
-BuildRequires:  python-setuptools
 BuildRequires:  python-six
 %endif
 
@@ -105,10 +88,6 @@ and installation media.
 %if 0%{?with_python3}
 %{__python3} ./setup.py test
 %endif
-
-# this must go after all 'License:' tags
-# Implemented in EPEL, but not in RHEL
-%{!?_licensedir:%global license %doc}
 
 %files -n python2-productmd
 %license LICENSE
