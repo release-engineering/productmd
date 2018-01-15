@@ -47,6 +47,7 @@ __all__ = (
 
     "RELEASE_SHORT_RE",
     "RELEASE_VERSION_RE",
+    "RELEASE_TYPE_RE",
     "RELEASE_TYPES",
 
     "parse_nvra",
@@ -101,7 +102,11 @@ RELEASE_SHORT_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
 RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
 
 
-#: Supported release types.
+#: Validation regex for release type: [a-z] followed by [a-z0-9] separated with dashes.
+RELEASE_TYPE_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+
+
+#: Supported release types (DEPRECATED; use is_valid_release_type()).
 RELEASE_TYPES = [
     "fast",
     "ga",
@@ -145,7 +150,8 @@ def is_valid_release_type(release_type):
     :type release_type: str
     :rtype: bool
     """
-    return release_type in RELEASE_TYPES
+    match = RELEASE_TYPE_RE.match(release_type)
+    return match is not None
 
 
 def _urlopen(path):
