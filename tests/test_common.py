@@ -27,7 +27,7 @@ import sys
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.common import is_valid_release_short, is_valid_release_version  # noqa
+from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id  # noqa
 from productmd.common import split_version  # noqa
 from productmd.common import create_release_id  # noqa
 
@@ -84,6 +84,29 @@ class TestRelease(unittest.TestCase):
         self.assertEqual(create_release_id("f", "23", "ga"), "f-23")
         self.assertEqual(create_release_id("f", "23", "updates"), "f-23-updates")
         self.assertRaises(ValueError, create_release_id, "f", "23", None)
+
+    def test_parse_release_id(self):
+        expected = {
+            "short": "f",
+            "version": "23",
+            "type": "ga",
+        }
+        self.assertEqual(parse_release_id("f-23-ga"), expected)
+        self.assertEqual(parse_release_id("f-23"), expected)
+
+        expected = {
+            "short": "f",
+            "version": "23",
+            "type": "updates",
+        }
+        self.assertEqual(parse_release_id("f-23-updates"), expected)
+
+        expected = {
+            "short": "f",
+            "version": "23",
+            "type": "updates-testing",
+        }
+        self.assertEqual(parse_release_id("f-23-updates-testing"), expected)
 
 
 if __name__ == "__main__":
