@@ -27,7 +27,7 @@ import sys
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id  # noqa
+from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id, is_valid_release_type  # noqa
 from productmd.common import split_version  # noqa
 from productmd.common import create_release_id  # noqa
 
@@ -73,6 +73,20 @@ class TestRelease(unittest.TestCase):
 
         self.assertTrue(is_valid_release_version("rawhide"))
 
+    def test_valid_release_type(self):
+        self.assertTrue(is_valid_release_type("updates"))
+        self.assertTrue(is_valid_release_type("updates-testing"))
+        self.assertTrue(is_valid_release_type("e4s"))
+        self.assertTrue(is_valid_release_type("e4s-testing"))
+
+        self.assertFalse(is_valid_release_type(""))
+
+        self.assertFalse(is_valid_release_type("-"))
+        self.assertFalse(is_valid_release_type("-eus"))
+        self.assertFalse(is_valid_release_type("4s"))
+
+        self.assertFalse(is_valid_release_type("updates-"))
+
     def test_split_version(self):
         self.assertEqual(split_version("0"), [0])
         self.assertEqual(split_version("1.0"), [1, 0])
@@ -83,7 +97,7 @@ class TestRelease(unittest.TestCase):
     def test_create_release_id(self):
         self.assertEqual(create_release_id("f", "23", "ga"), "f-23")
         self.assertEqual(create_release_id("f", "23", "updates"), "f-23-updates")
-        self.assertRaises(ValueError, create_release_id, "f", "23", None)
+        self.assertRaises(TypeError, create_release_id, "f", "23", None)
 
     def test_parse_release_id(self):
         expected = {
