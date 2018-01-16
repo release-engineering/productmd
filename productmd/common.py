@@ -473,7 +473,23 @@ def _parse_release_id_part(release_id, prefix=""):
         short, version = release_id.split("-")
         release_type = "ga"
     else:
-        short, version, release_type = release_id.rsplit("-", 2)
+        release_type = None
+        for type_ in RELEASE_TYPES:
+            # Try to find a known release type.
+            if release_id.endswith(type_):
+                release_type = type_
+                break
+
+        if release_type:
+            # Found, remove it from the parsed string (because there could be a
+            # dash causing problems).
+            release_id = release_id[:-len(release_type)]
+
+        short, version, release_type_extracted = release_id.rsplit("-", 2)
+
+        # If known release type is found, use it; otherwise fall back to the
+        # one we parsed out.
+        release_type = release_type or release_type_extracted
     result = {
         "short": short,
         "version": version,
