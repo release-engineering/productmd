@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.9
+Version:        1.10
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -104,6 +104,14 @@ and installation media.
 %endif
 
 %changelog
+* Wed Jan 17 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.10-1
+- Drop Fedora 25 build (lsedlar@redhat.com)
+- Drop RHEL compatibility from spec (lsedlar@redhat.com)
+- Use more relaxed release type checks (lholecek@redhat.com)
+- Fix parse release id with dash in type (lsedlar@redhat.com)
+- Add tests for parse_release_id() (lholecek@redhat.com)
+- Update dependencies to include Python version (#97)
+
 * Tue Oct 24 2017 Lubomír Sedlář <lsedlar@redhat.com> 1.9-1
 - add updates-testing as a valid compose type (#96)
   (dgilmore@fedoraproject.org)
