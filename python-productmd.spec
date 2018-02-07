@@ -10,28 +10,9 @@ Version:        1.10
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
-Group:          Development/Tools
 License:        LGPLv2+
 URL:            https://github.com/release-engineering/productmd
 Source0:        https://files.pythonhosted.org/packages/source/p/%{name}/%{name}-%{version}.tar.gz
-
-BuildRequires:  python2-devel
-%if 0%{?epel} < 7
-BuildRequires:  python-setuptools
-%else
-BuildRequires:  python2-setuptools
-%endif
-%if 0%{?fedora}
-BuildRequires:  python2-six
-%else
-BuildRequires:  python-six
-%endif
-
-%if 0%{?with_python3}
-BuildRequires:  python%{python3_pkgversion}-devel
-BuildRequires:  python%{python3_pkgversion}-setuptools
-BuildRequires:  python%{python3_pkgversion}-six
-%endif
 
 BuildArch:      noarch
 
@@ -42,13 +23,18 @@ and installation media.
 %description %_description
 
 %package -n python2-productmd
-Summary: %summary
+Summary:        %summary
 Obsoletes:      productmd <= %{version}-%{release}
 Provides:       productmd = %{version}-%{release}
-%if 0%{?fedora}
-Requires:       python2-six
-%else
+BuildRequires:  python2-devel
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:  python-setuptools
+BuildRequires:  python-six
 Requires:       python-six
+%else
+BuildRequires:  python2-setuptools
+BuildRequires:  python2-six
+Requires:       python2-six
 %endif
 %{?python_provide:%python_provide python2-productmd}
 
@@ -56,13 +42,13 @@ Requires:       python-six
 
 %if 0%{?with_python3}
 %package -n python%{python3_pkgversion}-productmd
-Summary:       Library providing parsers for metadata related to OS installation
-Group:         Development/Tools
-Requires:      python%{python3_pkgversion}-six
+Summary:        %{summary}
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-setuptools
+BuildRequires:  python%{python3_pkgversion}-six
+Requires:       python%{python3_pkgversion}-six
 
-%description -n python%{python3_pkgversion}-productmd
-Python library providing parsers for metadata related to composes
-and installation media.
+%description -n python%{python3_pkgversion}-productmd %_description
 %endif
 
 %prep
