@@ -20,7 +20,7 @@
 
 """
 This module provides Compose class that provides easy access
-to ComposeInfo, Rpms and Images in compose metadata.
+to ComposeInfo, Rpms, Modules and Images in compose metadata.
 
 Example::
 
@@ -31,6 +31,7 @@ Example::
   compose.info
   compose.images
   compose.rpms
+  compose.modules
 """
 
 
@@ -39,6 +40,7 @@ import os
 import productmd.composeinfo
 import productmd.images
 import productmd.rpms
+import productmd.modules
 from productmd.common import _file_exists
 
 
@@ -122,6 +124,18 @@ class Compose(object):
         ]
         self._rpms = self._load_metadata(paths, productmd.rpms.Rpms)
         return self._rpms
+
+    @property
+    def modules(self):
+        """(:class:`productmd.modules.Modules`) -- Compose Modules metadata"""
+        if self._modules is not None:
+            return self._modules
+
+        paths = [
+            "metadata/modules.json",
+        ]
+        self._modules = self._load_metadata(paths, productmd.modules.Modules)
+        return self._modules
 
     def _load_metadata(self, paths, cls):
         path = self._find_metadata_file(paths)
