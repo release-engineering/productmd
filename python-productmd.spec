@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.10
+Version:        1.11
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Mar 29 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.11-1
+- New class for processing modules (onosek@redhat.com)
+- packaging: fixes (ignatenko@redhat.com)
+
 * Wed Jan 17 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.10-1
 - Drop Fedora 25 build (lsedlar@redhat.com)
 - Drop RHEL compatibility from spec (lsedlar@redhat.com)
