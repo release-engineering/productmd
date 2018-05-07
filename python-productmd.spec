@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.11
+Version:        1.12
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon May 07 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.12-1
+- Add vpc type and vhd format for images (lsedlar@redhat.com)
+
 * Thu Mar 29 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.11-1
 - New class for processing modules (onosek@redhat.com)
 - packaging: fixes (ignatenko@redhat.com)
