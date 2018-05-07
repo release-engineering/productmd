@@ -51,12 +51,12 @@ SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd',
                          # ostree-based distribution
                          'dvd-ostree',
                          'ec2', 'kvm', 'live', 'netinst', 'p2v', 'qcow2', 'raw-xz',
-                         'rescue', 'vagrant-libvirt', 'vagrant-virtualbox']
+                         'rescue', 'vagrant-libvirt', 'vagrant-virtualbox', 'vpc']
 
 #: supported image formats, they match with file suffix
 SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
                            'sda.raw', 'tar.gz', 'tar.xz', 'vagrant-libvirt.box', 'vagrant-virtualbox.box',
-                           'vdi', 'vmdk', 'vmx', 'vsphere.ova']
+                           'vdi', 'vhd', 'vmdk', 'vmx', 'vsphere.ova']
 
 #: combination of attributes which uniquely identifies an image across composes
 UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number', 'unified']
