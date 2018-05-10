@@ -54,35 +54,58 @@ from productmd.common import Header
 from productmd.composeinfo import Compose
 
 from collections import namedtuple
+from itertools import chain
 import six
 
 
 __all__ = (
     "Image",
     "Images",
+    "IMAGE_TYPE_FORMAT_MAPPING"
     "SUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
     "UNIQUE_IMAGE_ATTRIBUTES",
     "UniqueImage",
 )
 
+IMAGE_TYPE_FORMAT_MAPPING = {
+    'boot': ['iso'],
+    'cd': ['iso'],
+    'docker': ['tar.gz', 'tar.xz'],
+    'dvd': ['iso'],
+    # Usually non-bootable image which contains a repo with debuginfo packages.
+    'dvd-debuginfo': ['iso'],
+    # installer image that deploys a payload containing an ostree-based
+    # distribution
+    'dvd-ostree': ['iso'],
+    'ec2': [],
+    'kvm': [],
+    'live': [],
+    'liveimg-squashfs': ['liveimg.squashfs'],
+    'netinst': ['iso'],
+    'p2v': [],
+    'qcow': ['qcow'],
+    'qcow2': ['qcow2'],
+    'raw': ['raw'],
+    'raw-xz': ['raw.xz'],
+    'rescue': [],
+    'rhevm-ova': ['rhevm.ova'],
+    'tar-gz': ['tar.gz'],
+    'vagrant-hyperv': ['vagrant-hyperv.box'],
+    'vagrant-libvirt': ['vabrant-libvirt.box'],
+    'vagrant-virtualbox': ['vagrant-virtualbox.box'],
+    'vagrant-vmware-fusion': ['vagrant-vmware-fusion.box'],
+    'vdi': ['vdi'],
+    'vmdk': ['vmdk'],
+    'vpc': ['vpc'],
+    'vsphere-ova': ['vsphere.ova'],
+}
 
 #: supported image types
-SUPPORTED_IMAGE_TYPES = ['boot', 'cd', 'docker', 'dvd',
-                         # Usually non-bootable image which contains a repo
-                         # with debuginfo packages.
-                         'dvd-debuginfo',
-                         # installer image that deploys a payload containing an
-                         # ostree-based distribution
-                         'dvd-ostree',
-                         'ec2', 'kvm', 'live', 'netinst', 'p2v', 'qcow2', 'raw-xz',
-                         'rescue', 'rhevm-ova', 'vagrant-libvirt', 'vagrant-virtualbox',
-                         'vpc', 'vsphere-ova']
+SUPPORTED_IMAGE_TYPES = list(sorted(IMAGE_TYPE_FORMAT_MAPPING.keys()))
 
 #: supported image formats, they match with file suffix
-SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
-                           'sda.raw', 'tar.gz', 'tar.xz', 'vagrant-libvirt.box', 'vagrant-virtualbox.box',
-                           'vdi', 'vhd', 'vmdk', 'vmx', 'vsphere.ova']
+SUPPORTED_IMAGE_FORMATS = list(sorted(set(chain(*IMAGE_TYPE_FORMAT_MAPPING.values()))))
 
 #: combination of attributes which uniquely identifies an image across composes
 UNIQUE_IMAGE_ATTRIBUTES = [
