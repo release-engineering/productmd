@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.13
+Version:        1.14
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri May 11 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.14-1
+- Add rhevm-ova as valid type (lsedlar@redhat.com)
+
 * Thu May 10 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.13-1
 - Add vsphere-ova as valid image type (lsedlar@redhat.com)
 
