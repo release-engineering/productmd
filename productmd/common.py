@@ -82,7 +82,7 @@ def parse_nvra(nvra):
     """
     Parse RPM N-E:V-R.A string to a dict.
 
-    :param nvra: N-E:V-R.A string, eventually a file name or a file path incl. '.rpm' suffix
+    :param nvra: N-E:V-R.A string. This can be a file name or a file path including the '.rpm' suffix.
     :type nvra: str
     :rtype: dict
     """
