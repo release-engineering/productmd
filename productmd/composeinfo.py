@@ -22,6 +22,12 @@
 This module provides classes for manipulating composeinfo.json files.
 composeinfo.json files provide details about composes which includes
 product information, variants, architectures and paths.
+
+Example::
+
+  import productmd.compose
+  compose = productmd.compose.Compose("/path/to/compose")
+  print(compose.info.compose.id)  # prints "Fedora-Rawhide-20180616.n.0"
 """
 
 
@@ -238,6 +244,12 @@ def cmp_label(label1, label2):
 
 
 class Compose(productmd.common.MetadataBase):
+    """
+    This class represents the top level of metadata for a compose.
+
+    It provides access to general information about the compose (ID, type,
+    date, etc.) and structures with RPMs and images.
+    """
 
     def __init__(self, metadata):
         super(Compose, self).__init__()
