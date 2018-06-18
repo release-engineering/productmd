@@ -21,6 +21,32 @@
 """
 This module provides classes for manipulating rpms.json files.
 rpms.json files provide details about RPMs included in composes.
+
+
+Example::
+
+  import productmd.compose
+  compose = productmd.compose.Compose("/path/to/compose")
+
+  # Print the entire dict that maps all variants, arches, and RPMs for this
+  # compose:
+  print(compose.rpms.rpms)
+
+  # Find all the source RPMs in this compose:
+  srpms = set()
+
+  for variant in compose.rpms.rpms:
+      for arch in compose.rpms.rpms[variant]:
+          for srpm in compose.rpms.rpms[variant][arch]:
+              srpms.add(srpm)
+
+  print(srpms)
+  # ... prints the set of SRPMs in all our variants:
+  # ['ceph-2:12.2.5-25.el7cp.src',
+  #  'ceph-ansible-0:3.1.0-0.1.rc9.el7cp.src',
+  #  'ceph-iscsi-cli-0:2.7-1.el7cp.src',
+  #  ...
+  # ]
 """
 
 
