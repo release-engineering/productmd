@@ -84,7 +84,7 @@ def parse_nvra(nvra):
 
     :param nvra: N-E:V-R.A string. This can be a file name or a file path including the '.rpm' suffix.
     :type nvra: str
-    :rtype: dict
+    :rtype: dict, with "name", "epoch", "version", "release", and "arch" elements.
     """
     if nvra.endswith(".rpm"):
         nvra = nvra[:-4]
