@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.14
+Version:        1.15
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,13 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Wed Jun 20 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.15-1
+- Add missing _modules attribute to Compose (lsedlar@redhat.com)
+- composeinfo: add docs for Compose class (kdreyer@redhat.com)
+- rpms: add doc example for using the Rpms class (kdreyer@redhat.com)
+- common: document parse_nvra() return value elements (kdreyer@redhat.com)
+- common: explain filename handling for parse_nvra() (kdreyer@redhat.com)
+
 * Fri May 11 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.14-1
 - Add rhevm-ova as valid type (lsedlar@redhat.com)
 
