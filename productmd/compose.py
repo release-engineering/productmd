@@ -79,6 +79,7 @@ class Compose(object):
         self._composeinfo = None
         self._images = None
         self._rpms = None
+        self._modules = None
 
     def _find_metadata_file(self, paths):
         for i in paths:
