@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.15
+Version:        1.16
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Jun 22 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.16-1
+- Allow modules without metadata (lsedlar@redhat.com)
+
 * Wed Jun 20 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.15-1
 - Add missing _modules attribute to Compose (lsedlar@redhat.com)
 - composeinfo: add docs for Compose class (kdreyer@redhat.com)
