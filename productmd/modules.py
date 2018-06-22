@@ -119,10 +119,8 @@ class Modules(productmd.common.MetadataBase):
             if not param:
                 raise ValueError("Non-empty '%s' is expected" % param_name)
 
-        if type(rpms) not in (list, tuple):
+        if not isinstance(rpms, (list, tuple)):
             raise ValueError("Wrong type of 'rpms'")
-        if not rpms:
-            raise ValueError("Empty array 'rpms'")
 
         arches = self.modules.setdefault(variant, {})
         uids = arches.setdefault(arch, {})
