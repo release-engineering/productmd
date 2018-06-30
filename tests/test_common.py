@@ -61,8 +61,8 @@ class TestRelease(unittest.TestCase):
         self.assertTrue(is_valid_release_version("1.1"))
 
         self.assertTrue(is_valid_release_version("a"))
-        self.assertFalse(is_valid_release_version("1.a"))
-        self.assertFalse(is_valid_release_version("1.1a"))
+        self.assertTrue(is_valid_release_version("1.a"))
+        self.assertTrue(is_valid_release_version("1.1a"))
 
         self.assertFalse(is_valid_release_version(""))
 

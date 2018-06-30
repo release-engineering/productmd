@@ -98,8 +98,9 @@ def parse_nvra(nvra):
 RELEASE_SHORT_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
 
 
-#: Validation regex for release version: any string or [0-9] separated with dots.
-RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
+#: Validation regex for release version: any string, unless it starts with a
+# number, in which case it should be a dotted version string.
+RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|[0-9]+(\.\w+)*)$")
 
 
 #: Validation regex for release type: [a-z] followed by [a-z0-9] separated with dashes.
