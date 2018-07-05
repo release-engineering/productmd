@@ -10,7 +10,7 @@ ProductMD is a Python library providing parsers for metadata related to composes
 Documentation
 -------------
 
-http://release-engineering.github.io/productmd
+http://productmd.readthedocs.io/en/latest/
 
 
 Building
