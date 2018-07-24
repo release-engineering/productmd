@@ -530,7 +530,10 @@ class VariantBase(productmd.common.MetadataBase):
         self.variants = {}
 
     def __repr__(self):
-        return u'<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
+        if hasattr(self, "compose"):
+            return u'<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
+        else:
+            return super(VariantBase, self).__repr__()
 
     def __getitem__(self, name):
         # There can be exceptions, like $variant-optional on top-level,
