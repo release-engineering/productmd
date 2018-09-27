@@ -204,12 +204,12 @@ class TestImages(unittest.TestCase):
         })
         self.assertRaises(ValueError, i.add_checksum, root=None, checksum_type="sha256", checksum_value="foo")
         # identifier (Image instance)
-        self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1, False))
+        self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1, False, []))
         # identifier (dict)
         parser = []
         i.serialize(parser)
         imgdict = parser[0]
-        self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1, False))
+        self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1, False, []))
 
         i.implant_md5 = "8bc179ecdd48e0b019365104f081a83e"
         i.bootable = True

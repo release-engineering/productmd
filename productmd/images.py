@@ -60,7 +60,15 @@ SUPPORTED_IMAGE_FORMATS = ['iso', 'qcow', 'qcow2', 'raw', 'raw.xz', 'rhevm.ova',
                            'vdi', 'vhd', 'vmdk', 'vmx', 'vsphere.ova']
 
 #: combination of attributes which uniquely identifies an image across composes
-UNIQUE_IMAGE_ATTRIBUTES = ['subvariant', 'type', 'format', 'arch', 'disc_number', 'unified']
+UNIQUE_IMAGE_ATTRIBUTES = [
+    "subvariant",
+    "type",
+    "format",
+    "arch",
+    "disc_number",
+    "unified",
+    "additional_variants",
+]
 #: a namedtuple with unique attributes, use ``identify_image`` to create an instance
 UniqueImage = namedtuple('UniqueImage', UNIQUE_IMAGE_ATTRIBUTES)
 
@@ -160,8 +168,10 @@ def identify_image(image):
         attrs = tuple(image.get(attr, None) for attr in UNIQUE_IMAGE_ATTRIBUTES)
     ui = UniqueImage(*attrs)
     # If unified is None (which could happen in the dict case, we want default
-    # value of False instead.
-    return ui._replace(unified=ui.unified or False)
+    # value of False instead. Also convert additional_variants to a list.
+    return ui._replace(
+        unified=ui.unified or False, additional_variants=ui.additional_variants or []
+    )
 
 
 class Image(productmd.common.MetadataBase):
@@ -182,6 +192,7 @@ class Image(productmd.common.MetadataBase):
         self.bootable = False           #: (*bool=False*) --
         self.subvariant = None          #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
         self.unified = False            #: (*bool=False*) -- indicates if the ISO contains content from multiple variants
+        self.additional_variants = []   #: (*[str]*) -- indicates which variants are present on the ISO
 
     def __repr__(self):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
@@ -238,6 +249,11 @@ class Image(productmd.common.MetadataBase):
     def _validate_unified(self):
         self._assert_type("unified", [bool])
 
+    def _validate_merges_variants(self):
+        self._assert_type("additional_variants", [list])
+        if self.additional_variants and not self.unified:
+            raise ValueError("Only unified images can contain multiple variants")
+
     def serialize(self, parser):
         data = parser
         self.validate()
@@ -259,6 +275,7 @@ class Image(productmd.common.MetadataBase):
         if self.unified:
             # Only add the `unified` field if it doesn't have the default value.
             result['unified'] = self.unified
+            result["additional_variants"] = self.additional_variants
         data.append(result)
 
     def deserialize(self, data):
@@ -280,6 +297,7 @@ class Image(productmd.common.MetadataBase):
             # 1.1+
             self.subvariant = data["subvariant"]
         self.unified = data.get('unified', False)
+        self.additional_variants = data.get("additional_variants", [])
         self.validate()
 
     def add_checksum(self, root, checksum_type, checksum_value):
