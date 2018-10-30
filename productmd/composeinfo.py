@@ -75,7 +75,8 @@ COMPOSE_TYPE_SUFFIXES = _invert({
 
 #: supported milestone label names
 LABEL_NAMES = [
-    "EA", # Early Access
+    # Early Access
+    "EA",
     "DevelPhaseExit",
     "InternalAlpha",
     "Alpha",
@@ -84,6 +85,16 @@ LABEL_NAMES = [
     "Snapshot",
     "RC",
     "Update",
+    # Like Update, but different so that it can be tracked separately.
+    "SecurityFix",
+]
+
+# These milestones mark final composes that contain production data. Anything
+# else can have pre-release content.
+SUPPORTED_MILESTONES = [
+    "RC",
+    "Update",
+    "SecurityFix",
 ]
 
 
