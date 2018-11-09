@@ -32,6 +32,7 @@ import json
 import codecs
 import contextlib
 import ssl
+import warnings
 
 import six
 from six.moves.configparser import ConfigParser
@@ -384,20 +385,18 @@ def split_version(version):
     return [int(i) for i in version.split(".")]
 
 
-def get_major_version(version, remove=1):
+def get_major_version(version, remove=None):
     """
     Return major version of a provided version string.
 
     :param version: Version string
     :type version: str
-    :param remove: Number of version parts to remove; defaults to 1
-    :type remove: int
     :rtype: str
     """
+    if remove:
+        warnings.warn("remove argument is deprecated", DeprecationWarning)
     version_split = version.split(".")
-    if len(version_split) <= remove:
-        return version
-    return ".".join(version_split[:-remove])
+    return version_split[0]
 
 
 def get_minor_version(version, remove=1):

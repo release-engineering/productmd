@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.join(DIR, ".."))
 from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id, is_valid_release_type  # noqa
 from productmd.common import split_version  # noqa
 from productmd.common import create_release_id  # noqa
+from productmd.common import get_major_version  # noqa
 
 
 class TestRelease(unittest.TestCase):
@@ -121,6 +122,14 @@ class TestRelease(unittest.TestCase):
             "type": "updates-testing",
         }
         self.assertEqual(parse_release_id("f-23-updates-testing"), expected)
+
+
+class TestGetMajorVersion(unittest.TestCase):
+    def test_two_parts(self):
+        self.assertEqual(get_major_version("1.0"), "1")
+
+    def test_three_parts(self):
+        self.assertEqual(get_major_version("1.0.0"), "1")
 
 
 if __name__ == "__main__":
