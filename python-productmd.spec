@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.17
+Version:        1.18
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Nov 23 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.18-1
+- get_major_version should always return first component (lsedlar@redhat.com)
+- Add SecurityFix label (lsedlar@redhat.com)
+
 * Fri Oct 05 2018 Lubomír Sedlář <lsedlar@redhat.com> 1.17-1
 - Add additional_variants attribute to unified images (lsedlar@redhat.com)
 - Do not use custom repr for objects with no compose (jkonecny@redhat.com)
