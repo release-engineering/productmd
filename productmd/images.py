@@ -21,6 +21,31 @@
 """
 This module provides classes for manipulating images.json files.
 images.json files provide details about images included in composes.
+
+Example::
+  import productmd.compose
+  compose = productmd.compose.Compose("/path/to/compose")
+
+  # Print the entire dict that maps all variants, arches, and images for this
+  # compose:
+  print(compose.images.images)
+
+  # Find all the qcow2 images in this compose:
+  qcow2s = set()
+
+  for variant in compose.images.images:
+      for arch in compose.images.images[variant]:
+          for images in compose.images.images[variant].values():
+              if image.type == 'qcow2':
+                  qcow2s.add(image)
+
+  print(qcow2s)
+
+  # ... prints the set of qcow2 images in all our variants:
+  [<Image:Server-RT/x86_64/images/rhel-kvm-rt-image-7.6-220.x86_64.qcow2:qcow2:x86_64>,
+ <Image:Server/x86_64/images/rhel-guest-image-7.6-210.x86_64.qcow2:qcow2:x86_64>,
+ <Image:Server/ppc64le/images/rhel-guest-image-7.6-210.ppc64le.qcow2:qcow2:ppc64le>]
+
 """
 
 
