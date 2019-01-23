@@ -117,6 +117,8 @@ RELEASE_TYPES = [
     "eus",
     "aus",
     "els",
+    "tus",
+    "e4s",
 ]
 
 
