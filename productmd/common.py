@@ -388,8 +388,12 @@ def split_version(version):
 
 
 def get_major_version(version, remove=None):
-    """
-    Return major version of a provided version string.
+    """Return major version of a provided version string. Major version is the
+    first component of the dot-separated version string. For non-version-like
+    strings this function returns the argument unchanged.
+
+    The ``remove`` parameter is deprecated since version 1.18 and will be
+    removed in the future.
 
     :param version: Version string
     :type version: str
@@ -401,20 +405,26 @@ def get_major_version(version, remove=None):
     return version_split[0]
 
 
-def get_minor_version(version, remove=1):
-    """
-    Return minor version of a provided version string.
+def get_minor_version(version, remove=None):
+    """Return minor version of a provided version string. Minor version is the
+    second component in the dot-separated version string. For non-version-like
+    strings this function returns ``None``.
+
+    The ``remove`` parameter is deprecated since version 1.18 and will be
+    removed in the future.
 
     :param version: Version string
     :type version: str
-    :param remove: Number of version parts to remove; defaults to 1
-    :type remove: int
     :rtype: str
     """
+    if remove:
+        warnings.warn("remove argument is deprecated", DeprecationWarning)
     version_split = version.split(".")
-    if len(version_split) <= remove:
+    try:
+        # Assume MAJOR.MINOR.REST...
+        return version_split[1]
+    except IndexError:
         return None
-    return ".".join(version_split[-remove:])
 
 
 def create_release_id(short, version, type, bp_short=None, bp_version=None, bp_type=None):

@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.join(DIR, ".."))
 from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id, is_valid_release_type  # noqa
 from productmd.common import split_version  # noqa
 from productmd.common import create_release_id  # noqa
-from productmd.common import get_major_version  # noqa
+from productmd.common import get_major_version, get_minor_version  # noqa
 
 
 class TestRelease(unittest.TestCase):
@@ -130,6 +130,20 @@ class TestGetMajorVersion(unittest.TestCase):
 
     def test_three_parts(self):
         self.assertEqual(get_major_version("1.0.0"), "1")
+
+    def test_no_dots(self):
+        self.assertEqual(get_major_version("Rawhide"), "Rawhide")
+
+
+class TestGetMinorVersion(unittest.TestCase):
+    def test_two_parts(self):
+        self.assertEqual(get_minor_version("1.2"), "2")
+
+    def test_three_parts(self):
+        self.assertEqual(get_minor_version("1.2.3"), "2")
+
+    def test_no_dots(self):
+        self.assertEqual(get_minor_version("Rawhide"), None)
 
 
 if __name__ == "__main__":
