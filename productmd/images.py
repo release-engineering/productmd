@@ -92,7 +92,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'rhevm-ova': ['rhevm.ova'],
     'tar-gz': ['tar.gz'],
     'vagrant-hyperv': ['vagrant-hyperv.box'],
-    'vagrant-libvirt': ['vabrant-libvirt.box'],
+    'vagrant-libvirt': ['vagrant-libvirt.box'],
     'vagrant-virtualbox': ['vagrant-virtualbox.box'],
     'vagrant-vmware-fusion': ['vagrant-vmware-fusion.box'],
     'vdi': ['vdi'],
