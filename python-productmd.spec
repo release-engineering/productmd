@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.20
+Version:        1.21
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon Mar 11 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.21-1
+- Correct a typo in IMAGE_TYPE_FORMAT_MAPPING (awilliam@redhat.com)
+
 * Tue Mar 05 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.20-1
 - Keep image types synced with formats (lsedlar@redhat.com)
 
