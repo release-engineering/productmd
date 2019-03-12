@@ -90,6 +90,9 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'raw-xz': ['raw.xz'],
     'rescue': [],
     'rhevm-ova': ['rhevm.ova'],
+    # raw disk image named `disk.raw` stuffed into a gzipped tarball
+    # format required for import by Google Compute Engine:
+    # https://cloud.google.com/compute/docs/images/import-existing-image
     'tar-gz': ['tar.gz'],
     'vagrant-hyperv': ['vagrant-hyperv.box'],
     'vagrant-libvirt': ['vagrant-libvirt.box'],
