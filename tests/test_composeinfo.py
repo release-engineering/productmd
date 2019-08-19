@@ -230,6 +230,38 @@ class TestComposeInfo(unittest.TestCase):
         self.assertEqual(ci.get_variants(), [variant])
         self.assertEqual(ci.get_variants(arch='x86_64'), [variant])
 
+    def test_multiple_variants(self):
+        ci = ComposeInfo()
+        ci.release.name = "Fedora"
+        ci.release.short = "F"
+        ci.release.version = "25"
+        ci.release.type = "ga"
+
+        ci.compose.id = "F-25-20150522.0"
+        ci.compose.type = "production"
+        ci.compose.date = "20161225"
+        ci.compose.respin = 0
+
+        varianta = Variant(ci)
+        varianta.id = "Server"
+        varianta.uid = "Server"
+        varianta.name = "Server"
+        varianta.type = "variant"
+        varianta.arches = set(["armhfp", "i386", "x86_64"])
+
+        variantb = Variant(ci)
+        variantb.id = "Client"
+        variantb.uid = "Client"
+        variantb.name = "Client"
+        variantb.type = "variant"
+        variantb.arches = set(["armhfp", "i386", "x86_64"])
+
+        ci.variants.add(varianta)
+        ci.variants.add(variantb)
+        ci.get_variants()
+        self.assertEqual(ci.get_variants(), [variantb, varianta])
+        self.assertEqual(ci.get_variants(arch='x86_64'), [variantb, varianta])
+
 
 class TestCreateComposeID(unittest.TestCase):
     def setUpRelease(self, compose_type, release_type, bp_type=None):

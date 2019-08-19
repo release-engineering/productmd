@@ -221,12 +221,48 @@ class TestTreeInfo(unittest.TestCase):
             if i in ("fedora-8-Everything.x86_64", "fedora-8-Everything.ppc", "fedora-8-Everything.i386"):
                 # version == "development" -> can't read correctly
                 continue
+            if i in ("RHEL-8-BETA.aarch64", "RHEL-8-BETA.ppc64le", "RHEL-8-BETA.s390x", "RHEL-8-BETA.x86_64"):
+                # Not a Fedora file
+                continue
             path = os.path.join(self.treeinfo_path, i)
             ti = TreeInfo()
             ti.load(path)
             self.assertEqual(ti.release.short, "Fedora")
             self.assertEqual(ti.release.name, "Fedora")
             self.assertEqual(ti.release.version, str(int(ti.release.version)))
+
+    def test_read_RHEL_treeinfo(self):
+        for i in os.listdir(self.treeinfo_path):
+            if i not in ("RHEL-8-BETA.aarch64", "RHEL-8-BETA.ppc64le", "RHEL-8-BETA.s390x", "RHEL-8-BETA.x86_64"):
+                continue
+            path = os.path.join(self.treeinfo_path, i)
+            ti = TreeInfo()
+            ti.load(path)
+            self.assertEqual(ti.release.short, "RHEL")
+            self.assertEqual(ti.release.name, "Red Hat Enterprise Linux")
+            self.assertEqual(ti.release.version, str(ti.release.version))
+
+            # variants
+            self.assertEqual(len(ti.variants), 2)
+
+            # variant: BaseOS
+            var = ti.variants["BaseOS"]
+            self.assertEqual(var.id, "BaseOS")
+            self.assertEqual(var.uid, "BaseOS")
+            self.assertEqual(var.name, "BaseOS")
+            self.assertEqual(var.type, "variant")
+
+            self.assertEqual(var.paths.packages, "Packages")
+            self.assertEqual(var.paths.repository, ".")
+
+            # variant: AppStream
+            var = ti.variants["AppStream"]
+            self.assertEqual(var.id, "AppStream")
+            self.assertEqual(var.uid, "AppStream")
+            self.assertEqual(var.name, "AppStream")
+            self.assertEqual(var.type, "variant")
+
+            self.assertEqual(var.paths.packages, "Packages")
 
     def test_treeinfo_compute_checksum(self):
         tmp_file = os.path.join(self.tmp_dir, "file")
