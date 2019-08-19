@@ -1,0 +1,42 @@
+[general]
+arch = x86_64
+family = Red Hat Enterprise Linux
+name = Red Hat Enterprise Linux 8.0
+packagedir = ../../appstream/x86_64/Packages
+platforms = x86_64,xen
+repository = AppStream
+timestamp = 1542400051
+variant = AppStream
+variants = AppStream,BaseOS
+version = 8.0
+
+[header]
+type = productmd.treeinfo
+version = 1.2
+
+[release]
+name = Red Hat Enterprise Linux
+short = RHEL
+version = 8.0
+
+[tree]
+arch = x86_64
+build_timestamp = 1542400051
+platforms = x86_64,xen
+variants = AppStream,BaseOS
+
+[variant-AppStream]
+id = AppStream
+name = AppStream
+packages = Packages
+repository = ../../appstream/x86_64/
+type = variant
+uid = AppStream
+
+[variant-BaseOS]
+id = BaseOS
+name = BaseOS
+packages = Packages
+repository = .
+type = variant
+uid = BaseOS
