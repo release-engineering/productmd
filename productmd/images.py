@@ -100,7 +100,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vagrant-vmware-fusion': ['vagrant-vmware-fusion.box'],
     'vdi': ['vdi'],
     'vmdk': ['vmdk'],
-    'vpc': ['vpc'],
+    'vpc': ['vhd'],
     'vsphere-ova': ['vsphere.ova'],
 }
 
