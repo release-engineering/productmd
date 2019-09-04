@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.21
+Version:        1.22
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,14 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Wed Sep 04 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.22-1
+- Fix parsing composeinfo with almost conflicting UIDs (lsedlar@redhat.com)
+- Improve error message for invalid metadata (lsedlar@redhat.com)
+- Fix image format for vpc (lsedlar@redhat.com)
+- Set up test infrastructure (lsedlar@redhat.com)
+- Add missing parts to the TreeInfo documentation (jkonecny@redhat.com)
+- Add a comment explaining the 'tar-gz' type (awilliam@redhat.com)
+
 * Mon Mar 11 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.21-1
 - Correct a typo in IMAGE_TYPE_FORMAT_MAPPING (awilliam@redhat.com)
 
