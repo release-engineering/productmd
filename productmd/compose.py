@@ -143,6 +143,6 @@ class Compose(object):
         obj = cls()
         try:
             obj.load(path)
-        except ValueError:
-            raise RuntimeError('%s is not a valid JSON file.' % path)
+        except ValueError as exc:
+            raise RuntimeError('%s can not be deserialized: %s.' % (path, exc))
         return obj
