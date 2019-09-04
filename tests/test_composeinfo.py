@@ -170,6 +170,42 @@ class TestComposeInfo(unittest.TestCase):
         self._test_identity(ci)
         return ci
 
+    def test_create_with_prefixed_uid(self):
+        ci = ComposeInfo()
+        ci.release.name = "Fedora"
+        ci.release.short = "F"
+        ci.release.version = "22"
+        ci.release.type = "ga"
+
+        ci.compose.id = "F-22-20150522.0"
+        ci.compose.type = "production"
+        ci.compose.date = "20150522"
+        ci.compose.respin = 0
+
+        # 2 Tools variants: one for Server, one for Workstation
+        # but parent variants are not part of the compose
+        variant = Variant(ci)
+        variant.id = "Foo"
+        variant.uid = "Foo"
+        variant.name = "Foo"
+        variant.type = "variant"
+        variant.arches = set(["x86_64"])
+        ci.variants.add(variant)
+        ci.variants["Foo"]
+
+        variant = Variant(ci)
+        variant.id = "FooBar"
+        variant.uid = "Foo-Bar"
+        variant.name = "Foo-Bar"
+        variant.type = "variant"
+        variant.arches = set(["x86_64"])
+        ci.variants.add(variant)
+        ci.variants["Foo-Bar"]
+
+        ci.dump(self.ci_path)
+        self._test_identity(ci)
+        return ci
+
     def test_get_variants(self):
         ci = ComposeInfo()
         ci.release.name = "Fedora"

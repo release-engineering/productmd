@@ -655,16 +655,26 @@ class Variants(VariantBase):
         # variant UIDs should be identical to IDs at the top level
         all_variants = data[self._section].keys()
 
+        child_variants = set()
+        for var in data[self._section].values():
+            for child in var.get("variants", []):
+                child_variants.add("%s-%s" % (var["uid"], child))
+
         variant_ids = []
         for variant_uid, var in data[self._section].items():
-            if "-" in variant_uid:
-                head, tail = variant_uid.rsplit("-", 1)
-                if head in all_variants:
-                    # has parent
-                    continue
+            # We only want to process top level variants here. For recent
+            # versions of metadata, the relationships are epxlicitly encoded.
+            # For old metadata, we have to fall back to checking UIDs.
+            if self._metadata.header.version_tuple < (1, 0):
+                if "-" in variant_uid:
+                    head, tail = variant_uid.rsplit("-", 1)
+                    if head in all_variants:
+                        # has parent, skip it
+                        continue
                 variant_ids.append(variant_uid)
             else:
-                variant_ids.append(variant_uid)
+                if variant_uid not in child_variants:
+                    variant_ids.append(variant_uid)
 
         variant_ids.sort()
         for variant_id in variant_ids:
@@ -851,10 +861,11 @@ class Variant(VariantBase):
         paths = data["paths"]
         self.paths.deserialize(paths)
 
+        variant_uids = []
         if "variants" in data:
             variant_ids = sorted(data["variants"])
             variant_uids = ["%s-%s" % (self.uid, i) for i in variant_ids]
-        else:
+        elif self._metadata.header.version_tuple < (1, 0):
             # legacy metadata with no "variants" parent-child references
             variant_uids = full_data.keys()
             variant_uids = [i for i in variant_uids if i.startswith("%s-" % variant_uid)]
