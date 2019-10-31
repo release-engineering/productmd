@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.22
+Version:        1.23
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Oct 31 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.23-1
+- Add class for representing extra files in the compose (lsedlar@redhat.com)
+- Add tests for multiple variants in one .treeinfo (riehecky@fnal.gov)
+
 * Wed Sep 04 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.22-1
 - Fix parsing composeinfo with almost conflicting UIDs (lsedlar@redhat.com)
 - Improve error message for invalid metadata (lsedlar@redhat.com)
