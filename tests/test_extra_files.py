@@ -63,28 +63,51 @@ class TestExtraFiles(unittest.TestCase):
 
     def test_bad_checksums(self):
         metadata = ExtraFiles()
-        with self.assertRaises(TypeError):
-            metadata.add("Everything", "x86_64", "path/to/file", size=1, checksums="no")
+        self.assertRaises(
+            TypeError,
+            metadata.add,
+            "Everything",
+            "x86_64",
+            "path/to/file",
+            size=1,
+            checksums="no",
+        )
 
     def test_bad_variant(self):
         metadata = ExtraFiles()
-        with self.assertRaises(ValueError):
-            metadata.add("", "x86_64", "path/to/file", size=1, checksums={})
+        self.assertRaises(
+            ValueError, metadata.add, "", "x86_64", "path/to/file", size=1, checksums={}
+        )
 
     def test_bad_arch(self):
         metadata = ExtraFiles()
-        with self.assertRaises(ValueError):
-            metadata.add("Everything", "foobar", "path/to/file", size=1, checksums={})
+        self.assertRaises(
+            ValueError,
+            metadata.add,
+            "Everything",
+            "foobar",
+            "path/to/file",
+            size=1,
+            checksums={},
+        )
 
     def test_bad_path(self):
         metadata = ExtraFiles()
-        with self.assertRaises(ValueError):
-            metadata.add("Everything", "foobar", "", size=1, checksums={})
+        self.assertRaises(
+            ValueError, metadata.add, "Everything", "foobar", "", size=1, checksums={}
+        )
 
     def test_absolute_path(self):
         metadata = ExtraFiles()
-        with self.assertRaises(ValueError):
-            metadata.add("Everything", "foobar", "/path", size=1, checksums={})
+        self.assertRaises(
+            ValueError,
+            metadata.add,
+            "Everything",
+            "foobar",
+            "/path",
+            size=1,
+            checksums={},
+        )
 
     def test_fedora_20(self):
         metadata = ExtraFiles()
