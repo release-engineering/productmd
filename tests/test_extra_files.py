@@ -38,7 +38,7 @@ class TestExtraFiles(unittest.TestCase):
         self.tmp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
-        shutil.rmtree(self.tmp_dir)
+        shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
     def assertSameFiles(self, path1, path2):
         self.assertEqual(os.path.getsize(path1), os.path.getsize(path2))
@@ -158,3 +158,25 @@ class TestExtraFiles(unittest.TestCase):
                 ],
             },
         )
+
+    def test_partial_dump_in_deleted_directory(self):
+        os.chdir(self.tmp_dir)
+        shutil.rmtree(self.tmp_dir)
+
+        metadata = ExtraFiles()
+        metadata.header.version = "1.0"
+        metadata.compose.id = "Fedora-20-20131212.0"
+        metadata.compose.type = "production"
+        metadata.compose.date = "20131212"
+        metadata.compose.respin = 0
+
+        metadata.add(
+            "Everything",
+            "x86_64",
+            "compose/Everything/x86_64/os/GPL",
+            size=123,
+            checksums={"md5": "abcde", "sha512": "a1b2c3"},
+        )
+
+        out = StringIO()
+        metadata.dump_for_tree(out, "Everything", "x86_64", "compose/Everything/x86_64/os")

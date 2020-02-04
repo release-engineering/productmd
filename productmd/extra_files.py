@@ -16,7 +16,6 @@
 # along with this program; if not, see <https://gnu.org/licenses/>.
 
 import json
-import os
 
 import productmd.common
 from productmd.common import Header, RPM_ARCHES
@@ -82,10 +81,17 @@ class ExtraFiles(productmd.common.MetadataBase):
         for item in self.extra_files[variant][arch]:
             metadata["data"].append(
                 {
-                    "file": os.path.relpath(item["file"], basepath),
+                    "file": _relative_to(item["file"], basepath),
                     "size": item["size"],
                     "checksums": item["checksums"],
                 }
             )
 
         json.dump(metadata, output, sort_keys=True, indent=4, separators=(",", ": "))
+
+
+def _relative_to(path, root):
+    root = root.rstrip("/") + "/"
+    if path.startswith(root):
+        return path[len(root):]
+    return path
