@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.23
+Version:        1.24
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Feb 07 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.24-1
+- Fix dumping extra_files metadata when CWD is deleted (lsedlar@redhat.com)
+- Make tests pass on Python 2.6 (lsedlar@redhat.com)
+
 * Thu Oct 31 2019 Lubomír Sedlář <lsedlar@redhat.com> 1.23-1
 - Add class for representing extra files in the compose (lsedlar@redhat.com)
 - Add tests for multiple variants in one .treeinfo (riehecky@fnal.gov)
