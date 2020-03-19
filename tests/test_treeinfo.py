@@ -221,7 +221,7 @@ class TestTreeInfo(unittest.TestCase):
             if i in ("fedora-8-Everything.x86_64", "fedora-8-Everything.ppc", "fedora-8-Everything.i386"):
                 # version == "development" -> can't read correctly
                 continue
-            if i in ("RHEL-8-BETA.aarch64", "RHEL-8-BETA.ppc64le", "RHEL-8-BETA.s390x", "RHEL-8-BETA.x86_64"):
+            if "fedora" not in i:
                 # Not a Fedora file
                 continue
             path = os.path.join(self.treeinfo_path, i)
@@ -233,7 +233,7 @@ class TestTreeInfo(unittest.TestCase):
 
     def test_read_RHEL_treeinfo(self):
         for i in os.listdir(self.treeinfo_path):
-            if i not in ("RHEL-8-BETA.aarch64", "RHEL-8-BETA.ppc64le", "RHEL-8-BETA.s390x", "RHEL-8-BETA.x86_64"):
+            if "RHEL" not in i:
                 continue
             path = os.path.join(self.treeinfo_path, i)
             ti = TreeInfo()
@@ -272,6 +272,29 @@ class TestTreeInfo(unittest.TestCase):
         ti = TreeInfo()
         ti.checksums.add("file", "sha256", None, self.tmp_dir)
         self.assertEqual(ti.checksums.checksums["file"], ["sha256", expected_checksum])
+
+    def test_parse_opensuse_treeinfo(self):
+        ti = TreeInfo()
+        ti.load(os.path.join(self.treeinfo_path, "opensuse"))
+        self.assertEqual(ti.release.name, "openSUSE Leap")
+        self.assertEqual(ti.release.short, "openSUSE Leap")
+        self.assertEqual(ti.release.version, "15.1")
+        self.assertEqual(ti.variants.variants, {})
+        self.assertEqual(ti.tree.arch, "x86_64")
+        self.assertEqual(ti.tree.platforms, set(["x86_64", "xen"]))
+        self.assertEqual(
+            ti.images.images,
+            {
+                "x86_64": {
+                    "initrd": "boot/x86_64/loader/initrd",
+                    "kernel": "boot/x86_64/loader/linux",
+                },
+                "xen": {
+                    "initrd": "boot/x86_64/loader/initrd",
+                    "kernel": "boot/x86_64/loader/linux",
+                },
+            },
+        )
 
 
 if __name__ == "__main__":
