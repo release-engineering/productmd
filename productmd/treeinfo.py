@@ -258,7 +258,10 @@ class Release(BaseProduct):
     def deserialize_1_0(self, parser):
         self.name = parser.get(self._section, "name")
         self.version = parser.get(self._section, "version")
-        self.short = parser.get(self._section, "short")
+        if parser.has_option(self._section, "short"):
+            self.short = parser.get(self._section, "short")
+        else:
+            self.short = self.name
         if parser.has_option(self._section, "is_layered"):
             self.is_layered = parser.getboolean(self._section, "is_layered")
 
@@ -336,9 +339,14 @@ class Tree(productmd.common.MetadataBase):
             self.build_timestamp = -1
 
     def deserialize_1_0(self, parser):
-        self.arch = parser.get(self._section, "arch")
-        self.platforms = set([i for i in parser.get(self._section, "platforms").split(",") if i])
-        self.build_timestamp = parser.getint(self._section, "build_timestamp")
+        section = self._section if parser.has_section(self._section) else "general"
+
+        self.arch = parser.get(section, "arch")
+        self.platforms = set([i for i in parser.get(section, "platforms").split(",") if i])
+        if section == self._section:
+            self.build_timestamp = parser.getint(self._section, "build_timestamp")
+        else:
+            self.build_timestamp = -1
 
 
 class Variants(productmd.composeinfo.VariantBase):
@@ -348,9 +356,6 @@ class Variants(productmd.composeinfo.VariantBase):
 
     def __len__(self):
         return len(self.variants)
-
-    def _validate_variants(self):
-        self._assert_not_blank("variants")
 
     def serialize(self, parser):
         self.validate()
@@ -398,6 +403,8 @@ class Variants(productmd.composeinfo.VariantBase):
         return variant_ids
 
     def deserialize_1_0(self, parser):
+        if not parser.has_option("tree", "variants"):
+            return []
         variant_ids = [i for i in parser.get("tree", "variants").split(",")]
         return variant_ids
 
