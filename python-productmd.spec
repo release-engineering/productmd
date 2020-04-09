@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.25
+Version:        1.26
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Apr 09 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.26-1
+- Fix validation for top-level Variant UIDs with dashes (hlin@redhat.com)
+
 * Mon Mar 23 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.25-1
 - Allow passing arguments to pytest via tox (lsedlar@redhat.com)
 - Relax validations enough to parse OpenSUSE treeinfo (lsedlar@redhat.com)
