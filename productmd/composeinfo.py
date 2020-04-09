@@ -577,6 +577,8 @@ class VariantBase(productmd.common.MetadataBase):
     def _validate_variants(self):
         for variant_id in self:
             variant = self[variant_id]
+            if variant.parent is None and '-' in variant_id:
+                variant_id = variant_id.replace("-", "")
             if variant.id != variant_id:
                 raise ValueError("Variant ID doesn't match: '%s' vs '%s'" % (variant.id, variant_id))
 
