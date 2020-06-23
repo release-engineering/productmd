@@ -235,6 +235,8 @@ class TestTreeInfo(unittest.TestCase):
         for i in os.listdir(self.treeinfo_path):
             if "RHEL" not in i:
                 continue
+            if "optional" in i:
+                continue
             path = os.path.join(self.treeinfo_path, i)
             ti = TreeInfo()
             ti.load(path)
@@ -263,6 +265,19 @@ class TestTreeInfo(unittest.TestCase):
             self.assertEqual(var.type, "variant")
 
             self.assertEqual(var.paths.packages, "Packages")
+
+    def test_read_RHEL_Server_optional_treeinfo(self):
+        path = os.path.join(self.treeinfo_path, "RHEL-7-Server-optional.x86_64")
+        ti = TreeInfo()
+        ti.load(path)
+
+        var = ti.variants["Server-optional"]
+        self.assertEqual(var.id, "optional")
+        self.assertEqual(var.uid, "Server-optional")
+        self.assertEqual(var.name, "optional")
+        self.assertEqual(var.type, "optional")
+        self.assertEqual(var.paths.packages, "Packages")
+        self.assertEqual(var.paths.repository, ".")
 
     def test_treeinfo_compute_checksum(self):
         tmp_file = os.path.join(self.tmp_dir, "file")
