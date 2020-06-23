@@ -1,0 +1,34 @@
+[general]
+arch = x86_64
+family = Red Hat Enterprise Linux
+name = Red Hat Enterprise Linux 7.0
+packagedir = Packages
+platforms = x86_64
+repository = .
+timestamp = 1592881577
+variant = optional
+variants = optional
+version = 7.0
+
+[header]
+type = productmd.treeinfo
+version = 1.2
+
+[release]
+name = Red Hat Enterprise Linux
+short = RHEL
+version = 7.0
+
+[tree]
+arch = x86_64
+build_timestamp = 1592881577
+platforms = x86_64
+variants = Server-optional
+
+[variant-Server-optional]
+id = optional
+name = optional
+packages = Packages
+repository = .
+type = optional
+uid = Server-optional
