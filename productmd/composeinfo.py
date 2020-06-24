@@ -580,12 +580,8 @@ class VariantBase(productmd.common.MetadataBase):
             if variant.parent is None and '-' in variant_id and variant.type != "optional":
                 variant_id = variant_id.replace("-", "")
 
-            if variant.type == "optional":
-                if variant.uid != variant_id:
-                    raise ValueError("Variant UID doesn't match: '%s' vs '%s'" % (variant.uid, variant_id))
-            else:
-                if variant.id != variant_id:
-                    raise ValueError("Variant ID doesn't match: '%s' vs '%s'" % (variant.id, variant_id))
+            if variant.id != variant_id and variant.uid != variant_id:
+                raise ValueError("Variant ID doesn't match: '%s' vs '%s'" % (variant.id, variant_id))
 
     def add(self, variant, variant_id=None):
         if hasattr(self, "uid"):
