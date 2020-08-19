@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.26
+Version:        1.27
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Tue Aug 18 2020 Haibo Lin <hlin@redhat.com> 1.27-1
+- Fix VariantBase._validate_variants() (hlin@redhat.com)
+- Fix validation for optional variant (hlin@redhat.com)
+
 * Thu Apr 09 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.26-1
 - Fix validation for top-level Variant UIDs with dashes (hlin@redhat.com)
 
