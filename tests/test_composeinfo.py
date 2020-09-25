@@ -303,6 +303,7 @@ def setup_create_compose_id_case():
         ('F-22-BASE-3-updates-20160622.n.0',         'nightly',     'ga',        'updates'),
         ('F-22-updates-BASE-3-updates-20160622.0',   'production',  'updates',   'updates'),
         ('F-22-updates-BASE-3-updates-20160622.n.0', 'nightly',     'updates',   'updates'),
+        ('F-22-updates-BASE-3-updates-20160622.d.0', 'development', 'updates',   'updates'),
     ]
     for args in data:
         test_name = 'test_compose_%s_release_%s' % (args[1], args[2])
@@ -341,6 +342,7 @@ def setup_get_date_type_case():
         'nightly': ('Foo-1.0-20170217.n.1', '20170217', 'nightly', 1),
         'ci': ('Foo-1.0-20170217.ci.1', '20170217', 'ci', 1),
         'no_respin': ('Foo-1.0-20170217.ci', '20170217', 'ci', 0),
+        'development': ('Foo-1.0-20170217.d.1', '20170217', 'development', 1),
     }
     for name in data:
         test_name = 'test_%s' % name
