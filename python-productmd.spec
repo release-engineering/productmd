@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.27
+Version:        1.28
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,11 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Sep 25 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.28-1
+- Add 'development' compose type for non-production version of compose.
+  (jkaluza@redhat.com)
+- Use tar.gz for source distribution (lsedlar@redhat.com)
+
 * Tue Aug 18 2020 Haibo Lin <hlin@redhat.com> 1.27-1
 - Fix VariantBase._validate_variants() (hlin@redhat.com)
 - Fix validation for optional variant (hlin@redhat.com)
