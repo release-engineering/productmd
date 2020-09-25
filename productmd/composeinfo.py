@@ -60,6 +60,7 @@ COMPOSE_TYPES = [
     "ci",               # continuous integration, frequently from an automatically generated package set
     "nightly",          # nightly composes from production package set
     "production",       # production composes
+    "development",      # development compose, used for non-production version of a compose.
 ]
 
 
@@ -70,6 +71,7 @@ COMPOSE_TYPE_SUFFIXES = _invert({
     "test": ['t', 'test'],
     "ci": ['ci'],
     "nightly": ['n', 'nightly'],
+    "development": ['d']
 })
 
 
@@ -349,6 +351,8 @@ class Compose(productmd.common.MetadataBase):
             return ".n"
         if self.type == "test":
             return ".t"
+        if self.type == "development":
+            return ".d"
         raise ValueError("Invalid compose type: %s" % self.type)
 
     def serialize(self, data):
