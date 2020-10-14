@@ -702,6 +702,7 @@ class VariantPaths(productmd.common.MetadataBase):
         * **packages** -- directory with binary RPMs
         * **repository** -- YUM repository with binary RPMs
         * **isos** -- Binary ISOs
+        * **images** -- Non-ISO Images
         * **jigdos** -- Jigdo files for binary ISOs
 
     **Source**
@@ -743,6 +744,7 @@ class VariantPaths(productmd.common.MetadataBase):
             "packages",
             "repository",
             "isos",
+            "images",
             "jigdos",
 
             # source
