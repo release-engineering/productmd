@@ -179,7 +179,7 @@ def _open_file_obj(f, mode="r"):
     :type mode: string
     """
     if isinstance(f, six.string_types):
-        if f.startswith(("http://", "https://")):
+        if f.startswith(("http://", "https://", "ftp://")):
             file_obj = _urlopen(f)
             yield file_obj
             file_obj.close()
@@ -191,7 +191,7 @@ def _open_file_obj(f, mode="r"):
 
 
 def _file_exists(path):
-    if path.startswith(("http://", "https://")):
+    if path.startswith(("http://", "https://", "ftp://")):
         try:
             file_obj = _urlopen(path)
             file_obj.close()
