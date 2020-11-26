@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.29
+Version:        1.30
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Nov 26 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.30-1
+- Support ftp protocol when fetching metadata. (pholica@redhat.com)
+
 * Tue Nov 10 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.29-1
 - Include non-ISO images in composeinfo (hlin@redhat.com)
 
