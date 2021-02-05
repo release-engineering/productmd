@@ -344,7 +344,7 @@ class Tree(productmd.common.MetadataBase):
         self.arch = parser.get(section, "arch")
         self.platforms = set([i for i in parser.get(section, "platforms").split(",") if i])
         if section == self._section:
-            self.build_timestamp = parser.getint(self._section, "build_timestamp")
+            self.build_timestamp = int(parser.getfloat(self._section, "build_timestamp"))
         else:
             self.build_timestamp = -1
 
