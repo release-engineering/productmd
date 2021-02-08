@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.30
+Version:        1.31
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,11 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon Feb 08 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.31-1
+- Add py39 to tox (lsedlar@redhat.com)
+- Explicitly list six as a test dependency (lsedlar@redhat.com)
+- Handle build_timestamp in the float format (ttereshc@redhat.com)
+
 * Thu Nov 26 2020 Lubomír Sedlář <lsedlar@redhat.com> 1.30-1
 - Support ftp protocol when fetching metadata. (pholica@redhat.com)
 
