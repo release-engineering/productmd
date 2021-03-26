@@ -246,7 +246,7 @@ class Release(BaseProduct):
             self.name = "CentOS"
             self.short = "CentOS"
         else:
-            self.short = None
+            self.short = ""
 
     def deserialize_0_3(self, parser):
         self.name = parser.get("product", "name")
