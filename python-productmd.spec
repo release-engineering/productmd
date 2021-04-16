@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.31
+Version:        1.32
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,11 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Apr 16 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.32-1
+- Update macros in spec file (lsedlar@redhat.com)
+- fix release short name validated failed when running on other linux
+  distributions (t.feng94@foxmail.com)
+
 * Mon Feb 08 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.31-1
 - Add py39 to tox (lsedlar@redhat.com)
 - Explicitly list six as a test dependency (lsedlar@redhat.com)
