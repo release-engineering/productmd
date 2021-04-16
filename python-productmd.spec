@@ -78,8 +78,8 @@ Requires:       python%{python3_pkgversion}-six
 %files -n python2-productmd
 %license LICENSE
 %doc AUTHORS
-%{python_sitelib}/productmd/
-%{python_sitelib}/productmd-%{version}-py?.?.egg-info
+%{python2_sitelib}/productmd/
+%{python2_sitelib}/productmd-%{version}-py?.?.egg-info
 
 %if 0%{?with_python3}
 %files -n python%{python3_pkgversion}-productmd
