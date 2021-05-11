@@ -94,6 +94,60 @@ class TestTreeInfo(unittest.TestCase):
         ti.dump(self.ini_path)
         self._test_identity(ti)
 
+    def test_create_with_two_variants(self):
+        ti = TreeInfo()
+        ti.release.name = "Fedora"
+        ti.release.short = "F"
+        ti.release.version = "20"
+
+        ti.tree.arch = "x86_64"
+        ti.tree.build_timestamp = 123456
+
+        variant_1 = Variant(ti)
+        variant_1.id = "AppStream"
+        variant_1.uid = "AppStream"
+        variant_1.name = "AppStream"
+        variant_1.type = "variant"
+
+        variant_1.paths.repository = "repo"
+        variant_1.paths.packages = "pkgs"
+        variant_1.paths.source_repository = "src repo"
+        variant_1.paths.source_packages = "src pkgs"
+        variant_1.paths.debug_repository = "debug repo"
+        variant_1.paths.debug_packages = "debug pkgs"
+        variant_1.paths.identity = "cert.pem"
+
+        ti.variants.add(variant_1)
+
+        variant_2 = Variant(ti)
+        variant_2.id = "BaseOS"
+        variant_2.uid = "BaseOS"
+        variant_2.name = "BaseOS"
+        variant_2.type = "variant"
+
+        variant_2.paths.repository = "repo_2"
+        variant_2.paths.packages = "pkgs_2"
+        variant_2.paths.source_repository = "src repo 2"
+        variant_2.paths.source_packages = "src pkgs 2"
+        variant_2.paths.debug_repository = "debug repo 2"
+        variant_2.paths.debug_packages = "debug pkgs 2"
+        variant_2.paths.identity = "cert2.pem"
+
+        ti.variants.add(variant_2)
+
+        ti.dump(self.ini_path, main_variant='BaseOS')
+        with open(
+                self.ini_path, 'r'
+        ) as treeinfo_1, open(
+            os.path.join(DIR, "treeinfo/multivariants_treeinfo")
+        ) as treeinfo_2:
+            treeinfo_1_lines = treeinfo_1.readlines()
+            treeinfo_2_lines = treeinfo_2.readlines()
+        self.assertEqual(
+            treeinfo_1_lines,
+            treeinfo_2_lines,
+        )
+
     def test_f20(self):
         ti = TreeInfo()
         ti.load(os.path.join(DIR, "treeinfo/fedora-20-Fedora.x86_64"))

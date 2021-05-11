@@ -1,0 +1,55 @@
+[general]
+; WARNING.0 = This section provides compatibility with pre-productmd treeinfos.
+; WARNING.1 = Read productmd documentation for details about new format.
+arch = x86_64
+family = Fedora
+name = Fedora 20
+packagedir = pkgs_2
+platforms = x86_64
+repository = repo_2
+timestamp = 123456
+variant = BaseOS
+variants = AppStream,BaseOS
+version = 20
+
+[header]
+type = productmd.treeinfo
+version = 1.2
+
+[release]
+name = Fedora
+short = F
+version = 20
+
+[tree]
+arch = x86_64
+build_timestamp = 123456
+platforms = x86_64
+variants = AppStream,BaseOS
+
+[variant-AppStream]
+debug_packages = debug pkgs
+debug_repository = debug repo
+id = AppStream
+identity = cert.pem
+name = AppStream
+packages = pkgs
+repository = repo
+source_packages = src pkgs
+source_repository = src repo
+type = variant
+uid = AppStream
+
+[variant-BaseOS]
+debug_packages = debug pkgs 2
+debug_repository = debug repo 2
+id = BaseOS
+identity = cert2.pem
+name = BaseOS
+packages = pkgs_2
+repository = repo_2
+source_packages = src pkgs 2
+source_repository = src repo 2
+type = variant
+uid = BaseOS
+
