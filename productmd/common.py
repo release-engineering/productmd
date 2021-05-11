@@ -169,7 +169,7 @@ def _urlopen(path):
 
 
 @contextlib.contextmanager
-def _open_file_obj(f, mode="r"):
+def open_file_obj(f, mode="r"):
     """
     A context manager that provides access to a file.
 
@@ -258,7 +258,7 @@ class MetadataBase(object):
         :param f: file-like object or path to file
         :type f: file or str
         """
-        with _open_file_obj(f) as f:
+        with open_file_obj(f) as f:
             parser = self.parse_file(f)
             self.deserialize(parser)
 
@@ -283,7 +283,7 @@ class MetadataBase(object):
         :type f: file or str
         """
         self.validate()
-        with _open_file_obj(f, "w") as f:
+        with open_file_obj(f, "w") as f:
             parser = self._get_parser()
             self.serialize(parser)
             self.build_file(parser, f)

@@ -101,7 +101,7 @@ class TreeInfo(productmd.common.MetadataBase):
         # build file from parser or dict with data
         parser.write(f)
 
-    def serialize(self, parser):
+    def serialize(self, parser, main_variant=None):
         self.validate()
         self.header.serialize(parser)
         self.release.serialize(parser)
@@ -115,7 +115,7 @@ class TreeInfo(productmd.common.MetadataBase):
         self.media.serialize(parser)
         # HACK: generate [general] section for compatibility
         general = General(self)
-        general.serialize(parser)
+        general.serialize(parser, main_variant=main_variant)
 
     def deserialize(self, parser):
         self.header.deserialize(parser)
@@ -131,6 +131,21 @@ class TreeInfo(productmd.common.MetadataBase):
         self.validate()
         self.header.set_current_version()
         return parser
+
+    def dump(self, f, main_variant=None):
+        """
+        Dump data to a file.
+
+        :param f: file-like object or path to file
+        :param main_variant: a main variant's name of a treeinfo
+        :type f: file or str
+        :type main_variant: str
+        """
+        self.validate()
+        with productmd.common.open_file_obj(f, "w") as f:
+            parser = self._get_parser()
+            self.serialize(parser, main_variant=main_variant)
+            self.build_file(parser, f)
 
 
 class Header(productmd.common.Header):
@@ -1001,7 +1016,7 @@ class General(productmd.common.MetadataBase):
         self._section = "general"
         self._metadata = metadata
 
-    def serialize(self, parser):
+    def serialize(self, parser, main_variant=None):
         parser.add_section(self._section)
         parser.set(self._section, "; WARNING.0", "This section provides compatibility with pre-productmd treeinfos.")
         parser.set(self._section, "; WARNING.1", "Read productmd documentation for details about new format.")
@@ -1017,8 +1032,12 @@ class General(productmd.common.MetadataBase):
         variants.sort()
         parser.set(self._section, "variants", ",".join(variants))
 
-        # HACK: if there are more variants, use the first variant
-        variant = variants[0]
+        # HACK: if there are more variants and main_variant is None,
+        # use the first variant if
+        if main_variant is None:
+            variant = variants[0]
+        else:
+            variant = main_variant
         parser.set(self._section, "variant", variant)
 
         # packages
