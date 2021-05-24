@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.32
+Version:        1.33
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon May 24 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.33-1
+- Add ability to set a main variant while dumping TreeInfo:
+  (soksanichenko@cloudlinux.com)
+
 * Fri Apr 16 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.32-1
 - Update macros in spec file (lsedlar@redhat.com)
 - fix release short name validated failed when running on other linux
