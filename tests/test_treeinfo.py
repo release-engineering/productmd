@@ -1,6 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 
 # Copyright (C) 2015  Red Hat, Inc.
 #
@@ -34,7 +32,7 @@ from productmd.treeinfo import TreeInfo, Variant  # noqa
 
 class TestTreeInfo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(TestTreeInfo, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.treeinfo_path = os.path.join(DIR, "treeinfo")
 
     def setUp(self):

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -36,8 +33,6 @@ import re
 import productmd.common
 from productmd.common import Header, RELEASE_VERSION_RE
 
-import six
-
 
 __all__ = (
     "ComposeInfo",
@@ -47,9 +42,8 @@ __all__ = (
 )
 
 
-if six.PY3:
-    def cmp(a, b):
-        return (a > b) - (a < b)
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 
 # order matters - used in __cmp__
@@ -121,7 +115,7 @@ class ComposeInfo(productmd.common.MetadataBase):
     """
 
     def __init__(self):
-        super(ComposeInfo, self).__init__()
+        super().__init__()
 
         self.header = Header(self, "productmd.composeinfo")     #: (:class:`.Header`) -- Metadata header
         self.compose = Compose(self)            #: (:class:`.Compose`) -- Compose details
@@ -265,7 +259,7 @@ class Compose(productmd.common.MetadataBase):
     """
 
     def __init__(self, metadata):
-        super(Compose, self).__init__()
+        super().__init__()
         self._section = "compose"
         self._metadata = metadata
         self.id = None
@@ -293,22 +287,22 @@ class Compose(productmd.common.MetadataBase):
         return 0
 
     def _validate_id(self):
-        self._assert_type("id", list(six.string_types))
+        self._assert_type("id", [str])
         self._assert_not_blank("id")
         self._assert_matches_re("id", [r".*\d{8}(\.nightly|\.n|\.ci|\.test|\.t)?(\.\d+)?"])
 
     def _validate_date(self):
-        self._assert_type("date", list(six.string_types))
+        self._assert_type("date", [str])
         self._assert_matches_re("date", [r"^\d{8}$"])
 
     def _validate_type(self):
         self._assert_value("type", COMPOSE_TYPES)
 
     def _validate_respin(self):
-        self._assert_type("respin", list(six.integer_types))
+        self._assert_type("respin", [int])
 
     def _validate_label(self):
-        self._assert_type("label", [type(None)] + list(six.string_types))
+        self._assert_type("label", [type(None), str])
         verify_label(self.label)
 
     def _validate_final(self):
@@ -397,7 +391,7 @@ class BaseProduct(productmd.common.MetadataBase):
     """
 
     def __init__(self, metadata):
-        super(BaseProduct, self).__init__()
+        super().__init__()
         self._section = "base_product"
         self._metadata = metadata
         self.name = None        #: (*str*) -- Product name, for example: "Fedora", "Red Hat Enterprise Linux"
@@ -421,20 +415,20 @@ class BaseProduct(productmd.common.MetadataBase):
         return "%s-%s" % (self.short, self.version)
 
     def _validate_name(self):
-        self._assert_type("name", list(six.string_types))
+        self._assert_type("name", [str])
 
     def _validate_version(self):
         """If the version starts with a digit, it must be a sematic-versioning
         style string.
         """
-        self._assert_type("version", list(six.string_types))
+        self._assert_type("version", [str])
         self._assert_matches_re("version", [RELEASE_VERSION_RE])
 
     def _validate_short(self):
-        self._assert_type("short", list(six.string_types))
+        self._assert_type("short", [str])
 
     def _validate_type(self):
-        self._assert_type("type", list(six.string_types))
+        self._assert_type("type", [str])
         self._assert_value("type", productmd.common.RELEASE_TYPES)
 
     @property
@@ -478,7 +472,7 @@ class Release(BaseProduct):
     """
 
     def __init__(self, metadata):
-        super(Release, self).__init__(metadata)
+        super().__init__(metadata)
         self._section = "release"
 
         self.name = None                #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
@@ -494,7 +488,7 @@ class Release(BaseProduct):
         return BaseProduct.__cmp__(self, other)
 
     def _validate_type(self):
-        self._assert_type("type", list(six.string_types))
+        self._assert_type("type", [str])
         self._assert_value("type", productmd.common.RELEASE_TYPES)
 
     def _validate_is_layered(self):
@@ -539,7 +533,7 @@ class Release(BaseProduct):
 
 class VariantBase(productmd.common.MetadataBase):
     def __init__(self, metadata):
-        super(VariantBase, self).__init__()
+        super().__init__()
         self._metadata = metadata
         self.parent = None
         self.variants = {}
@@ -548,7 +542,7 @@ class VariantBase(productmd.common.MetadataBase):
         if hasattr(self, "compose"):
             return u'<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
         else:
-            return super(VariantBase, self).__repr__()
+            return super().__repr__()
 
     def __getitem__(self, name):
         # There can be exceptions, like $variant-optional on top-level,
@@ -625,7 +619,7 @@ class VariantBase(productmd.common.MetadataBase):
         if "self" in types:
             result.append(self)
 
-        for variant in six.itervalues(self.variants):
+        for variant in self.variants.values():
             if types and variant.type not in types:
                 continue
             if arch and arch not in variant.arches.union(["src"]):
@@ -642,8 +636,9 @@ class Variants(VariantBase):
     """
     This class is a container for compose variants.
     """
+
     def __init__(self, metadata):
-        super(Variants, self).__init__(metadata)
+        super().__init__(metadata)
         self._section = "variants"
 
     def serialize(self, data):
@@ -813,7 +808,7 @@ class Variant(VariantBase):
         return u'<%s:%s>' % (self.__class__.__name__, self.uid)
 
     def _validate_id(self):
-        self._assert_type("id", list(six.string_types))
+        self._assert_type("id", [str])
         self._assert_matches_re("id", [r"^[a-zA-Z0-9]+$"])
 
     def _validate_uid(self):
@@ -828,7 +823,7 @@ class Variant(VariantBase):
             raise ValueError("UID '%s' doesn't align with parent UID '%s'" % (self.uid, uid))
 
     def _validate_name(self):
-        self._assert_type("name", list(six.string_types))
+        self._assert_type("name", [str])
         self._assert_not_blank("name")
 
     def _validate_type(self):

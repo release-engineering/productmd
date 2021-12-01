@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 
 # Copyright (C) 2015  Red Hat, Inc.
 #
@@ -23,21 +21,21 @@ import unittest
 
 import os
 import sys
+import urllib.request
 
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
 from productmd.compose import Compose   # noqa
 
-import productmd.common
-from six import StringIO
-from six.moves.urllib.error import HTTPError
+from io import StringIO
+from urllib.error import HTTPError
 
 
 class TestCompose(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(TestCompose, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.compose_path = os.path.join(DIR, "compose")
 
     def test_read_composeinfo(self):
@@ -71,19 +69,19 @@ class TestCompose(unittest.TestCase):
                 raise HTTPError(404, e)
             return f
 
-        orig_urlopen = productmd.common.six.moves.urllib.request.urlopen
+        orig_urlopen = urllib.request.urlopen
         try:
-            productmd.common.six.moves.urllib.request.urlopen = mock_urlopen
+            urllib.request.urlopen = mock_urlopen
             compose = Compose('http://example.noexist/path/to/mycompose')
             self.assertEqual('MYPRODUCT', compose.info.release.short)
         finally:
-            productmd.common.six.moves.urllib.request.urlopen = orig_urlopen
+            urllib.request.urlopen = orig_urlopen
 
 
 class TestLegacyCompose(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(TestLegacyCompose, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.compose_path = os.path.join(DIR, "compose-legacy")
 
     def test_read_composeinfo(self):

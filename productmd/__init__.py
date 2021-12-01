@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or

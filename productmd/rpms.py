@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -65,7 +62,7 @@ SUPPORTED_CATEGORIES = ["binary", "debug", "source"]
 
 class Rpms(productmd.common.MetadataBase):
     def __init__(self):
-        super(Rpms, self).__init__()
+        super().__init__()
         self.header = Header(self, "productmd.rpms")
         self.compose = Compose(self)
         self.rpms = {}
