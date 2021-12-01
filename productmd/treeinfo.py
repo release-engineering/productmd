@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -27,8 +24,6 @@ Treeinfo files provide details about installable trees in Fedora composes and me
 import os
 import hashlib
 import re
-
-import six
 
 import productmd.common
 import productmd.composeinfo
@@ -181,15 +176,15 @@ class BaseProduct(productmd.common.MetadataBase):
         self.version = None             #: (*str*) -- base product *major* version, for example: "21", "7"
 
     def _validate_name(self):
-        self._assert_type("name", list(six.string_types))
+        self._assert_type("name", [str])
 
     def _validate_version(self):
-        self._assert_type("version", list(six.string_types))
+        self._assert_type("version", [str])
         if re.match(r'^\d', self.version):
             self._assert_matches_re("version", [r"^\d+(\.\d+)*$"])
 
     def _validate_short(self):
-        self._assert_type("short", list(six.string_types))
+        self._assert_type("short", [str])
 
     def serialize(self, parser):
         self.validate()
@@ -313,11 +308,11 @@ class Tree(productmd.common.MetadataBase):
         self.platforms = set()          #: (*set(str)*), supported platforms; for example x86_64,xen
 
     def _validate_arch(self):
-        self._assert_type("arch", list(six.string_types))
+        self._assert_type("arch", [str])
         self._assert_not_blank("arch")
 
     def _validate_build_timestamp(self):
-        self._assert_type("build_timestamp", list(six.integer_types) + [float])
+        self._assert_type("build_timestamp", [int, float])
         self._assert_not_blank("build_timestamp")
 
     def serialize(self, parser):
@@ -799,7 +794,7 @@ class Variant(productmd.composeinfo.VariantBase):
 class Images(productmd.common.MetadataBase):
 
     def __init__(self, metadata):
-        super(Images, self).__init__()
+        super().__init__()
         self._metadata = metadata
         self.images = {}
 
@@ -858,7 +853,7 @@ class Images(productmd.common.MetadataBase):
 
 class Stage2(productmd.common.MetadataBase):
     def __init__(self, metadata):
-        super(Stage2, self).__init__()
+        super().__init__()
         self._section = "stage2"
         self._metadata = metadata
         self.mainimage = None           #: (*str*) -- relative path to Anaconda stage2 image
@@ -895,7 +890,7 @@ class Stage2(productmd.common.MetadataBase):
 
     def _validate_mainimage(self):
         if self.mainimage:
-            self._assert_type("mainimage", list(six.string_types))
+            self._assert_type("mainimage", [str])
             if self.mainimage.startswith("/"):
                 raise ValueError("Only relative paths are allowed for images: %s" % self.mainimage)
 
@@ -972,10 +967,10 @@ class Media(productmd.common.MetadataBase):
         self.totaldiscs = None          #: number of discs in media set
 
     def _validate_discnum(self):
-        self._assert_type("discnum", list(six.integer_types) + [type(None)])
+        self._assert_type("discnum", [int, type(None)])
 
     def _validate_totaldiscs(self):
-        self._assert_type("totaldiscs", list(six.integer_types) + [type(None)])
+        self._assert_type("totaldiscs", [int, type(None)])
 
     def serialize(self, parser):
         if not self.discnum and not self.totaldiscs:

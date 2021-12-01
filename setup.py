@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -29,7 +29,4 @@ setup(
     packages        = packages,
     scripts         = [],
     test_suite      = "tests",
-    install_requires=[
-        'six',
-    ],
 )

@@ -1,6 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/python3
 
 # Copyright (C) 2015  Red Hat, Inc.
 #
@@ -34,7 +32,7 @@ from productmd.discinfo import DiscInfo  # noqa
 
 class TestDiscInfo(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(TestDiscInfo, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.discinfo_path = os.path.join(DIR, "discinfo")
 
     def setUp(self):

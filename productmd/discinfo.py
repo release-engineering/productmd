@@ -41,7 +41,7 @@ class DiscInfo(productmd.common.MetadataBase):
     """
 
     def __init__(self):
-        super(DiscInfo, self).__init__()
+        super().__init__()
         self.timestamp = None           #: Timestamp in float format
         self.description = None         #: Release description, for example: Fedora 20
         self.arch = None                #: Media architecture, for example: x86_64

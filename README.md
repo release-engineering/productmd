@@ -16,13 +16,6 @@ http://productmd.readthedocs.io/en/latest/
 Building
 --------
 
-### Build requires
-
-* Six: Python 2 and 3 Compatibility Library
- * `pip install six`
- * Fedora: `dnf install python-six python3-six`
-
-
 ### Build
 
 To see all options run:

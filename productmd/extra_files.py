@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2019  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -28,7 +26,7 @@ __all__ = (
 
 class ExtraFiles(productmd.common.MetadataBase):
     def __init__(self):
-        super(ExtraFiles, self).__init__()
+        super().__init__()
         self.header = Header(self, "productmd.extra_files")
         self.compose = Compose(self)
         self.extra_files = {}

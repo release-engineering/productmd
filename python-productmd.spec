@@ -22,72 +22,30 @@ and installation media.
 
 %description %_description
 
-%package -n python2-productmd
-Summary:        %summary
-Obsoletes:      productmd <= %{version}-%{release}
-Provides:       productmd = %{version}-%{release}
-BuildRequires:  python2-devel
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:  python-setuptools
-BuildRequires:  python-six
-Requires:       python-six
-%else
-BuildRequires:  python2-setuptools
-BuildRequires:  python2-six
-Requires:       python2-six
-%endif
-%{?python_provide:%python_provide python2-productmd}
-
-%description -n python2-productmd %_description
-
-%if 0%{?with_python3}
 %package -n python%{python3_pkgversion}-productmd
 Summary:        %{summary}
 BuildRequires:  python%{python3_pkgversion}-devel
 BuildRequires:  python%{python3_pkgversion}-setuptools
-BuildRequires:  python%{python3_pkgversion}-six
-Requires:       python%{python3_pkgversion}-six
 
 %description -n python%{python3_pkgversion}-productmd %_description
-%endif
 
 %prep
 %setup -q
 
 %build
-%py2_build
-
-%if 0%{?with_python3}
 %py3_build
-%endif
 
 %install
-%py2_install
-
-%if 0%{?with_python3}
 %py3_install
-%endif
 
 %check
-%{__python2} ./setup.py test
-
-%if 0%{?with_python3}
 %{__python3} ./setup.py test
-%endif
 
-%files -n python2-productmd
-%license LICENSE
-%doc AUTHORS
-%{python2_sitelib}/productmd/
-%{python2_sitelib}/productmd-%{version}-py?.?.egg-info
-
-%if 0%{?with_python3}
 %files -n python%{python3_pkgversion}-productmd
 %license LICENSE
 %doc AUTHORS
 %{python3_sitelib}/productmd/
 %{python3_sitelib}/productmd-%{version}-py?.?.egg-info
-%endif
 
 %changelog
 * Mon May 24 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.33-1
