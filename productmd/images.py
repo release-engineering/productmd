@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -55,8 +52,6 @@ from productmd.composeinfo import Compose
 
 from collections import namedtuple
 from itertools import chain
-import six
-
 
 __all__ = (
     "Image",
@@ -140,7 +135,7 @@ UniqueImage = namedtuple('UniqueImage', UNIQUE_IMAGE_ATTRIBUTES)
 
 class Images(productmd.common.MetadataBase):
     def __init__(self):
-        super(Images, self).__init__()
+        super().__init__()
         self.header = Header(self, "productmd.images")
         self.compose = Compose(self)
         self.images = {}
@@ -241,7 +236,7 @@ def identify_image(image):
 
 class Image(productmd.common.MetadataBase):
     def __init__(self, parent):
-        super(Image, self).__init__()
+        super().__init__()
         self.parent = parent
         self.path = None                #: (*str*) -- relative path to an image, for example: "Server/x86_64/iso/boot.iso"
         self.mtime = None               #: (*int*) -- image mtime
@@ -263,45 +258,45 @@ class Image(productmd.common.MetadataBase):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)
 
     def _validate_path(self):
-        self._assert_type("path", list(six.string_types))
+        self._assert_type("path", [str])
         self._assert_not_blank("path")
 
     def _validate_mtime(self):
-        self._assert_type("mtime", list(six.integer_types))
+        self._assert_type("mtime", [int])
 
     def _validate_size(self):
-        self._assert_type("size", list(six.integer_types))
+        self._assert_type("size", [int])
         self._assert_not_blank("size")
 
     def _validate_volume_id(self):
-        self._assert_type("volume_id", [type(None)] + list(six.string_types))
+        self._assert_type("volume_id", [type(None), str])
         if self.volume_id is not None:
             self._assert_not_blank("volume_id")
 
     def _validate_type(self):
-        self._assert_type("type", list(six.string_types))
+        self._assert_type("type", [str])
         self._assert_value("type", SUPPORTED_IMAGE_TYPES)
 
     def _validate_format(self):
-        self._assert_type("format", list(six.string_types))
+        self._assert_type("format", [str])
         self._assert_value("format", SUPPORTED_IMAGE_FORMATS)
 
     def _validate_arch(self):
-        self._assert_type("arch", list(six.string_types))
+        self._assert_type("arch", [str])
         self._assert_not_blank("arch")
 
     def _validate_disc_number(self):
-        self._assert_type("disc_number", list(six.integer_types))
+        self._assert_type("disc_number", [int])
 
     def _validate_disc_count(self):
-        self._assert_type("disc_count", list(six.integer_types))
+        self._assert_type("disc_count", [int])
 
     def _validate_checksums(self):
         self._assert_type("checksums", [dict])
         self._assert_not_blank("checksums")
 
     def _validate_implant_md5(self):
-        self._assert_type("implant_md5", [type(None)] + list(six.string_types))
+        self._assert_type("implant_md5", [type(None), str])
         if self.implant_md5 is not None:
             self._assert_matches_re("implant_md5", [r"^[a-z0-9]{32}$"])
 
@@ -309,7 +304,7 @@ class Image(productmd.common.MetadataBase):
         self._assert_type("bootable", [bool])
 
     def _validate_subvariant(self):
-        self._assert_type("subvariant", list(six.string_types))
+        self._assert_type("subvariant", [str])
 
     def _validate_unified(self):
         self._assert_type("unified", [bool])

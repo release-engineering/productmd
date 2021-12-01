@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=super-on-old-class
 
 
@@ -33,10 +32,11 @@ import codecs
 import contextlib
 import ssl
 import warnings
+import urllib
+import http.client
 
-import six
-from six.moves.configparser import ConfigParser
-
+from configparser import ConfigParser
+from io import StringIO
 
 VERSION = (1, 2)
 
@@ -169,7 +169,7 @@ def _urlopen(path):
         # Older Python versions (<2.7.9) do not support it. In those cases the
         # ssl module will not have the method to create the context.
         kwargs['context'] = ssl._create_unverified_context()
-    return six.moves.urllib.request.urlopen(path, **kwargs)
+    return urllib.request.urlopen(path, **kwargs)
 
 
 @contextlib.contextmanager
@@ -182,7 +182,7 @@ def open_file_obj(f, mode="r"):
     :param mode: how to open the file
     :type mode: string
     """
-    if isinstance(f, six.string_types):
+    if isinstance(f, str):
         if f.startswith(("http://", "https://", "ftp://")):
             file_obj = _urlopen(f)
             yield file_obj
@@ -199,13 +199,13 @@ def _file_exists(path):
         try:
             file_obj = _urlopen(path)
             file_obj.close()
-        except six.moves.urllib.error.URLError:
+        except urllib.error.URLError:
             return False
         return True
     return os.path.exists(path)
 
 
-class MetadataBase(object):
+class MetadataBase:
     def _assert_type(self, field, expected_types):
         value = getattr(self, field)
         for atype in expected_types:
@@ -273,7 +273,7 @@ class MetadataBase(object):
         :param s: input data
         :type s: str
         """
-        io = six.StringIO()
+        io = StringIO()
         io.write(s)
         io.seek(0)
         self.load(io)
@@ -298,7 +298,7 @@ class MetadataBase(object):
 
         :rtype: str
         """
-        io = six.StringIO()
+        io = StringIO()
         self.dump(io)
         io.seek(0)
         return io.read()
@@ -310,7 +310,7 @@ class MetadataBase(object):
                 f.seek(0)
         elif hasattr(f, "seek"):
             f.seek(0)
-        if six.PY3 and isinstance(f, six.moves.http_client.HTTPResponse):
+        if isinstance(f, http.client.HTTPResponse):
             # HTTPResponse needs special handling in py3
             reader = codecs.getreader("utf-8")
             parser = json.load(reader(f))
@@ -320,7 +320,7 @@ class MetadataBase(object):
 
     def build_file(self, parser, f):
         # build file from parser or dict with data
-        json.dump(parser, f, indent=4, sort_keys=True, separators = (",", ": "))
+        json.dump(parser, f, indent=4, sort_keys=True, separators=(",", ": "))
 
     def deserialize(self, parser):
         # copy data from parser to instance
@@ -347,7 +347,7 @@ class Header(MetadataBase):
         self.metadata_type = metadata_type
 
     def _validate_version(self):
-        self._assert_type("version", six.string_types)
+        self._assert_type("version", [str])
         self._assert_matches_re("version", [r"^\d+\.\d+$"])
 
     @property
@@ -554,7 +554,7 @@ class SortedConfigParser(ConfigParser):
             ConfigParser.__init__(self, *args, **kwargs)
         else:
             kwargs["dict_type"] = SortedDict
-            super(SortedConfigParser, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
         self.seen = set()
 
     def optionxform(self, optionstr):
@@ -570,4 +570,4 @@ class SortedConfigParser(ConfigParser):
     def read_file(self, *args, **kwargs):
         if sys.version_info[0] == 2:
             return self.readfp(*args, **kwargs)
-        return super(SortedConfigParser, self).read_file(*args, **kwargs)
+        return super().read_file(*args, **kwargs)
