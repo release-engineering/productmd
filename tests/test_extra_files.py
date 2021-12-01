@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # Copyright (C) 2019  Red Hat, Inc.
 #
@@ -24,7 +24,7 @@ import sys
 import tempfile
 import shutil
 
-from six import StringIO
+from io import StringIO
 
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))

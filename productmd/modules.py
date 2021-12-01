@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2017  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -17,7 +15,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
-import six
 
 import productmd.common
 from productmd.common import Header, RPM_ARCHES
@@ -31,7 +28,7 @@ __all__ = (
 
 class Modules(productmd.common.MetadataBase):
     def __init__(self):
-        super(Modules, self).__init__()
+        super().__init__()
         self.header = Header(self, "productmd.modules")
         self.compose = Compose(self)
         self.modules = {}
@@ -44,7 +41,7 @@ class Modules(productmd.common.MetadataBase):
 
     @staticmethod
     def parse_uid(uid):
-        if not isinstance(uid, six.string_types):
+        if not isinstance(uid, str):
             raise ValueError("Uid has to be string: %s" % uid)
 
         # pattern to parse uid MODULE_NAME:STREAM[:VERSION[:CONTEXT]]
@@ -63,7 +60,7 @@ class Modules(productmd.common.MetadataBase):
         return uid_dict
 
     def _check_uid(self, uid):
-        if not isinstance(uid, six.string_types):
+        if not isinstance(uid, str):
             raise ValueError("Uid has to be string: %s" % uid)
         if ":" not in uid:
             raise ValueError("Missing stream in uid: %s" % uid)
