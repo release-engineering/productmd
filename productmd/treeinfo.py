@@ -236,6 +236,29 @@ class Release(BaseProduct):
             self.deserialize_1_0(parser)
         self.validate()
 
+    def parse_treeinfo_name(self, name: string) -> Tuple[string, string]:
+        """ Take a full name in, return the name (replaced via regex) and a short code for the distro
+        """
+        name_mapping = {
+                "^Red Hat Enterprise Linux": ("Red Hat Enterprise Linux", "RHEL"), # starts with
+                "^Subscription Asset Manager$": (name, "SAM"),
+                "^Red Hat Storage$": (name, "RHS"),
+                "^JBEAP$": (name, "JBEAP"),
+                "^Red Hat Storage Software Appliance$": (name, "SSA"),
+                "^Fedora": ("Fedora", "Fedora"), # starts with
+                "^CentOS": ("CentOS", "CentOS"), # starts with
+                "^Rocky": ("Rocky", "Rocky"),
+                "^.*$": (name, "")
+            }
+
+        # Walk through the mapping top to bottom. Py3.7 ensures dict insertion ordering
+        for pattern, result in name_mapping.items():
+            if re.search(pattern, name):
+                return result
+
+        # else
+        return (name, "") 
+            
     # pre-productmd treeinfos
     def deserialize_0_0(self, parser):
         self.name = parser.get("general", "family")
@@ -243,25 +266,8 @@ class Release(BaseProduct):
         for i in re.split(r"[-_]", self.version):
             if re.match(r"^\d+(\.\d+)*$", i):
                 self.version = i
-        if self.name.startswith("Red Hat Enterprise Linux"):
-            self.name = "Red Hat Enterprise Linux"
-            self.short = "RHEL"
-        elif self.name == "Subscription Asset Manager":
-            self.short = "SAM"
-        elif self.name == "Red Hat Storage":
-            self.short = "RHS"
-        elif self.name == "JBEAP":
-            self.short = "JBEAP"
-        elif self.name == "Red Hat Storage Software Appliance":
-            self.short = "SSA"
-        elif self.name.startswith("Fedora"):
-            self.name = "Fedora"
-            self.short = "Fedora"
-        elif self.name.startswith("CentOS"):
-            self.name = "CentOS"
-            self.short = "CentOS"
-        else:
-            self.short = ""
+
+        self.name, self.short = self.parse_treeinfo_name(self.name)
 
     def deserialize_0_3(self, parser):
         self.name = parser.get("product", "name")
