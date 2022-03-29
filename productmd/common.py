@@ -70,7 +70,7 @@ RPM_ARCHES = [
     "alphaev7", "alphapca56", "amd64", "arm64", "armhfp", "armv5tejl", "armv5tel", "armv6hl", "armv6l", "armv7hl",
     "armv7hnl", "armv7l", "athlon", "geode", "i386", "i486", "i586", "i686", "ia32e", "ia64", "ppc", "ppc64",
     "ppc64iseries", "ppc64le", "ppc64p7", "ppc64pseries", "s390", "s390x", "sh3", "sh4", "sh4a",
-    "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64",
+    "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64", "loongarch64",
     "src", "nosrc", "noarch",
 ]
 
