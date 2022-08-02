@@ -260,6 +260,9 @@ class Release(BaseProduct):
         elif self.name.startswith("CentOS"):
             self.name = "CentOS"
             self.short = "CentOS"
+        elif self.name.startswith("EulerOS"):
+            self.name = "EulerOS"
+            self.short = "EulerOS"
         else:
             self.short = ""
 
