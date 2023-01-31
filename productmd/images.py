@@ -101,6 +101,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vdi': ['vdi'],
     'vmdk': ['vmdk'],
     'vpc': ['vhd'],
+    'vhd-compressed': ['vhd.gz', 'vhd.xz'],
     'vsphere-ova': ['vsphere.ova'],
 }
 
