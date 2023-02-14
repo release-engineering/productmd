@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.33
+Version:        1.34
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Tue Feb 14 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.34-1
+- Add vhd-compressed image type (lsedlar@redhat.com)
+- Add support for euleros (zhuofeng2@huawei.com)
+
 * Mon May 24 2021 Lubomír Sedlář <lsedlar@redhat.com> 1.33-1
 - Add ability to set a main variant while dumping TreeInfo:
   (soksanichenko@cloudlinux.com)
