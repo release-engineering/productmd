@@ -195,7 +195,7 @@ def _file_exists(path):
         try:
             file_obj = _urlopen(path)
             file_obj.close()
-        except six.moves.urllib.error.HTTPError:
+        except six.moves.urllib.error.URLError:
             return False
         return True
     return os.path.exists(path)
