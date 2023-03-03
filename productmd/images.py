@@ -68,6 +68,7 @@ __all__ = (
     "UniqueImage",
 )
 
+# Deprecated
 IMAGE_TYPE_FORMAT_MAPPING = {
     'boot': ['iso'],
     'cd': ['iso'],
@@ -105,10 +106,10 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vsphere-ova': ['vsphere.ova'],
 }
 
-#: supported image types
+#: Deprecated. supported image types
 SUPPORTED_IMAGE_TYPES = list(sorted(IMAGE_TYPE_FORMAT_MAPPING.keys()))
 
-#: supported image formats, they match with file suffix
+#: Deprecated. supported image formats, they match with file suffix
 SUPPORTED_IMAGE_FORMATS = list(sorted(set(chain(*IMAGE_TYPE_FORMAT_MAPPING.values()))))
 
 #: combination of attributes which uniquely identifies an image across composes
@@ -267,11 +268,9 @@ class Image(productmd.common.MetadataBase):
 
     def _validate_type(self):
         self._assert_type("type", list(six.string_types))
-        self._assert_value("type", SUPPORTED_IMAGE_TYPES)
 
     def _validate_format(self):
         self._assert_type("format", list(six.string_types))
-        self._assert_value("format", SUPPORTED_IMAGE_FORMATS)
 
     def _validate_arch(self):
         self._assert_type("arch", list(six.string_types))
