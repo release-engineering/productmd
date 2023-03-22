@@ -135,18 +135,11 @@ class TestTreeInfo(unittest.TestCase):
 
         ti.variants.add(variant_2)
 
-        ti.dump(self.ini_path, main_variant='BaseOS')
-        with open(
-                self.ini_path, 'r'
-        ) as treeinfo_1, open(
-            os.path.join(DIR, "treeinfo/multivariants_treeinfo")
-        ) as treeinfo_2:
-            treeinfo_1_lines = treeinfo_1.readlines()
-            treeinfo_2_lines = treeinfo_2.readlines()
-        self.assertEqual(
-            treeinfo_1_lines,
-            treeinfo_2_lines,
-        )
+        ti.dump(self.ini_path, main_variant="BaseOS")
+        multivariant_ini_path = os.path.join(DIR, "treeinfo/multivariants_treeinfo")
+        with open(self.ini_path, "r") as treeinfo_1:
+            with open(multivariant_ini_path, "r") as treeinfo_2:
+                self.assertEqual(treeinfo_1.read(), treeinfo_2.read())
 
     def test_f20(self):
         ti = TreeInfo()
