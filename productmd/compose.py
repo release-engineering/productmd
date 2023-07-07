@@ -63,7 +63,7 @@ class Compose(object):
 
         # example: MYPRODUCT-1.0-YYYYMMDD.0/compose/metadata (preferred location)
         path = os.path.join(compose_path, "compose")
-        if _file_exists(path):
+        if _file_exists(os.path.join(path, "metadata/composeinfo.json")):
             self.compose_path = path
 
         elif "://" not in compose_path and os.path.exists(compose_path):
