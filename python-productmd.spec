@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.35
+Version:        1.36
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,11 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Jul 27 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.36-1
+- Compose: test existence of compose/metadata/composeinfo.json
+  (kdreyer@ibm.com)
+- Fix tests to pass on ancient version of python (mhaluza@redhat.com)
+
 * Tue Feb 28 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.35-1
 - Fix support for ftp protocol when fetching metadata (zveleba@redhat.com)
 
