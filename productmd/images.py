@@ -78,6 +78,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     # installer image that deploys a payload containing an ostree-based
     # distribution
     'dvd-ostree': ['iso'],
+    'dvd-ostree-osbuild': ['iso'],
     'ec2': [],
     'kvm': [],
     'live': [],
