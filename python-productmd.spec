@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.36
+Version:        1.37
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Fri Sep 22 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.37-1
+- images: add `dvd-ostree-osbuild` image type (cmdr@supakeen.com)
+- images: add `live-osbuild` image type (cmdr@supakeen.com)
+
 * Thu Jul 27 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.36-1
 - Compose: test existence of compose/metadata/composeinfo.json
   (kdreyer@ibm.com)
