@@ -85,6 +85,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'live-osbuild': ['iso'],
     'liveimg-squashfs': ['liveimg.squashfs'],
     'netinst': ['iso'],
+    'ociarchive': ['ociarchive'],
     'p2v': [],
     'qcow': ['qcow'],
     'qcow2': ['qcow2'],
