@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.37
+Version:        1.38
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,13 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Thu Dec 07 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.38-1
+- Add ociarchive image type (lsedlar@redhat.com)
+- Run bandit in github action (lsedlar@redhat.com)
+- Create a github action to run tests (lsedlar@redhat.com)
+- Update list of python versions in tox.ini (lsedlar@redhat.com)
+- Set up security scanning with bandit (lsedlar@redhat.com)
+
 * Fri Sep 22 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.37-1
 - images: add `dvd-ostree-osbuild` image type (cmdr@supakeen.com)
 - images: add `live-osbuild` image type (cmdr@supakeen.com)
