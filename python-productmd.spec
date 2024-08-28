@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.38
+Version:        1.39
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Wed Aug 28 2024 Lubomír Sedlář <lsedlar@redhat.com> 1.39-1
+- Add mappings for appx and iso types for kiwi image builds
+  (ngompa@velocitylimitless.com)
+
 * Thu Dec 07 2023 Lubomír Sedlář <lsedlar@redhat.com> 1.38-1
 - Add ociarchive image type (lsedlar@redhat.com)
 - Run bandit in github action (lsedlar@redhat.com)
