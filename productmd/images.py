@@ -69,6 +69,7 @@ __all__ = (
 )
 
 IMAGE_TYPE_FORMAT_MAPPING = {
+    'appx': ['appx'],
     'boot': ['iso'],
     'cd': ['iso'],
     'docker': ['tar.gz', 'tar.xz'],
@@ -80,6 +81,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'dvd-ostree': ['iso'],
     'dvd-ostree-osbuild': ['iso'],
     'ec2': [],
+    'iso': ['iso'],
     'kvm': [],
     'live': [],
     'live-osbuild': ['iso'],
