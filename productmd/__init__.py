@@ -19,7 +19,7 @@
 # Note this file is templated with Tito. Please make changes to
 # .tito/templates/__init__.py.in in Git.
 
-__version__ = '1.40'
+__version__ = '1.41'
 
 from .compose import Compose            # noqa
 from .composeinfo import ComposeInfo    # noqa

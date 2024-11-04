@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.40
+Version:        1.41
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon Nov 04 2024 Lubomír Sedlář <lsedlar@redhat.com> 1.41-1
+- common: Update RPM_ARCHES to match dnf (abologna@redhat.com)
+
 * Thu Aug 29 2024 Lubomír Sedlář <lsedlar@redhat.com> 1.40-1
 - Remove 'iso' image type again (awilliam@redhat.com)
 
