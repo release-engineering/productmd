@@ -107,6 +107,9 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vpc': ['vhd'],
     'vhd-compressed': ['vhd.gz', 'vhd.xz'],
     'vsphere-ova': ['vsphere.ova'],
+    # these back FEX:
+    # https://fedoraproject.org/wiki/Changes/FEX
+    'fex': ['erofs.xz', 'erofs.gz', 'erofs', 'squashfs.xz', 'squashfs.gz', 'squashfs'],
 }
 
 #: supported image types
