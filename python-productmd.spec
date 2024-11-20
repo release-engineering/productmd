@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.41
+Version:        1.42
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,10 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Wed Nov 20 2024 Lubomír Sedlář <lsedlar@redhat.com> 1.42-1
+- images: add type and formats for erofs and squashfs to back FEX
+  (awilliam@redhat.com)
+
 * Mon Nov 04 2024 Lubomír Sedlář <lsedlar@redhat.com> 1.41-1
 - common: Update RPM_ARCHES to match dnf (abologna@redhat.com)
 
