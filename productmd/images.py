@@ -71,7 +71,11 @@ __all__ = (
 IMAGE_TYPE_FORMAT_MAPPING = {
     'appx': ['appx'],
     'boot': ['iso'],
+    # for all bootable container images, see https://github.com/containers/bootc
+    # and https://coreos.github.io/rpm-ostree/container/
+    'bootable-container': ['ociarchive'],
     'cd': ['iso'],
+    'container': ['tar.xz', 'oci', 'ociarchive'],
     'docker': ['tar.gz', 'tar.xz'],
     'dvd': ['iso'],
     # Usually non-bootable image which contains a repo with debuginfo packages.
@@ -81,6 +85,9 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'dvd-ostree': ['iso'],
     'dvd-ostree-osbuild': ['iso'],
     'ec2': [],
+    # these back FEX:
+    # https://fedoraproject.org/wiki/Changes/FEX
+    'fex': ['erofs.xz', 'erofs.gz', 'erofs', 'squashfs.xz', 'squashfs.gz', 'squashfs'],
     'kvm': [],
     'live': [],
     'live-osbuild': ['iso'],
@@ -107,9 +114,6 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vpc': ['vhd'],
     'vhd-compressed': ['vhd.gz', 'vhd.xz'],
     'vsphere-ova': ['vsphere.ova'],
-    # these back FEX:
-    # https://fedoraproject.org/wiki/Changes/FEX
-    'fex': ['erofs.xz', 'erofs.gz', 'erofs', 'squashfs.xz', 'squashfs.gz', 'squashfs'],
 }
 
 #: supported image types
