@@ -263,6 +263,12 @@ class Release(BaseProduct):
         elif self.name.startswith("EulerOS"):
             self.name = "EulerOS"
             self.short = "EulerOS"
+        elif self.name.startswith("Kylin"):
+            self.name = "Kylin"
+            self.short = "Kylin"
+        elif self.name.startswith("UnionTech OS"):
+            self.name = "UnionTech OS"
+            self.short = "UOS"
         else:
             self.short = ""
 
