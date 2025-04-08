@@ -114,6 +114,8 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vpc': ['vhd'],
     'vhd-compressed': ['vhd.gz', 'vhd.xz'],
     'vsphere-ova': ['vsphere.ova'],
+    # https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro
+    'wsl': ['tar', 'tar.gz'],
 }
 
 #: supported image types
