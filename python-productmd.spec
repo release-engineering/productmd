@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.44
+Version:        1.45
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -90,6 +90,9 @@ Requires:       python%{python3_pkgversion}-six
 %endif
 
 %changelog
+* Mon Apr 14 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.45-1
+- Rename wsl to wsl2 (lsedlar@redhat.com)
+
 * Fri Apr 11 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.44-1
 - Add wsl image type (lsedlar@redhat.com)
 - add OS support UOS and Kylin (yurii.huang@dbappsecurity.com.cn)
