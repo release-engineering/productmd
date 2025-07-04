@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.45
+Version:        1.46
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -48,6 +48,10 @@ BuildRequires:  python%{python3_pkgversion}-setuptools
 %{python3_sitelib}/productmd-%{version}-py?.?.egg-info
 
 %changelog
+* Fri Jul 04 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.46-1
+- Add 'wsl' format for wsl2 images (awilliam@redhat.com)
+- Drop Python 2 support (dalley@redhat.com)
+
 * Mon Apr 14 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.45-1
 - Rename wsl to wsl2 (lsedlar@redhat.com)
 

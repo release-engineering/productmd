@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2015  Red Hat, Inc.
 #
 # This library is free software; you can redistribute it and/or
@@ -17,7 +19,7 @@
 # Note this file is templated with Tito. Please make changes to
 # .tito/templates/__init__.py.in in Git.
 
-__version__ = '1.45'
+__version__ = '1.46'
 
 from .compose import Compose            # noqa
 from .composeinfo import ComposeInfo    # noqa
