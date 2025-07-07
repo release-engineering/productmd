@@ -33,6 +33,7 @@ import contextlib
 import ssl
 import warnings
 import urllib
+import urllib.error
 import http.client
 
 from configparser import ConfigParser
