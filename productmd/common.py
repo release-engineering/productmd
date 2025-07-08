@@ -34,6 +34,7 @@ import ssl
 import warnings
 import urllib
 import urllib.error
+import urllib.request
 import http.client
 
 from configparser import ConfigParser
