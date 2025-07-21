@@ -92,6 +92,15 @@ in order to diff .treeinfo files easily.
   ; addon paths
   ; see variant paths
 
+  [optional-$optional_uid]
+  id = <str>                            ; optional ID
+  uid = <str>                           ; optional UID ($parent_UID.$ID)
+  name = <str>                          ; optional name
+  type = optional
+
+  ; optional paths
+  ; see variant paths
+
   [general]
   ; WARNING.0 = This section provides compatibility with pre-productmd treeinfos.
   ; WARNING.1 = Read productmd documentation for details about new format.
