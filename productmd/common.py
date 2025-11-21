@@ -174,8 +174,22 @@ def is_valid_release_type(release_type):
     return match is not None
 
 
+def _get_default_headers():
+    """
+    Get default HTTP headers for network requests.
+
+    Users can override this function to customize headers globally.
+
+    :rtype: dict
+    """
+    return {
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json'
+    }
+
+
 def _urlopen(path):
-    req = urllib.request.Request(path, headers={'User-Agent': USER_AGENT})
+    req = urllib.request.Request(path, headers=_get_default_headers())
     return urllib.request.urlopen(req)
 
 
@@ -207,7 +221,7 @@ def _file_exists(path):
         # Use HEAD request to check existence without downloading content
         try:
             req = urllib.request.Request(
-                path, headers={'User-Agent': USER_AGENT}, method='HEAD'
+                path, headers=_get_default_headers(), method='HEAD'
             )
             response = urllib.request.urlopen(req)
             response.close()
