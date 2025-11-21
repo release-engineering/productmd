@@ -42,6 +42,16 @@ from io import StringIO
 
 VERSION = (1, 2)
 
+# Get library version for User-Agent
+try:
+    from importlib.metadata import version as get_version
+    _LIB_VERSION = get_version("productmd")
+except Exception:
+    # Fallback if package is not installed or importlib.metadata is unavailable
+    _LIB_VERSION = "unknown"
+
+# User-Agent header for HTTP requests
+USER_AGENT = "productmd/{}".format(_LIB_VERSION)
 
 __all__ = (
     "MetadataBase",
@@ -165,7 +175,8 @@ def is_valid_release_type(release_type):
 
 
 def _urlopen(path):
-    return urllib.request.urlopen(path)
+    req = urllib.request.Request(path, headers={'User-Agent': USER_AGENT})
+    return urllib.request.urlopen(req)
 
 
 @contextlib.contextmanager
@@ -195,7 +206,9 @@ def _file_exists(path):
     if path.startswith(("http://", "https://")):
         # Use HEAD request to check existence without downloading content
         try:
-            req = urllib.request.Request(path, method='HEAD')
+            req = urllib.request.Request(
+                path, headers={'User-Agent': USER_AGENT}, method='HEAD'
+            )
             response = urllib.request.urlopen(req)
             response.close()
         except urllib.error.URLError:
