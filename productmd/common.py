@@ -190,7 +190,17 @@ def open_file_obj(f, mode="r"):
 
 
 def _file_exists(path):
-    if path.startswith(("http://", "https://", "ftp://")):
+    if path.startswith(("http://", "https://")):
+        # Use HEAD request to check existence without downloading content
+        try:
+            req = urllib.request.Request(path, method='HEAD')
+            response = urllib.request.urlopen(req)
+            response.close()
+        except urllib.error.URLError:
+            return False
+        return True
+    elif path.startswith("ftp://"):
+        # FTP doesn't support HEAD, so we need to open the file
         try:
             file_obj = _urlopen(path)
             file_obj.close()
