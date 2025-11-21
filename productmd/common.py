@@ -30,6 +30,7 @@ import re
 import json
 import codecs
 import contextlib
+import functools
 import warnings
 import urllib
 import urllib.error
@@ -189,6 +190,7 @@ def open_file_obj(f, mode="r"):
         yield f
 
 
+@functools.lru_cache(maxsize=128)
 def _file_exists(path):
     if path.startswith(("http://", "https://")):
         # Use HEAD request to check existence without downloading content
