@@ -59,6 +59,9 @@ class TestCompose(unittest.TestCase):
     def test_opening_http_succeeds(self):
         def mock_urlopen(url, context=None):
             """ Return an on-disk JSON file's contents for a given url. """
+            # Handle both string URLs and Request objects
+            if isinstance(url, urllib.request.Request):
+                url = url.full_url
             filename = os.path.basename(url)
             if not filename.endswith('.json'):
                 # This is not parsed; it just needs to be any 200 OK response.
