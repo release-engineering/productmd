@@ -30,7 +30,6 @@ import re
 import json
 import codecs
 import contextlib
-import ssl
 import warnings
 import urllib
 import urllib.error
@@ -165,13 +164,7 @@ def is_valid_release_type(release_type):
 
 
 def _urlopen(path):
-    kwargs = {}
-    if hasattr(ssl, '_create_unverified_context'):
-        # We only want to use the `context` keyword argument if it has a value.
-        # Older Python versions (<2.7.9) do not support it. In those cases the
-        # ssl module will not have the method to create the context.
-        kwargs['context'] = ssl._create_unverified_context()
-    return urllib.request.urlopen(path, **kwargs)
+    return urllib.request.urlopen(path)
 
 
 @contextlib.contextmanager
