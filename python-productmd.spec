@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.48
+Version:        1.49
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -48,6 +48,13 @@ BuildRequires:  python%{python3_pkgversion}-setuptools
 %{python3_sitelib}/productmd-%{version}-py?.?.egg-info
 
 %changelog
+* Mon Nov 24 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.49-1
+- Add Accept header to all HTTP requests (lsedlar@redhat.com)
+- Set User-Agent header for all HTTP requests (lsedlar@redhat.com)
+- Add cache over checking file existence (lsedlar@redhat.com)
+- Make HEAD request for checking file existence (lsedlar@redhat.com)
+- Remove urllib compatibility with Python 2.7 (lsedlar@redhat.com)
+
 * Tue Jul 08 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.48-1
 - Add missing import of urllib.request (lsedlar@redhat.com)
 
