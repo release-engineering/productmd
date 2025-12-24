@@ -18,15 +18,14 @@ packages = sorted(packages)
 
 
 setup(
-    name            = "productmd",
-    version         = "1.50",
-    description     = "Product, compose and installation media metadata library",
-    url             = "https://github.com/release-engineering/productmd",
-    author          = "Daniel Mach",
-    author_email    = "dmach@redhat.com",
-    license         = "LGPLv2.1",
-
-    packages        = packages,
-    scripts         = [],
-    test_suite      = "tests",
+    name="productmd",
+    version="1.50",
+    description="Product, compose and installation media metadata library",
+    url="https://github.com/release-engineering/productmd",
+    author="Daniel Mach",
+    author_email="dmach@redhat.com",
+    license="LGPLv2.1",
+    packages=packages,
+    scripts=[],
+    test_suite="tests",
 )

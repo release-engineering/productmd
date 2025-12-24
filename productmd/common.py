@@ -23,7 +23,6 @@ This module provides base classes and common functions
 used in other productmd modules.
 """
 
-
 import os
 import sys
 import re
@@ -45,6 +44,7 @@ VERSION = (1, 2)
 # Get library version for User-Agent
 try:
     from importlib.metadata import version as get_version
+
     _LIB_VERSION = get_version("productmd")
 except Exception:
     # Fallback if package is not installed or importlib.metadata is unavailable
@@ -57,12 +57,10 @@ __all__ = (
     "MetadataBase",
     "Header",
     "VERSION",
-
     "RELEASE_SHORT_RE",
     "RELEASE_VERSION_RE",
     "RELEASE_TYPE_RE",
     "RELEASE_TYPES",
-
     "parse_nvra",
     "is_valid_release_short",
     "is_valid_release_version",
@@ -81,13 +79,67 @@ __all__ = (
 # additional values that are not present in that dictionary but are retained
 # here to ensure backwards compatibility: arm64, src, nosrc
 RPM_ARCHES = [
-    "aarch64", "alpha", "alphaev4", "alphaev45", "alphaev5", "alphaev56", "alphaev6", "alphaev67", "alphaev68",
-    "alphaev7", "alphapca56", "amd64", "arm64", "armhfp", "armv5tejl", "armv5tel", "armv5tl", "armv6hl",
-    "armv6l", "armv7hl", "armv7hnl", "armv7l", "armv8hl", "armv8l", "athlon", "geode", "i386", "i486", "i586",
-    "i686", "ia32e", "ia64", "loongarch64", "mips", "mips64", "mips64el", "mipsel", "ppc", "ppc64",
-    "ppc64iseries", "ppc64le", "ppc64p7", "ppc64pseries", "riscv128", "riscv32", "riscv64", "s390", "s390x",
-    "sh3", "sh4", "sh4a", "sparc", "sparc64", "sparc64v", "sparcv8", "sparcv9", "sparcv9v", "x86_64",
-    "src", "nosrc", "noarch",
+    "aarch64",
+    "alpha",
+    "alphaev4",
+    "alphaev45",
+    "alphaev5",
+    "alphaev56",
+    "alphaev6",
+    "alphaev67",
+    "alphaev68",
+    "alphaev7",
+    "alphapca56",
+    "amd64",
+    "arm64",
+    "armhfp",
+    "armv5tejl",
+    "armv5tel",
+    "armv5tl",
+    "armv6hl",
+    "armv6l",
+    "armv7hl",
+    "armv7hnl",
+    "armv7l",
+    "armv8hl",
+    "armv8l",
+    "athlon",
+    "geode",
+    "i386",
+    "i486",
+    "i586",
+    "i686",
+    "ia32e",
+    "ia64",
+    "loongarch64",
+    "mips",
+    "mips64",
+    "mips64el",
+    "mipsel",
+    "ppc",
+    "ppc64",
+    "ppc64iseries",
+    "ppc64le",
+    "ppc64p7",
+    "ppc64pseries",
+    "riscv128",
+    "riscv32",
+    "riscv64",
+    "s390",
+    "s390x",
+    "sh3",
+    "sh4",
+    "sh4a",
+    "sparc",
+    "sparc64",
+    "sparc64v",
+    "sparcv8",
+    "sparcv9",
+    "sparcv9v",
+    "x86_64",
+    "src",
+    "nosrc",
+    "noarch",
 ]
 
 
@@ -182,10 +234,7 @@ def _get_default_headers():
 
     :rtype: dict
     """
-    return {
-        'User-Agent': USER_AGENT,
-        'Accept': 'application/json'
-    }
+    return {'User-Agent': USER_AGENT, 'Accept': 'application/json'}
 
 
 def _urlopen(path):
@@ -220,9 +269,7 @@ def _file_exists(path):
     if path.startswith(("http://", "https://")):
         # Use HEAD request to check existence without downloading content
         try:
-            req = urllib.request.Request(
-                path, headers=_get_default_headers(), method='HEAD'
-            )
+            req = urllib.request.Request(path, headers=_get_default_headers(), method='HEAD')
             response = urllib.request.urlopen(req)
             response.close()
         except urllib.error.URLError:
@@ -271,8 +318,10 @@ class MetadataBase:
                 # It's not a compiled regex, treat it as string.
                 if re.match(pattern, value):
                     return
-        raise ValueError("%s: Field '%s' has invalid value: %s. It does not match any provided REs: %s"
-                         % (self.__class__.__name__, field, value, expected_patterns))
+        raise ValueError(
+            "%s: Field '%s' has invalid value: %s. It does not match any provided REs: %s"
+            % (self.__class__.__name__, field, value, expected_patterns)
+        )
 
     def validate(self):
         """
@@ -539,7 +588,7 @@ def _parse_release_id_part(release_id, prefix=""):
         if release_type:
             # Found, remove it from the parsed string (because there could be a
             # dash causing problems).
-            release_id = release_id[:-len(release_type)]
+            release_id = release_id[: -len(release_type)]
 
         short, version, release_type_extracted = release_id.rsplit("-", 2)
 

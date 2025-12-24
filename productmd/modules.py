@@ -21,9 +21,7 @@ from productmd.common import Header, RPM_ARCHES
 from productmd.composeinfo import Compose
 from productmd.rpms import SUPPORTED_CATEGORIES
 
-__all__ = (
-    "Modules",
-)
+__all__ = ("Modules",)
 
 
 class Modules(productmd.common.MetadataBase):

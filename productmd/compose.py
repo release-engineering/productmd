@@ -31,7 +31,6 @@ Example::
   compose.modules
 """
 
-
 import os
 
 import productmd.composeinfo
@@ -41,9 +40,7 @@ import productmd.modules
 from productmd.common import _file_exists
 
 
-__all__ = (
-    "Compose",
-)
+__all__ = ("Compose",)
 
 
 class Compose:

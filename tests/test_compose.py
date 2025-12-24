@@ -26,14 +26,13 @@ import urllib.request
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.compose import Compose   # noqa
+from productmd.compose import Compose  # noqa
 
 from io import StringIO
 from urllib.error import HTTPError
 
 
 class TestCompose(unittest.TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.compose_path = os.path.join(DIR, "compose")
@@ -58,7 +57,7 @@ class TestCompose(unittest.TestCase):
 
     def test_opening_http_succeeds(self):
         def mock_urlopen(url, context=None):
-            """ Return an on-disk JSON file's contents for a given url. """
+            """Return an on-disk JSON file's contents for a given url."""
             # Handle both string URLs and Request objects
             if isinstance(url, urllib.request.Request):
                 url = url.full_url
@@ -82,7 +81,6 @@ class TestCompose(unittest.TestCase):
 
 
 class TestLegacyCompose(unittest.TestCase):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.compose_path = os.path.join(DIR, "compose-legacy")
@@ -94,6 +92,7 @@ class TestLegacyCompose(unittest.TestCase):
         # try to access a variant and addon
         variant = compose.info["Foo"]
         variant = compose.info["Foo-Bar"]
+
 
 if __name__ == "__main__":
     unittest.main()

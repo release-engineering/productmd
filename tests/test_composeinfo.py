@@ -284,24 +284,25 @@ def setup_create_compose_id_case():
         def test(self):
             self.setUpRelease(*args)
             self.assertEqual(self.ci.create_compose_id(), compose_id)
+
         return test
 
     data = [
         # Expected compose id                        compose type   release type  base product type
-        ('F-22-20160622.0',                          'production',  'ga'),
-        ('F-22-20160622.n.0',                        'nightly',     'ga'),
-        ('F-22-20160622.ci.0',                       'ci',          'ga'),
-        ('F-22-updates-20160622.0',                  'production',  'updates'),
-        ('F-22-updates-20160622.n.0',                'nightly',     'updates'),
-        ('F-22-BASE-3-20160622.0',                   'production',  'ga',        'ga'),
-        ('F-22-BASE-3-20160622.n.0',                 'nightly',     'ga',        'ga'),
-        ('F-22-updates-BASE-3-20160622.0',           'production',  'updates',   'ga'),
-        ('F-22-updates-BASE-3-20160622.n.0',         'nightly',     'updates',   'ga'),
-        ('F-22-BASE-3-updates-20160622.0',           'production',  'ga',        'updates'),
-        ('F-22-BASE-3-updates-20160622.n.0',         'nightly',     'ga',        'updates'),
-        ('F-22-updates-BASE-3-updates-20160622.0',   'production',  'updates',   'updates'),
-        ('F-22-updates-BASE-3-updates-20160622.n.0', 'nightly',     'updates',   'updates'),
-        ('F-22-updates-BASE-3-updates-20160622.d.0', 'development', 'updates',   'updates'),
+        ('F-22-20160622.0', 'production', 'ga'),
+        ('F-22-20160622.n.0', 'nightly', 'ga'),
+        ('F-22-20160622.ci.0', 'ci', 'ga'),
+        ('F-22-updates-20160622.0', 'production', 'updates'),
+        ('F-22-updates-20160622.n.0', 'nightly', 'updates'),
+        ('F-22-BASE-3-20160622.0', 'production', 'ga', 'ga'),
+        ('F-22-BASE-3-20160622.n.0', 'nightly', 'ga', 'ga'),
+        ('F-22-updates-BASE-3-20160622.0', 'production', 'updates', 'ga'),
+        ('F-22-updates-BASE-3-20160622.n.0', 'nightly', 'updates', 'ga'),
+        ('F-22-BASE-3-updates-20160622.0', 'production', 'ga', 'updates'),
+        ('F-22-BASE-3-updates-20160622.n.0', 'nightly', 'ga', 'updates'),
+        ('F-22-updates-BASE-3-updates-20160622.0', 'production', 'updates', 'updates'),
+        ('F-22-updates-BASE-3-updates-20160622.n.0', 'nightly', 'updates', 'updates'),
+        ('F-22-updates-BASE-3-updates-20160622.d.0', 'development', 'updates', 'updates'),
     ]
     for args in data:
         test_name = 'test_compose_%s_release_%s' % (args[1], args[2])
@@ -310,11 +311,11 @@ def setup_create_compose_id_case():
         test = test_generator(*args)
         setattr(TestCreateComposeID, test_name, test)
 
+
 setup_create_compose_id_case()
 
 
 class TestGetDateTypeRespin(unittest.TestCase):
-
     def test_unknown_type(self):
         self.assertRaises(ValueError, get_date_type_respin, 'Foo-1.0-20170217.foo.2')
 
@@ -328,10 +329,8 @@ class TestGetDateTypeRespin(unittest.TestCase):
 def setup_get_date_type_case():
     def test_generator(cid, date, type, respin):
         def test(self):
-            self.assertEqual(
-                get_date_type_respin(cid),
-                (date, type, respin)
-            )
+            self.assertEqual(get_date_type_respin(cid), (date, type, respin))
+
         return test
 
     data = {
@@ -346,6 +345,7 @@ def setup_get_date_type_case():
         test_name = 'test_%s' % name
         test = test_generator(*data[name])
         setattr(TestGetDateTypeRespin, test_name, test)
+
 
 setup_get_date_type_case()
 
