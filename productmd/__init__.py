@@ -21,10 +21,10 @@
 
 __version__ = '1.50'
 
-from .compose import Compose            # noqa
-from .composeinfo import ComposeInfo    # noqa
-from .discinfo import DiscInfo          # noqa
-from .images import Images              # noqa
-from .modules import Modules            # noqa
-from .rpms import Rpms                  # noqa
-from .treeinfo import TreeInfo          # noqa
+from .compose import Compose  # noqa
+from .composeinfo import ComposeInfo  # noqa
+from .discinfo import DiscInfo  # noqa
+from .images import Images  # noqa
+from .modules import Modules  # noqa
+from .rpms import Rpms  # noqa
+from .treeinfo import TreeInfo  # noqa

@@ -20,7 +20,6 @@ This module provides classes for manipulating .treeinfo files.
 Treeinfo files provide details about installable trees in Fedora composes and media.
 """
 
-
 import os
 import hashlib
 import re
@@ -58,15 +57,15 @@ def compute_checksum(path, checksum_type):
 class TreeInfo(productmd.common.MetadataBase):
     def __init__(self):
         super(productmd.common.MetadataBase, self)
-        self.header = Header(self, "productmd.treeinfo")        #: (:class:`productmd.common.Header`) -- Metadata header
-        self.release = Release(self)            #: (:class:`.Release`) -- Release details
-        self.base_product = BaseProduct(self)   #: (:class:`.BaseProduct`) -- Base product details (optional)
-        self.tree = Tree(self)                  #: (:class:`.Tree`) -- Tree details
-        self.variants = Variants(self)          #: (:class:`.Variants`) -- Release variants
-        self.checksums = Checksums(self)        #: (:class:`.Checksums`) -- Checksums of images included in a tree
-        self.images = Images(self)              #: (:class:`.Images`) -- Paths to images included in a tree
-        self.stage2 = Stage2(self)              #: (:class:`.Stage2`) -- Stage 2 image path (for Anaconda installer)
-        self.media = Media(self)                #: (:class:`.Media`) -- Media set information (optional)
+        self.header = Header(self, "productmd.treeinfo")  #: (:class:`productmd.common.Header`) -- Metadata header
+        self.release = Release(self)  #: (:class:`.Release`) -- Release details
+        self.base_product = BaseProduct(self)  #: (:class:`.BaseProduct`) -- Base product details (optional)
+        self.tree = Tree(self)  #: (:class:`.Tree`) -- Tree details
+        self.variants = Variants(self)  #: (:class:`.Variants`) -- Release variants
+        self.checksums = Checksums(self)  #: (:class:`.Checksums`) -- Checksums of images included in a tree
+        self.images = Images(self)  #: (:class:`.Images`) -- Paths to images included in a tree
+        self.stage2 = Stage2(self)  #: (:class:`.Stage2`) -- Stage 2 image path (for Anaconda installer)
+        self.media = Media(self)  #: (:class:`.Media`) -- Media set information (optional)
 
     def __str__(self):
         result = "%s-%s" % (self.release.short, self.release.version)
@@ -144,7 +143,6 @@ class TreeInfo(productmd.common.MetadataBase):
 
 
 class Header(productmd.common.Header):
-
     def serialize(self, parser):
         self.validate()
         parser.add_section(self._section)
@@ -171,9 +169,9 @@ class BaseProduct(productmd.common.MetadataBase):
         super(BaseProduct, self).__init__()
         self._section = "base_product"
         self._metadata = metadata
-        self.name = None                #: (*str*) -- base product name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.short = None               #: (*str*) -- base product short name, for example: "F", "RHEL"
-        self.version = None             #: (*str*) -- base product *major* version, for example: "21", "7"
+        self.name = None  #: (*str*) -- base product name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.short = None  #: (*str*) -- base product short name, for example: "F", "RHEL"
+        self.version = None  #: (*str*) -- base product *major* version, for example: "21", "7"
 
     def _validate_name(self):
         self._assert_type("name", [str])
@@ -201,14 +199,13 @@ class BaseProduct(productmd.common.MetadataBase):
 
 
 class Release(BaseProduct):
-
     def __init__(self, metadata):
         super(Release, self).__init__(metadata)
         self._section = "release"
-        self.name = None                #: (*str*) -- release name, for example: "Fedora", "Red Hat Enterprise Linux", "Spacewalk"
-        self.short = None               #: (*str*) -- release short name, for example: "F", "RHEL", "Spacewalk"
-        self.version = None             #: (*str*) -- release version, for example: "21", "7.0", "2.1"
-        self.is_layered = False         #: (*bool*) -- typically False for an operating system, True otherwise
+        self.name = None  #: (*str*) -- release name, for example: "Fedora", "Red Hat Enterprise Linux", "Spacewalk"
+        self.short = None  #: (*str*) -- release short name, for example: "F", "RHEL", "Spacewalk"
+        self.version = None  #: (*str*) -- release version, for example: "21", "7.0", "2.1"
+        self.is_layered = False  #: (*bool*) -- typically False for an operating system, True otherwise
 
     def _validate_is_layered(self):
         self._assert_type("is_layered", [bool])
@@ -307,14 +304,13 @@ class Release(BaseProduct):
 
 # Note: [tree]/variants is read/written in the Variants class
 class Tree(productmd.common.MetadataBase):
-
     def __init__(self, _metadata):
         super(Tree, self).__init__()
         self._section = "tree"
         self._metadata = _metadata
-        self.arch = None                #: (*str*) -- tree architecture, for example x86_64
-        self.build_timestamp = None     #: (*int*, *float*) -- tree build time timestamp; format: unix time
-        self.platforms = set()          #: (*set(str)*), supported platforms; for example x86_64,xen
+        self.arch = None  #: (*str*) -- tree architecture, for example x86_64
+        self.build_timestamp = None  #: (*int*, *float*) -- tree build time timestamp; format: unix time
+        self.platforms = set()  #: (*set(str)*), supported platforms; for example x86_64,xen
 
     def _validate_arch(self):
         self._assert_type("arch", [str])
@@ -349,7 +345,7 @@ class Tree(productmd.common.MetadataBase):
                 continue
             i = i[7:]
             if i != self.arch and i.endswith("-%s" % self.arch):
-                i = i[:-len(self.arch)-1]
+                i = i[: -len(self.arch) - 1]
             self.platforms.add(i)
 
         if parser.has_option("general", "timestamp"):
@@ -466,15 +462,12 @@ class VariantPaths(productmd.common.MetadataBase):
             # binary
             "packages",
             "repository",
-
             # source
             "source_packages",
             "source_repository",
-
             # debug
             "debug_packages",
             "debug_repository",
-
             # others
             "identity",
         ]
@@ -597,14 +590,14 @@ class Variant(productmd.composeinfo.VariantBase):
         super(Variant, self).__init__(metadata)
 
         # variant details
-        self.id = None          #: (*str*) -- variant ID, for example "Server", "optional"
-        self.uid = None         #: (*str*) -- variant UID ($parent_UID.$ID), for example "Server", "Server-optional"
-        self.name = None        #: (*str*) -- variant name, for example "Server"
-        self.type = None        #: (*str*) -- "variant", "addon", "optional"
+        self.id = None  #: (*str*) -- variant ID, for example "Server", "optional"
+        self.uid = None  #: (*str*) -- variant UID ($parent_UID.$ID), for example "Server", "Server-optional"
+        self.name = None  #: (*str*) -- variant name, for example "Server"
+        self.type = None  #: (*str*) -- "variant", "addon", "optional"
 
-        self.parent = None                  #: (:class:`.Variant` or *None*) -- reference to parent :class:`.Variant`
-        self.variants = {}                  #: (*dict*) :class:`.Variant`
-        self.paths = VariantPaths(self)     #: (:class:`.VariantPaths`) -- relative paths to repositories, packages, etc.
+        self.parent = None  #: (:class:`.Variant` or *None*) -- reference to parent :class:`.Variant`
+        self.variants = {}  #: (*dict*) :class:`.Variant`
+        self.paths = VariantPaths(self)  #: (:class:`.VariantPaths`) -- relative paths to repositories, packages, etc.
 
     def __str__(self):
         return self.uid
@@ -775,7 +768,7 @@ class Variant(productmd.composeinfo.VariantBase):
 
     def serialize(self, parser):
         self.validate()
-#        print "SERIALIZE", self._section, self.type
+        #        print "SERIALIZE", self._section, self.type
         parser.add_section(self._section)
 
         # variant details
@@ -801,7 +794,6 @@ class Variant(productmd.composeinfo.VariantBase):
 
 
 class Images(productmd.common.MetadataBase):
-
     def __init__(self, metadata):
         super().__init__()
         self._metadata = metadata
@@ -814,7 +806,7 @@ class Images(productmd.common.MetadataBase):
         if self._metadata.header.version_tuple == (0, 0):
             if path.startswith("/"):
                 if "/os/" in path:
-                    path = path[path.find("/os/")+4:]
+                    path = path[path.find("/os/") + 4 :]
                 else:
                     path = path.lstrip("/")
         return path
@@ -840,7 +832,7 @@ class Images(productmd.common.MetadataBase):
                 continue
             platform = section[7:]
             if platform != self._metadata.tree.arch and platform.endswith("-%s" % self._metadata.tree.arch):
-                platform = platform[:-len(self._metadata.tree.arch)-1]
+                platform = platform[: -len(self._metadata.tree.arch) - 1]
             self.images[platform] = {}
             for image, path in parser.items(section):
                 path = parser.get(section, image)  # re-read path to populate 'seen' records in tests
@@ -856,8 +848,9 @@ class Images(productmd.common.MetadataBase):
     def _validate_platforms(self):
         for platform in self.platforms:
             if platform not in self._metadata.tree.platforms:
-                raise ValueError("Platform has images but is not referenced in platform list: %s, %s"
-                                 % (platform, self._metadata.tree.platforms))
+                raise ValueError(
+                    "Platform has images but is not referenced in platform list: %s, %s" % (platform, self._metadata.tree.platforms)
+                )
 
 
 class Stage2(productmd.common.MetadataBase):
@@ -865,8 +858,8 @@ class Stage2(productmd.common.MetadataBase):
         super().__init__()
         self._section = "stage2"
         self._metadata = metadata
-        self.mainimage = None           #: (*str*) -- relative path to Anaconda stage2 image
-        self.instimage = None           #: (*str*) -- relative path to Anaconda instimage (obsolete)
+        self.mainimage = None  #: (*str*) -- relative path to Anaconda stage2 image
+        self.instimage = None  #: (*str*) -- relative path to Anaconda instimage (obsolete)
 
     def __getitem__(self, name):
         getattr(self, name)
@@ -875,7 +868,7 @@ class Stage2(productmd.common.MetadataBase):
         if self._metadata.header.version_tuple == (0, 0):
             if path.startswith("/"):
                 if "/os/" in path:
-                    path = path[path.find("/os/")+4:]
+                    path = path[path.find("/os/") + 4 :]
                 else:
                     path = path.lstrip("/")
         return path
@@ -908,7 +901,6 @@ class Stage2(productmd.common.MetadataBase):
 
 
 class Checksums(productmd.common.MetadataBase):
-
     def __init__(self, metadata):
         super(Checksums, self).__init__()
         self._section = "checksums"
@@ -922,7 +914,7 @@ class Checksums(productmd.common.MetadataBase):
         if self._metadata.header.version_tuple == (0, 0):
             if path.startswith("/"):
                 if "/os/" in path:
-                    path = path[path.find("/os/")+4:]
+                    path = path[path.find("/os/") + 4 :]
                 else:
                     path = path.lstrip("/")
         return path
@@ -967,13 +959,12 @@ class Checksums(productmd.common.MetadataBase):
 
 
 class Media(productmd.common.MetadataBase):
-
     def __init__(self, metadata):
         super(Media, self).__init__()
         self._section = "media"
         self._metadata = metadata
-        self.discnum = None             #: disc number
-        self.totaldiscs = None          #: number of discs in media set
+        self.discnum = None  #: disc number
+        self.totaldiscs = None  #: number of discs in media set
 
     def _validate_discnum(self):
         self._assert_type("discnum", [int, type(None)])
@@ -1014,7 +1005,6 @@ class Media(productmd.common.MetadataBase):
 
 
 class General(productmd.common.MetadataBase):
-
     def __init__(self, metadata):
         super(General, self).__init__()
         self._section = "general"

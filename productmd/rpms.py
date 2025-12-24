@@ -46,15 +46,12 @@ Example::
   # ]
 """
 
-
 import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
 
 
-__all__ = (
-    "Rpms",
-)
+__all__ = ("Rpms",)
 
 
 SUPPORTED_CATEGORIES = ["binary", "debug", "source"]

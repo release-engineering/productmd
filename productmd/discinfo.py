@@ -24,15 +24,12 @@ This module provides classes for manipulating .discinfo files.
 provide media information to Anaconda installer.
 """
 
-
 import time
 
 import productmd.common
 
 
-__all__ = (
-    "DiscInfo",
-)
+__all__ = ("DiscInfo",)
 
 
 class DiscInfo(productmd.common.MetadataBase):
@@ -42,10 +39,10 @@ class DiscInfo(productmd.common.MetadataBase):
 
     def __init__(self):
         super().__init__()
-        self.timestamp = None           #: Timestamp in float format
-        self.description = None         #: Release description, for example: Fedora 20
-        self.arch = None                #: Media architecture, for example: x86_64
-        self.disc_numbers = []          #: List with disc numbers or ["ALL"]
+        self.timestamp = None  #: Timestamp in float format
+        self.description = None  #: Release description, for example: Fedora 20
+        self.arch = None  #: Media architecture, for example: x86_64
+        self.disc_numbers = []  #: List with disc numbers or ["ALL"]
 
     def _validate_timestamp(self, value=None):
         value = value or self.timestamp
@@ -83,7 +80,7 @@ class DiscInfo(productmd.common.MetadataBase):
     def deserialize(self, parser):
         lines = parser
         self.timestamp = float(lines[0].strip())
-        self.description = lines[1].strip().strip("\"\'")
+        self.description = lines[1].strip().strip("\"'")
         self.arch = lines[2].strip()
         disc_numbers = None
         if len(parser) >= 4:
