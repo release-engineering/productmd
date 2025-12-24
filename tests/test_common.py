@@ -32,7 +32,6 @@ from productmd.common import get_major_version, get_minor_version  # noqa
 
 
 class TestRelease(unittest.TestCase):
-
     def test_valid_short(self):
         self.assertTrue(is_valid_release_short("f"))
         self.assertFalse(is_valid_release_short("F"))

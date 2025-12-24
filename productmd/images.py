@@ -45,7 +45,6 @@ Example::
 
 """
 
-
 import productmd.common
 from productmd.common import Header
 from productmd.composeinfo import Compose
@@ -56,8 +55,7 @@ from itertools import chain
 __all__ = (
     "Image",
     "Images",
-    "IMAGE_TYPE_FORMAT_MAPPING"
-    "SUPPORTED_IMAGE_TYPES",
+    "IMAGE_TYPE_FORMAT_MAPPINGSUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
     "UNIQUE_IMAGE_ATTRIBUTES",
     "UniqueImage",
@@ -208,8 +206,9 @@ class Images(productmd.common.MetadataBase):
                 for checkarch in self.images[checkvar]:
                     for curimg in self.images[checkvar][checkarch]:
                         if identify_image(curimg) == identify_image(image) and curimg.checksums != image.checksums:
-                            raise ValueError("Image {0} shares all UNIQUE_IMAGE_ATTRIBUTES with "
-                                             "image {1}! This is forbidden.".format(image, curimg))
+                            raise ValueError(
+                                "Image {0} shares all UNIQUE_IMAGE_ATTRIBUTES with image {1}! This is forbidden.".format(image, curimg)
+                            )
         self.images.setdefault(variant, {}).setdefault(arch, set()).add(image)
 
 
@@ -229,30 +228,28 @@ def identify_image(image):
     ui = UniqueImage(*attrs)
     # If unified is None (which could happen in the dict case, we want default
     # value of False instead. Also convert additional_variants to a list.
-    return ui._replace(
-        unified=ui.unified or False, additional_variants=ui.additional_variants or []
-    )
+    return ui._replace(unified=ui.unified or False, additional_variants=ui.additional_variants or [])
 
 
 class Image(productmd.common.MetadataBase):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.path = None                #: (*str*) -- relative path to an image, for example: "Server/x86_64/iso/boot.iso"
-        self.mtime = None               #: (*int*) -- image mtime
-        self.size = None                #: (*int*) -- image size
-        self.volume_id = None           #: (*str*) --
-        self.type = None                #: (*str*) --
-        self.format = None              #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.arch = None                #: (*str*) -- image architecture, for example: "x86_64", "src"
-        self.disc_number = None         #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.disc_count = None          #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.checksums = {}             #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.implant_md5 = None         #: (*str* or *None*) -- value of implanted md5
-        self.bootable = False           #: (*bool=False*) --
-        self.subvariant = None          #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
-        self.unified = False            #: (*bool=False*) -- indicates if the ISO contains content from multiple variants
-        self.additional_variants = []   #: (*[str]*) -- indicates which variants are present on the ISO
+        self.path = None  #: (*str*) -- relative path to an image, for example: "Server/x86_64/iso/boot.iso"
+        self.mtime = None  #: (*int*) -- image mtime
+        self.size = None  #: (*int*) -- image size
+        self.volume_id = None  #: (*str*) --
+        self.type = None  #: (*str*) --
+        self.format = None  #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.arch = None  #: (*str*) -- image architecture, for example: "x86_64", "src"
+        self.disc_number = None  #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.disc_count = None  #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.checksums = {}  #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.implant_md5 = None  #: (*str* or *None*) -- value of implanted md5
+        self.bootable = False  #: (*bool=False*) --
+        self.subvariant = None  #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
+        self.unified = False  #: (*bool=False*) -- indicates if the ISO contains content from multiple variants
+        self.additional_variants = []  #: (*[str]*) -- indicates which variants are present on the ISO
 
     def __repr__(self):
         return "<Image:{0.path}:{0.format}:{0.arch}>".format(self)

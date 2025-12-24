@@ -27,7 +27,6 @@ Example::
   print(compose.info.compose.id)  # prints "Fedora-Rawhide-20180616.n.0"
 """
 
-
 import re
 
 import productmd.common
@@ -50,23 +49,19 @@ def cmp(a, b):
 # least important come first
 #: supported compose types
 COMPOSE_TYPES = [
-    "test",             # for test purposes only
-    "ci",               # continuous integration, frequently from an automatically generated package set
-    "nightly",          # nightly composes from production package set
-    "production",       # production composes
-    "development",      # development compose, used for non-production version of a compose.
+    "test",  # for test purposes only
+    "ci",  # continuous integration, frequently from an automatically generated package set
+    "nightly",  # nightly composes from production package set
+    "production",  # production composes
+    "development",  # development compose, used for non-production version of a compose.
 ]
 
 
 def _invert(d):
     return dict([(v, k) for k in d for v in d[k]])
 
-COMPOSE_TYPE_SUFFIXES = _invert({
-    "test": ['t', 'test'],
-    "ci": ['ci'],
-    "nightly": ['n', 'nightly'],
-    "development": ['d']
-})
+
+COMPOSE_TYPE_SUFFIXES = _invert({"test": ['t', 'test'], "ci": ['ci'], "nightly": ['n', 'nightly'], "development": ['d']})
 
 
 #: supported milestone label names
@@ -117,11 +112,11 @@ class ComposeInfo(productmd.common.MetadataBase):
     def __init__(self):
         super().__init__()
 
-        self.header = Header(self, "productmd.composeinfo")     #: (:class:`.Header`) -- Metadata header
-        self.compose = Compose(self)            #: (:class:`.Compose`) -- Compose details
-        self.release = Release(self)            #: (:class:`.Release`) -- Release details
-        self.base_product = BaseProduct(self)   #: (:class:`.BaseProduct`) -- Base product details (optional)
-        self.variants = Variants(self)          #: (:class:`.Variants`) -- release variants
+        self.header = Header(self, "productmd.composeinfo")  #: (:class:`.Header`) -- Metadata header
+        self.compose = Compose(self)  #: (:class:`.Compose`) -- Compose details
+        self.release = Release(self)  #: (:class:`.Release`) -- Release details
+        self.base_product = BaseProduct(self)  #: (:class:`.BaseProduct`) -- Base product details (optional)
+        self.variants = Variants(self)  #: (:class:`.Variants`) -- release variants
         self.validate()
         self.header.set_current_version()
 
@@ -160,15 +155,12 @@ class ComposeInfo(productmd.common.MetadataBase):
         return self.get_release_id()
 
     def create_compose_id(self):
-        result = "%s-%s%s" % (self.release.short, self.release.version,
-                              self.release.type_suffix)
+        result = "%s-%s%s" % (self.release.short, self.release.version, self.release.type_suffix)
         if self.release.is_layered:
-            result += "-%s-%s%s" % (self.base_product.short,
-                                    self.base_product.version,
-                                    self.base_product.type_suffix)
+            result += "-%s-%s%s" % (self.base_product.short, self.base_product.version, self.base_product.type_suffix)
 
-        rhel5 = (self.release.short == "RHEL" and self.release.major_version == "5")
-        rhel5 &= (self.base_product.short == "RHEL" and self.base_product.major_version == "5")
+        rhel5 = self.release.short == "RHEL" and self.release.major_version == "5"
+        rhel5 &= self.base_product.short == "RHEL" and self.base_product.major_version == "5"
         if rhel5:
             # HACK: there are 2 RHEL 5 composes -> need to add Server or Client variant to compose ID
             if self.variants.variants:
@@ -270,7 +262,7 @@ class Compose(productmd.common.MetadataBase):
         self.final = False
 
     def __repr__(self):
-        return u'<%s:%s>' % (self.__class__.__name__, self.id)
+        return '<%s:%s>' % (self.__class__.__name__, self.id)
 
     def __cmp__(self, other):
         result = cmp(self.date, other.date)
@@ -394,13 +386,13 @@ class BaseProduct(productmd.common.MetadataBase):
         super().__init__()
         self._section = "base_product"
         self._metadata = metadata
-        self.name = None        #: (*str*) -- Product name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.version = None     #: (*str*) -- Product version (typically major version), for example: "20", "7"
-        self.short = None       #: (*str*) -- Product short name, for example: "f", "rhel"
-        self.type = None        #: (*str*) -- Product type, for example: "ga", "eus"
+        self.name = None  #: (*str*) -- Product name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.version = None  #: (*str*) -- Product version (typically major version), for example: "20", "7"
+        self.short = None  #: (*str*) -- Product short name, for example: "f", "rhel"
+        self.type = None  #: (*str*) -- Product type, for example: "ga", "eus"
 
     def __repr__(self):
-        return u'<%s:%s:%s>' % (self.__class__.__name__, self.name, self.version)
+        return '<%s:%s:%s>' % (self.__class__.__name__, self.name, self.version)
 
     def __cmp__(self, other):
         if self.name != other.name:
@@ -475,12 +467,12 @@ class Release(BaseProduct):
         super().__init__(metadata)
         self._section = "release"
 
-        self.name = None                #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.version = None             #: (*str*) -- Release version (incl. minor version), for example: "20", "7.0"
-        self.short = None               #: (*str*) -- Release short name, for example: "f", "rhel"
-        self.type = None                #: (*str*) -- Release type, for example: "ga", "updates"
-        self.is_layered = False         #: (*bool=False*) -- Determines if release is a layered product
-        self.internal = False           #: (*bool=False*) -- Determine if release is meant for public consumption
+        self.name = None  #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.version = None  #: (*str*) -- Release version (incl. minor version), for example: "20", "7.0"
+        self.short = None  #: (*str*) -- Release short name, for example: "f", "rhel"
+        self.type = None  #: (*str*) -- Release type, for example: "ga", "updates"
+        self.is_layered = False  #: (*bool=False*) -- Determines if release is a layered product
+        self.internal = False  #: (*bool=False*) -- Determine if release is meant for public consumption
 
     def __cmp__(self, other):
         if self.is_layered != other.is_layered:
@@ -540,7 +532,7 @@ class VariantBase(productmd.common.MetadataBase):
 
     def __repr__(self):
         if hasattr(self, "compose"):
-            return u'<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
+            return '<%s:%s>' % (self.__class__.__name__, self._metadata.compose.id)
         else:
             return super().__repr__()
 
@@ -741,14 +733,12 @@ class VariantPaths(productmd.common.MetadataBase):
             "isos",
             "images",
             "jigdos",
-
             # source
             "source_tree",
             "source_packages",
             "source_repository",
             "source_isos",
             "source_jigdos",
-
             # debug
             "debug_tree",
             "debug_packages",
@@ -760,7 +750,7 @@ class VariantPaths(productmd.common.MetadataBase):
             setattr(self, name, {})
 
     def __repr__(self):
-        return u'<%s:variant=%s>' % (self.__class__.__name__, self._variant.uid)
+        return '<%s:variant=%s>' % (self.__class__.__name__, self._variant.uid)
 
     def deserialize(self, data):
         paths = data
@@ -788,15 +778,15 @@ class Variant(VariantBase):
         VariantBase.__init__(self, metadata)
 
         # variant details
-        self.id = None          #: (*str*) -- variant ID, for example: "Client", "Server", "optional"
-        self.uid = None         #: (*str*) -- variant unique ID: $PARENT_UID-$ID, for example: "Server-optional"
-        self.name = None        #: (*str*) -- variant name (pretty text), for example: "Enterprise Server"
-        self.type = None        #: (*str*) -- variant type, see VARIANT_TYPES for supported values
-        self.arches = set()     #: (*set(<str>)*) -- set of arches for a variant
-        self.variants = {}      #: (*dict*) -- child variants
-        self.parent = None      #: (:class:`.Variant` or *None*) -- parent variant
+        self.id = None  #: (*str*) -- variant ID, for example: "Client", "Server", "optional"
+        self.uid = None  #: (*str*) -- variant unique ID: $PARENT_UID-$ID, for example: "Server-optional"
+        self.name = None  #: (*str*) -- variant name (pretty text), for example: "Enterprise Server"
+        self.type = None  #: (*str*) -- variant type, see VARIANT_TYPES for supported values
+        self.arches = set()  #: (*set(<str>)*) -- set of arches for a variant
+        self.variants = {}  #: (*dict*) -- child variants
+        self.parent = None  #: (:class:`.Variant` or *None*) -- parent variant
 
-        self.paths = VariantPaths(self)         #: (:class:`VariantPaths`) -- path mappings for a variant
+        self.paths = VariantPaths(self)  #: (:class:`VariantPaths`) -- path mappings for a variant
         # for self.type == "layered-product"
         self.release = Release(self._metadata)  #: (:class:`Release`) --
         self.release.is_layered = True
@@ -805,7 +795,7 @@ class Variant(VariantBase):
         return self.uid
 
     def __repr__(self):
-        return u'<%s:%s>' % (self.__class__.__name__, self.uid)
+        return '<%s:%s>' % (self.__class__.__name__, self.uid)
 
     def _validate_id(self):
         self._assert_type("id", [str])
