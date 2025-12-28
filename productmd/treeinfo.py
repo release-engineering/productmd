@@ -437,16 +437,22 @@ class VariantPaths(productmd.common.MetadataBase):
 
         * **packages** -- directory with binary RPMs
         * **repository** -- YUM repository with binary RPMs
+        * **mirrolist** -- YUM mirrolist for binary RPMs
+        * **metalink** -- YUM metalink for binary RPMs
 
     **Source**
 
         * **source_packages** -- directory with source RPMs
         * **source_repository** -- YUM repository with source RPMs
+        * **source_mirrorlist** -- YUM mirrorlist for source RPMs
+        * **source_metalink** -- YUM metalink for source RPMs
 
     **Debug**
 
         * **debug_packages** -- directory with debug RPMs
         * **debug_repository** -- YUM repository with debug RPMs
+        * **debug_mirrorlist** -- YUM mirrorlist for debug RPMs
+        * **debug_metalink** -- YUM metalink for debug RPMs
 
     **Others**
         * **identity** -- path to a pem file which identifies a product
@@ -466,14 +472,20 @@ class VariantPaths(productmd.common.MetadataBase):
             # binary
             "packages",
             "repository",
+            "mirrorlist",
+            "metalink",
 
             # source
             "source_packages",
             "source_repository",
+            "source_mirrorlist",
+            "source_metalink",
 
             # debug
             "debug_packages",
             "debug_repository",
+            "debug_mirrorlist",
+            "debug_metalink",
 
             # others
             "identity",

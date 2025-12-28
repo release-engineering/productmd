@@ -696,6 +696,8 @@ class VariantPaths(productmd.common.MetadataBase):
         * **os_tree** -- installable tree with binary RPMs, kickstart trees, readme etc.
         * **packages** -- directory with binary RPMs
         * **repository** -- YUM repository with binary RPMs
+        * **mirrorlist** -- YUM mirrorlist for binary RPMs
+        * **metalink** -- YUM metalink for binary RPMs
         * **isos** -- Binary ISOs
         * **images** -- Non-ISO Images
         * **jigdos** -- Jigdo files for binary ISOs
@@ -705,6 +707,8 @@ class VariantPaths(productmd.common.MetadataBase):
         * **source_tree** -- tree with source RPMs
         * **source_packages** -- directory with source RPMs
         * **source_repository** -- YUM repository with source RPMs
+        * **source_mirrorlist** -- YUM mirrorlist for source RPMs
+        * **source_metalink** -- YUM metalink for source RPMs
         * **source_isos** -- Source ISOs
         * **source_jigdos** -- Jigdo files for source ISOs
 
@@ -713,6 +717,8 @@ class VariantPaths(productmd.common.MetadataBase):
         * **debug_tree** -- tree with debug RPMs
         * **debug_packages** -- directory with debug RPMs
         * **debug_repository** -- YUM repository with debug RPMs
+        * **debug_mirrorlist** -- YUM mirrorlist for debug RPMs
+        * **debug_metalink** -- YUM metalink for debug RPMs
 
     Example::
 
@@ -738,6 +744,8 @@ class VariantPaths(productmd.common.MetadataBase):
             "os_tree",
             "packages",
             "repository",
+            "mirrorlist",
+            "metalink",
             "isos",
             "images",
             "jigdos",
@@ -746,6 +754,8 @@ class VariantPaths(productmd.common.MetadataBase):
             "source_tree",
             "source_packages",
             "source_repository",
+            "source_mirrorlist",
+            "source_metalink",
             "source_isos",
             "source_jigdos",
 
@@ -753,6 +763,8 @@ class VariantPaths(productmd.common.MetadataBase):
             "debug_tree",
             "debug_packages",
             "debug_repository",
+            "debug_mirrorlist",
+            "debug_metalink",
             # debug isos and jigdos are not supported
         ]
 
