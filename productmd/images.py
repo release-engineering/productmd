@@ -107,7 +107,7 @@ IMAGE_TYPE_FORMAT_MAPPING = {
     'vdi': ['vdi'],
     'vmdk': ['vmdk'],
     'vpc': ['vhd'],
-    'vhd-compressed': ['vhd.gz', 'vhd.xz'],
+    'vhd-compressed': ['vhd.gz', 'vhd.xz', 'vhdfixed.xz'],
     'vsphere-ova': ['vsphere.ova'],
     # https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro
     'wsl2': ['tar', 'tar.gz', 'wsl'],
