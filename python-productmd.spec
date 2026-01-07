@@ -6,7 +6,7 @@
 %bcond_without  python3
 
 Name:           python-productmd
-Version:        1.49
+Version:        1.50
 Release:        1%{?dist}
 Summary:        Library providing parsers for metadata related to OS installation
 
@@ -48,6 +48,9 @@ BuildRequires:  python%{python3_pkgversion}-setuptools
 %{python3_sitelib}/productmd-%{version}-py?.?.egg-info
 
 %changelog
+* Wed Jan 07 2026 Lubomír Sedlář <lsedlar@redhat.com> 1.50-1
+- Allow .vhdfixed.xz format for vhd-compressed type (awilliam@redhat.com)
+
 * Mon Nov 24 2025 Lubomír Sedlář <lsedlar@redhat.com> 1.49-1
 - Add Accept header to all HTTP requests (lsedlar@redhat.com)
 - Set User-Agent header for all HTTP requests (lsedlar@redhat.com)
