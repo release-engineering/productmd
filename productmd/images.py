@@ -56,7 +56,7 @@ from itertools import chain
 __all__ = (
     "Image",
     "Images",
-    "IMAGE_TYPE_FORMAT_MAPPING"
+    "IMAGE_TYPE_FORMAT_MAPPING",
     "SUPPORTED_IMAGE_TYPES",
     "SUPPORTED_IMAGE_FORMATS",
     "UNIQUE_IMAGE_ATTRIBUTES",
