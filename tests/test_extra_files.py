@@ -29,7 +29,7 @@ from io import StringIO
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
-from productmd.extra_files import ExtraFiles    # noqa
+from productmd.extra_files import ExtraFiles  # noqa
 
 
 class TestExtraFiles(unittest.TestCase):
@@ -75,9 +75,7 @@ class TestExtraFiles(unittest.TestCase):
 
     def test_bad_variant(self):
         metadata = ExtraFiles()
-        self.assertRaises(
-            ValueError, metadata.add, "", "x86_64", "path/to/file", size=1, checksums={}
-        )
+        self.assertRaises(ValueError, metadata.add, "", "x86_64", "path/to/file", size=1, checksums={})
 
     def test_bad_arch(self):
         metadata = ExtraFiles()
@@ -93,9 +91,7 @@ class TestExtraFiles(unittest.TestCase):
 
     def test_bad_path(self):
         metadata = ExtraFiles()
-        self.assertRaises(
-            ValueError, metadata.add, "Everything", "foobar", "", size=1, checksums={}
-        )
+        self.assertRaises(ValueError, metadata.add, "Everything", "foobar", "", size=1, checksums={})
 
     def test_absolute_path(self):
         metadata = ExtraFiles()

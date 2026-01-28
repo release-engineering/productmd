@@ -19,9 +19,7 @@ import productmd.common
 from productmd.common import Header, RPM_ARCHES
 from productmd.composeinfo import Compose
 
-__all__ = (
-    "ExtraFiles",
-)
+__all__ = ("ExtraFiles",)
 
 
 class ExtraFiles(productmd.common.MetadataBase):
@@ -91,5 +89,5 @@ class ExtraFiles(productmd.common.MetadataBase):
 def _relative_to(path, root):
     root = root.rstrip("/") + "/"
     if path.startswith(root):
-        return path[len(root):]
+        return path[len(root) :]
     return path

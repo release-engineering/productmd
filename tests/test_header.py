@@ -29,7 +29,6 @@ from productmd.common import Header  # noqa
 
 
 class TestHeader(unittest.TestCase):
-
     def test_version(self):
         hdr = Header(None, "productmd.header")
 
