@@ -17,83 +17,52 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-import unittest
+import pytest
+from unittest import mock
 
 import os
-import sys
 import urllib.request
 
-DIR = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(DIR, ".."))
-
-from productmd.compose import Compose   # noqa
+from productmd.compose import Compose
 
 from io import StringIO
 from urllib.error import HTTPError
 
+DIR = os.path.dirname(__file__)
 
-class TestCompose(unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.compose_path = os.path.join(DIR, "compose")
+@pytest.mark.parametrize("fixture", ["compose", "compose-legacy"])
+def test_read_composeinfo(fixture):
+    compose = Compose(os.path.join(DIR, fixture))
+    assert compose.info is not None
 
-    def test_read_composeinfo(self):
-        compose = Compose(self.compose_path)
-        compose.info
+    # try to access a variant and addon
+    assert compose.info["Foo"] is not None
+    assert compose.info["Foo-Bar"] is not None
 
-        # try to access a variant and addon
-        variant = compose.info["Foo"]
-        variant = compose.info["Foo-Bar"]
 
-    def test_opening_wrong_dir_gives_descriptive_error(self):
-        compose = Compose('/a/b/c')
+def test_opening_wrong_dir_gives_descriptive_error():
+    compose = Compose('/a/b/c')
+    with pytest.raises(RuntimeError, match="Failed to load metadata from /a/b/c"):
+        compose.rpms
+
+
+def test_opening_http_succeeds():
+    def mock_urlopen(url, context=None):
+        """ Return an on-disk JSON file's contents for a given url. """
+        # Handle both string URLs and Request objects
+        if isinstance(url, urllib.request.Request):
+            url = url.full_url
+        filename = os.path.basename(url)
+        if not filename.endswith('.json'):
+            # This is not parsed; it just needs to be any 200 OK response.
+            return StringIO()
         try:
-            compose.rpms
-            self.fail('Accessing the attribute must raise exception')
-        except RuntimeError as e:
-            self.assertEqual(str(e), r"Failed to load metadata from /a/b/c")
-        except:
-            self.fail('Expected to get RuntimeError')
+            f = open(os.path.join(DIR, "compose", "compose", "metadata", filename), 'r')
+        except IOError as e:
+            raise HTTPError(404, e)
+        return f
 
-    def test_opening_http_succeeds(self):
-        def mock_urlopen(url, context=None):
-            """ Return an on-disk JSON file's contents for a given url. """
-            # Handle both string URLs and Request objects
-            if isinstance(url, urllib.request.Request):
-                url = url.full_url
-            filename = os.path.basename(url)
-            if not filename.endswith('.json'):
-                # This is not parsed; it just needs to be any 200 OK response.
-                return StringIO()
-            try:
-                f = open(os.path.join(self.compose_path, "compose", "metadata", filename), 'r')
-            except IOError as e:
-                raise HTTPError(404, e)
-            return f
-
-        orig_urlopen = urllib.request.urlopen
-        try:
-            urllib.request.urlopen = mock_urlopen
-            compose = Compose('http://example.noexist/path/to/mycompose')
-            self.assertEqual('MYPRODUCT', compose.info.release.short)
-        finally:
-            urllib.request.urlopen = orig_urlopen
-
-
-class TestLegacyCompose(unittest.TestCase):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.compose_path = os.path.join(DIR, "compose-legacy")
-
-    def test_read_composeinfo(self):
-        compose = Compose(self.compose_path)
-        compose.info
-
-        # try to access a variant and addon
-        variant = compose.info["Foo"]
-        variant = compose.info["Foo-Bar"]
-
-if __name__ == "__main__":
-    unittest.main()
+    with mock.patch("urllib.request.urlopen", new=mock_urlopen):
+        compose = Compose('http://example.noexist/path/to/mycompose')
+        assert 'MYPRODUCT' == compose.info.release.short
