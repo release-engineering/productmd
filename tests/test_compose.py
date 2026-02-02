@@ -28,8 +28,8 @@ sys.path.insert(0, os.path.join(DIR, ".."))
 
 from productmd.compose import Compose  # noqa
 
-from io import StringIO
-from urllib.error import HTTPError
+from io import StringIO  # noqa
+from urllib.error import HTTPError  # noqa
 
 
 class TestCompose(unittest.TestCase):
@@ -42,8 +42,8 @@ class TestCompose(unittest.TestCase):
         compose.info
 
         # try to access a variant and addon
-        variant = compose.info["Foo"]
-        variant = compose.info["Foo-Bar"]
+        variant = compose.info["Foo"]  # noqa: F841
+        variant = compose.info["Foo-Bar"]  # noqa: F841
 
     def test_opening_wrong_dir_gives_descriptive_error(self):
         compose = Compose('/a/b/c')
@@ -52,7 +52,7 @@ class TestCompose(unittest.TestCase):
             self.fail('Accessing the attribute must raise exception')
         except RuntimeError as e:
             self.assertEqual(str(e), r"Failed to load metadata from /a/b/c")
-        except:
+        except:  # noqa: E722
             self.fail('Expected to get RuntimeError')
 
     def test_opening_http_succeeds(self):
@@ -90,8 +90,8 @@ class TestLegacyCompose(unittest.TestCase):
         compose.info
 
         # try to access a variant and addon
-        variant = compose.info["Foo"]
-        variant = compose.info["Foo-Bar"]
+        variant = compose.info["Foo"]  # noqa: F841
+        variant = compose.info["Foo-Bar"]  # noqa: F841
 
 
 if __name__ == "__main__":
