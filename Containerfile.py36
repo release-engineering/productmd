@@ -1,0 +1,25 @@
+# Python 3.6 test environment using RHEL 8 UBI
+# See README.md for usage instructions
+
+FROM registry.access.redhat.com/ubi8/ubi:latest
+
+LABEL description="Python 3.6 test environment for productmd"
+
+# Install Python 3.6 and development tools
+RUN dnf install -y \
+    python3 \
+    python3-pip \
+    && dnf clean all
+
+# Set working directory
+WORKDIR /productmd
+
+# Copy only what's needed for testing
+COPY productmd/ ./productmd/
+COPY tests/ ./tests/
+
+# Install test dependencies
+RUN pip3 install "pytest < 7.1" "pytest-cov < 3"
+
+# Default command: run tests
+CMD ["python3.6", "-m", "pytest", "--cov", "tests/"]

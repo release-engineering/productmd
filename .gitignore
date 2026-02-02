@@ -52,3 +52,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# ruff
+.ruff_cache/
+
+# test coverage
+coverage.md
+*,cover

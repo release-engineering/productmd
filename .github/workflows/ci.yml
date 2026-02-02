@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "productmd/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "Containerfile.py36"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "productmd/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "Containerfile.py36"
+      - ".github/workflows/ci.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    needs: [lint, format, bandit]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+
+    container:
+      image: fedora:latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and setup Python version
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          version: "0.9.26" # uv version
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --group test --no-dev
+
+      - name: Run tests
+        run: uv run pytest tests
+
+  test-py36:
+    needs: [lint, format, bandit]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container image
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+        with:
+          context: .
+          file: Containerfile.py36
+          tags: productmd-py36-test:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Run tests
+        run: docker run --rm productmd-py36-test:latest
+
+  bandit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and Python interpreter
+        uses: astral-sh/setup-uv@v7
+        with:
+          version-file: ".python-version"
+          version: "0.9.26"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --only-group dev
+
+      - name: Run bandit
+        run: uvx bandit -c pyproject.toml -r productmd/
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and Python interpreter
+        uses: astral-sh/setup-uv@v7
+        with:
+          version-file: ".python-version"
+          version: "0.9.26"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --only-group dev
+
+      - name: Run linter
+        run: uvx ruff check
+
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and Python interpreter
+        uses: astral-sh/setup-uv@v7
+        with:
+          version-file: ".python-version"
+          version: "0.9.26"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --only-group dev
+
+      - name: Run formatter check
+        run: uvx ruff format --check
