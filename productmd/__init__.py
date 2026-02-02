@@ -16,10 +16,21 @@
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# Note this file is templated with Tito. Please make changes to
-# .tito/templates/__init__.py.in in Git.
+try:
+    # Python 3.8+
+    from importlib.metadata import version
 
-__version__ = '1.50'
+    __version__ = version("productmd")
+except ImportError:
+    # Python < 3.8 (e.g., 3.6)
+    try:
+        from pkg_resources import get_distribution
+
+        __version__ = get_distribution("productmd").version
+    except Exception:
+        # Fallback for Python 3.6 container testing where package metadata
+        # is not available (package is copied directly, not installed via pip)
+        __version__ = "unknown"
 
 from .compose import Compose  # noqa
 from .composeinfo import ComposeInfo  # noqa

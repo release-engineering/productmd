@@ -3,8 +3,21 @@
 
 
 import os
+import re
 
 from setuptools import setup
+
+
+# Read version from pyproject.toml
+def get_version():
+    here = os.path.abspath(os.path.dirname(__file__))
+    pyproject_path = os.path.join(here, "pyproject.toml")
+    with open(pyproject_path, "r") as f:
+        content = f.read()
+    match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+    if match:
+        return match.group(1)
+    raise RuntimeError("Unable to find version in pyproject.toml")
 
 
 # recursively scan for python modules to be included
@@ -19,7 +32,7 @@ packages = sorted(packages)
 
 setup(
     name="productmd",
-    version="1.50",
+    version=get_version(),
     description="Product, compose and installation media metadata library",
     url="https://github.com/release-engineering/productmd",
     author="Daniel Mach",

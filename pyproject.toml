@@ -1,0 +1,119 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "productmd"
+version = "1.50"
+description = "Product, compose and installation media metadata library"
+readme = "README.md"
+license = "LGPL-2.1-only"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Daniel Mach", email = "dmach@redhat.com" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+keywords = ["metadata", "compose", "treeinfo", "discinfo", "rpm", "fedora", "rhel"]
+
+[project.urls]
+Homepage = "https://pypi.org/project/productmd"
+Repository = "https://github.com/release-engineering/productmd"
+# 🚧 Documentation Refactor in Progress
+# Documentation = "https://productmd.readthedocs.io/en/latest"
+
+[dependency-groups]
+test = [
+    "pytest",
+]
+coverage = [
+    "pytest-cov",
+]
+dev = [
+    { include-group = "test" },
+    "ruff",
+    "bandit",
+    "tox",
+    "tox-uv",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "productmd/",
+    "tests/",
+    "doc/",
+    "AUTHORS",
+    "LICENSE",
+    "README.md",
+    "setup.py",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["productmd"]
+
+# Ruff configuration (replaces flake8 and ruff.toml)
+[tool.ruff]
+line-length = 140
+target-version = "py38"
+
+[tool.ruff.format]
+quote-style = "preserve"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "W",      # pycodestyle warnings
+    # "I",      # isort (import sorting)
+    # "UP",     # pyupgrade (modern Python syntax)
+    # "B",      # flake8-bugbear (common bugs)
+    # "C4",     # flake8-comprehensions
+    # "PIE",    # misc lints
+]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Bandit configuration
+[tool.bandit]
+skips = ["B310", "B323"]
+targets = ["productmd"]
+
+# Tox configuration (replaces tox.ini)
+[tool.tox]
+env_list = ["py38", "py39", "py310", "py311", "py312", "py313", "format", "lint", "bandit"]
+
+[tool.tox.env_run_base]
+description = "Run tests with pytest"
+deps = ["pytest"]
+commands = [["pytest", { replace = "posargs", default = [], extend = true }]]
+
+[tool.tox.env.lint]
+description = "Run ruff linter"
+skip_install = true
+deps = ["ruff"]
+commands = [["ruff", "check"]]
+
+[tool.tox.env.format]
+description = "Apply ruff formatting"
+skip_install = true
+deps = ["ruff"]
+commands = [["ruff", "format"]]
+
+[tool.tox.env.bandit]
+description = "Run bandit security scanner"
+skip_install = true
+deps = ["bandit"]
+# https://bandit.readthedocs.io/en/latest/config.html
+commands = [["bandit", "-c", "pyproject.toml", "-r", "productmd/"]]
