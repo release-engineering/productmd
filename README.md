@@ -71,20 +71,33 @@ This will generate the **source** and **wheel** packages under the `dist` direct
 
 ### Releasing
 
-To release a new version:
+To release a new version and publish to PyPI:
 
-```bash
-# Bump version in pyproject.toml
-uv version <new_version>
+1. **Bump the version** in `pyproject.toml`:
 
-# Commit, tag, and push
-git add pyproject.toml
-git commit -m "Bump version to <new_version>"
-git tag <new_version>
-git push origin master --tags
-```
+   ```bash
+   uv version <new_version>
+   ```
 
-See [uv version docs](https://docs.astral.sh/uv/reference/cli/#uv-version) for other version commands (e.g., `uv version --bump minor`).
+   See [uv version docs](https://docs.astral.sh/uv/reference/cli/#uv-version) for other version commands (e.g., `uv version --bump minor`).
+
+2. **Commit and push** the version change:
+
+   ```bash
+   git add pyproject.toml uv.lock
+   git commit -m "Bump version to <new_version>"
+   git push origin master
+   ```
+
+3. **Create a GitHub release**:
+   - Go to [Releases](../../releases) and click **"Create a new release"**
+   - Pin the release to a tag following the format `vX.X` (e.g., `v1.0`, `v2.1`)
+   - Fill in the release title and notes
+   - Click **"Publish release"**
+
+4. **Automated publishing**:
+   - Publishing the release triggers the CI pipeline
+   - If CI passes, the CD pipeline automatically builds and publishes the package to PyPI
 
 ## License
 
