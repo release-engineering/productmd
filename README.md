@@ -15,6 +15,82 @@
 - **HTTP Support** - Load metadata directly from remote URLs
 - **Validation** - Built-in schema validation for metadata integrity
 
+## v2.0 Roadmap — Distributed Compose Metadata
+
+ProductMD 2.0 introduces support for **distributed composes** where artifacts
+(RPMs, images, repositories) can be stored in different locations and referenced
+via HTTPS URLs or OCI registry references. The metadata includes checksums for
+data integrity verification and supports bidirectional conversion between v2.0
+(distributed) and v1.2 (local) formats.
+
+> See [PRODUCTMD-2.0-PLAN.md](PRODUCTMD-2.0-PLAN.md) for the full specification.
+
+### Phase 1: Core Infrastructure
+
+- [x] Implement `version.py` — version constants, `VersionedMetadataMixin`, detection utilities
+- [x] Add version conversion functions (`version_to_string`, `string_to_version`, `get_version_tuple`)
+- [x] Add version detection (`detect_version_from_data`, `is_v1`, `is_v2`)
+- [x] Export version API from `productmd/__init__.py`
+- [x] Write unit tests for version module
+- [ ] Implement `Location` class with full validation
+- [ ] Implement `FileEntry` class for OCI image contents
+- [ ] Add checksum computation utilities (`compute_checksum`)
+- [ ] Add URL scheme detection (`is_remote`, `is_oci`)
+- [ ] Add OCI image layer extraction utilities
+
+### Phase 2: Metadata Classes
+
+- [ ] Update `VERSION` to `(2, 0)` in `productmd/common.py`
+- [ ] Update `VariantPaths` to use Location objects
+- [ ] Update `Rpms.add()` to accept Location objects
+- [ ] Update `Image` class to use `location` attribute
+- [ ] Implement `ExtraFiles` class with `add()` method
+- [ ] Implement v2.0 serialization for all metadata classes
+- [ ] Implement v2.0 deserialization for all metadata classes
+- [ ] Support v1.2 serialization/deserialization (backward compat)
+- [ ] Write unit tests for each metadata class
+
+### Phase 3: Conversion Utilities
+
+- [ ] Implement `upgrade_to_v2()` function
+- [ ] Implement `downgrade_to_v1()` function
+- [ ] Implement `iter_all_locations()` generator
+- [ ] Write conversion tests (round-trip validation)
+
+### Phase 4: Localization Tool
+
+- [ ] Implement `localize_compose()` function
+- [ ] Implement parallel download with progress tracking
+- [ ] Implement OCI registry download support (using skopeo/oras)
+- [ ] Implement OCI image layer extraction for `contents` field
+- [ ] Implement HTTPS download with retry logic
+- [ ] Implement checksum verification
+- [ ] Write integration tests
+
+### Phase 5: CLI Tools
+
+- [ ] Create `productmd-upgrade` command
+- [ ] Create `productmd-downgrade` command
+- [ ] Create `productmd-localize` command
+- [ ] Create `productmd-verify` command
+- [ ] Add man pages and help documentation
+
+### Phase 6: Documentation
+
+- [ ] Write `doc/productmd-2.0.rst` — Complete format specification
+- [ ] Write `doc/migration-guide.rst` — v1.2 → v2.0 migration
+- [ ] Write `doc/distributed-composes.rst` — Use cases and patterns
+- [ ] Update existing docs: `doc/composeinfo.rst`, `doc/rpms.rst`, etc.
+- [ ] Add code examples and tutorials
+
+### Phase 7: Testing & Validation
+
+- [ ] Write comprehensive test suite (>90% coverage)
+- [ ] Test with real Fedora/RHEL composes
+- [ ] Performance testing with large composes
+- [ ] Integration testing with existing tools
+- [ ] Create test fixtures for v2.0 metadata
+
 ## Documentation
 
 Full documentation is available at [productmd.readthedocs.io](http://productmd.readthedocs.io/en/latest/).
