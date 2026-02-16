@@ -62,6 +62,15 @@ uvx tox -e format
 uvx tox -e bandit
 ```
 
+### Documentation
+
+```bash
+# Build HTML documentation
+uvx tox -e docs
+```
+
+The generated pages are written to `doc/_build/html/`. Open `doc/_build/html/index.html` in a browser to view them.
+
 ### Building
 
 ```bash
