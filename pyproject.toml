@@ -117,3 +117,8 @@ skip_install = true
 deps = ["bandit"]
 # https://bandit.readthedocs.io/en/latest/config.html
 commands = [["bandit", "-c", "pyproject.toml", "-r", "productmd/"]]
+
+[tool.tox.env.docs]
+description = "Build Sphinx documentation"
+deps = ["sphinx"]
+commands = [["sphinx-build", "-b", "html", "doc", "doc/_build/html"]]
