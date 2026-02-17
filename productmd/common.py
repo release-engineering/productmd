@@ -39,7 +39,10 @@ import http.client
 from configparser import ConfigParser
 from io import StringIO
 
-VERSION = (1, 2)
+from productmd.version import OUTPUT_FORMAT_VERSION, version_to_string, string_to_version
+
+# Backward-compatible alias
+VERSION = OUTPUT_FORMAT_VERSION
 
 # Get library version for User-Agent
 try:
@@ -436,10 +439,10 @@ class Header(MetadataBase):
     @property
     def version_tuple(self):
         self.validate()
-        return tuple(split_version(self.version))
+        return string_to_version(self.version)
 
     def set_current_version(self):
-        self.version = ".".join([str(i) for i in VERSION])
+        self.version = version_to_string(OUTPUT_FORMAT_VERSION)
 
     def serialize(self, parser):
         # write *current* version, because format gets converted on save

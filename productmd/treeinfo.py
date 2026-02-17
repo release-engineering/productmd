@@ -26,6 +26,7 @@ import re
 
 import productmd.common
 import productmd.composeinfo
+from productmd.version import VERSION_1_2, version_to_string
 
 
 __all__ = (
@@ -147,7 +148,7 @@ class Header(productmd.common.Header):
         self.validate()
         parser.add_section(self._section)
         # write *current* version, because format gets converted on save
-        parser.set(self._section, "version", ".".join([str(i) for i in productmd.common.VERSION]))
+        parser.set(self._section, "version", version_to_string(VERSION_1_2))
         parser.set(self._section, "type", self.metadata_type)
 
     def deserialize(self, parser):
