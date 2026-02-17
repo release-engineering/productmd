@@ -159,25 +159,25 @@ class FileEntry(productmd.common.MetadataBase):
         self._assert_type("file", [str])
         self._assert_not_blank("file")
         if self.file.startswith("/"):
-            raise ValueError("FileEntry: 'file' must be a relative path: %s" % self.file)
+            raise ValueError(f"FileEntry: 'file' must be a relative path: {self.file}")
 
     def _validate_size(self) -> None:
         self._assert_type("size", [int])
         if self.size < 0:
-            raise ValueError("FileEntry: 'size' must be non-negative: %s" % self.size)
+            raise ValueError(f"FileEntry: 'size' must be non-negative: {self.size}")
 
     def _validate_checksum(self) -> None:
         self._assert_type("checksum", [str])
         self._assert_not_blank("checksum")
         if not CHECKSUM_RE.match(self.checksum):
-            raise ValueError("FileEntry: 'checksum' must be in 'algorithm:hexdigest' format: %s" % self.checksum)
+            raise ValueError(f"FileEntry: 'checksum' must be in 'algorithm:hexdigest' format: {self.checksum}")
 
     def _validate_layer_digest(self) -> None:
         self._assert_type("layer_digest", [str])
         self._assert_not_blank("layer_digest")
         # Layer digest should be in sha256:... format
         if not self.layer_digest.startswith("sha256:"):
-            raise ValueError("FileEntry: 'layer_digest' must start with 'sha256:': %s" % self.layer_digest)
+            raise ValueError(f"FileEntry: 'layer_digest' must start with 'sha256:': {self.layer_digest}")
 
     def serialize(self, parser: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -284,6 +284,10 @@ class Location(productmd.common.MetadataBase):
         )
 
     def __hash__(self) -> int:
+        # contents is omitted: for OCI locations the checksum is the image
+        # digest which already covers all layers/contents, so it would be
+        # redundant.  This also avoids converting the list to a tuple on
+        # every hash call.
         return hash((self.url, self.size, self.checksum, self.local_path))
 
     # Properties for URL type detection
@@ -450,19 +454,20 @@ class Location(productmd.common.MetadataBase):
 
         # Check for absolute local paths (not allowed)
         if self.url.startswith("/"):
-            raise ValueError("Location: 'url' must not be an absolute path: %s" % self.url)
+            raise ValueError(f"Location: 'url' must not be an absolute path: {self.url}")
 
-        # Validate OCI URLs have required digest
+        # Validate OCI URLs match the full reference format:
+        # oci://registry/repository[:tag]@sha256:<64 hex chars>
         if self.is_oci:
-            if "@sha256:" not in self.url:
-                raise ValueError("Location: OCI URLs must include @sha256:... digest for immutability: %s" % self.url)
+            if not OCI_REFERENCE_RE.match(self.url):
+                raise ValueError(f"Location: OCI URL must match 'oci://registry/repository@sha256:...' format: {self.url}")
 
     def _validate_size(self) -> None:
         if self.size is None:
             return
         self._assert_type("size", [int])
         if self.size < 0:
-            raise ValueError("Location: 'size' must be non-negative: %s" % self.size)
+            raise ValueError(f"Location: 'size' must be non-negative: {self.size}")
 
     def _validate_checksum(self) -> None:
         if self.checksum is None:
@@ -470,22 +475,22 @@ class Location(productmd.common.MetadataBase):
         self._assert_type("checksum", [str])
         self._assert_not_blank("checksum")
         if not CHECKSUM_RE.match(self.checksum):
-            raise ValueError("Location: 'checksum' must be in 'algorithm:hexdigest' format: %s" % self.checksum)
+            raise ValueError(f"Location: 'checksum' must be in 'algorithm:hexdigest' format: {self.checksum}")
 
     def _validate_local_path(self) -> None:
         self._assert_type("local_path", [str])
         self._assert_not_blank("local_path")
         if self.local_path.startswith("/"):
-            raise ValueError("Location: 'local_path' must be a relative path: %s" % self.local_path)
+            raise ValueError(f"Location: 'local_path' must be a relative path: {self.local_path}")
 
     def _validate_contents(self) -> None:
         self._assert_type("contents", [list])
         # Contents only make sense for OCI URLs
         if self.contents and not self.is_oci:
-            raise ValueError("Location: 'contents' can only be used with OCI URLs: %s" % self.url)
+            raise ValueError(f"Location: 'contents' can only be used with OCI URLs: {self.url}")
         for entry in self.contents:
             if not isinstance(entry, FileEntry):
-                raise TypeError("Location: 'contents' must contain FileEntry objects, got: %s" % type(entry))
+                raise TypeError(f"Location: 'contents' must contain FileEntry objects, got: {type(entry)}")
             entry.validate()
 
     # Serialization
@@ -588,6 +593,9 @@ class Location(productmd.common.MetadataBase):
         base_url = base_url.rstrip("/")
         new_url = f"{base_url}/{self.local_path}"
 
+        # Shallow copy of contents is intentional: FileEntry objects are
+        # treated as immutable after construction, so sharing references
+        # between the original and the new Location is safe.
         return Location(
             url=new_url,
             size=self.size,
@@ -613,9 +621,12 @@ class Location(productmd.common.MetadataBase):
 
         :param path: Path to file to verify
         :type path: str
-        :return: True if checksum matches, False otherwise
+        :return: True if checksum matches or no checksum is set, False otherwise
         :rtype: bool
         """
+        if self.checksum is None:
+            # No checksum to verify — nothing to check, so pass.
+            return True
         algo = self.checksum_algorithm
         actual = compute_checksum(path, algo)
         return actual == self.checksum
@@ -626,9 +637,11 @@ class Location(productmd.common.MetadataBase):
 
         :param path: Path to file to verify
         :type path: str
-        :return: True if size matches, False otherwise
+        :return: True if size matches or no size is set, False otherwise
         :rtype: bool
         """
+        if self.size is None:
+            return True
         actual = os.path.getsize(path)
         return actual == self.size
 
