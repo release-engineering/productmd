@@ -26,6 +26,7 @@ DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
 from productmd.common import Header  # noqa
+from productmd.version import OUTPUT_FORMAT_VERSION, version_to_string  # noqa
 
 
 class TestHeader(unittest.TestCase):
@@ -69,7 +70,7 @@ class TestHeader(unittest.TestCase):
         expected_data = {
             "header": {
                 "type": "productmd.header",
-                "version": "1.2",
+                "version": version_to_string(OUTPUT_FORMAT_VERSION),
             }
         }
         self.assertEqual(serialized_data, expected_data)
