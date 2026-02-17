@@ -7,7 +7,7 @@ from productmd.version import (
     VERSION_1_1,
     VERSION_1_2,
     VERSION_2_0,
-    DEFAULT_VERSION,
+    OUTPUT_FORMAT_VERSION,
     detect_version_from_data,
     is_v1,
     is_v2,
@@ -46,9 +46,9 @@ class TestVersionConstants:
         """Test version comparison."""
         assert lower < higher
 
-    def test_default_version(self):
-        """Test default version is v2.0."""
-        assert DEFAULT_VERSION == VERSION_2_0
+    def test_output_format_version(self):
+        """Test output format version is v2.0."""
+        assert OUTPUT_FORMAT_VERSION == VERSION_2_0
 
 
 class TestVersionConversion:
