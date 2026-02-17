@@ -36,6 +36,7 @@ from .compose import Compose  # noqa
 from .composeinfo import ComposeInfo  # noqa
 from .discinfo import DiscInfo  # noqa
 from .images import Images  # noqa
+from .location import FileEntry, Location  # noqa
 from .modules import Modules  # noqa
 from .rpms import Rpms  # noqa
 from .treeinfo import TreeInfo  # noqa
@@ -44,7 +45,7 @@ from .version import (  # noqa
     VERSION_1_1,
     VERSION_1_2,
     VERSION_2_0,
-    DEFAULT_VERSION,
+    OUTPUT_FORMAT_VERSION,
     detect_version_from_data,
     is_v1,
     is_v2,
