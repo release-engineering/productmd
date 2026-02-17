@@ -273,14 +273,13 @@ class Location(productmd.common.MetadataBase):
         return f"<Location:{self.local_path}>"
 
     def __eq__(self, other: object) -> bool:
+        # contents is omitted: for OCI locations the checksum is the image
+        # digest which already covers all layers/contents.
         if not isinstance(other, Location):
             return False
         return (
-            self.url == other.url
-            and self.size == other.size
-            and self.checksum == other.checksum
-            and self.local_path == other.local_path
-            and self.contents == other.contents
+            self.url == other.url and self.size == other.size and self.checksum == other.checksum and self.local_path == other.local_path
+            # contents
         )
 
     def __hash__(self) -> int:
