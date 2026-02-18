@@ -38,7 +38,7 @@ Example::
     print(VERSION_2_0)  # (2, 0)
 """
 
-from typing import Tuple, Union, Optional, Any, Dict  # noqa: F401
+from typing import Tuple, Union, Optional, Any, Dict
 
 __all__ = (
     "VERSION_1_0",
