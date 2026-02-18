@@ -1,18 +1,4 @@
-# Copyright (C) 2024  Red Hat, Inc.
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# -*- coding: utf-8 -*-
 
 """
 This module provides version detection and handling utilities for ProductMD metadata.
@@ -35,7 +21,6 @@ Example::
         is_v2,
         VERSION_1_2,
         VERSION_2_0,
-        DEFAULT_VERSION,
     )
 
     # Detect version from parsed JSON data
@@ -51,7 +36,6 @@ Example::
 
     # Version constants
     print(VERSION_2_0)  # (2, 0)
-    print(DEFAULT_VERSION)  # (2, 0) - default for new files
 """
 
 from typing import Tuple, Union, Optional, Any, Dict
@@ -61,7 +45,7 @@ __all__ = (
     "VERSION_1_1",
     "VERSION_1_2",
     "VERSION_2_0",
-    "DEFAULT_VERSION",
+    "OUTPUT_FORMAT_VERSION",
     "detect_version_from_data",
     "is_v1",
     "is_v2",
@@ -70,6 +54,7 @@ __all__ = (
     "string_to_version",
     "VersionError",
     "UnsupportedVersionError",
+    "VersionedMetadataMixin",
 )
 
 
@@ -79,8 +64,10 @@ VERSION_1_1: Tuple[int, int] = (1, 1)
 VERSION_1_2: Tuple[int, int] = (1, 2)
 VERSION_2_0: Tuple[int, int] = (2, 0)
 
-# Current default version for writing new files
-DEFAULT_VERSION: Tuple[int, int] = VERSION_2_0
+# The metadata format version the library writes by default.
+# This is the version that Header.serialize() stamps into output files
+# and the default for VersionedMetadataMixin.output_version.
+OUTPUT_FORMAT_VERSION: Tuple[int, int] = VERSION_2_0
 
 # Minimum version that supports Location objects
 MIN_LOCATION_VERSION: Tuple[int, int] = VERSION_2_0
@@ -207,8 +194,9 @@ class VersionedMetadataMixin:
     """
     Mixin class providing version-aware serialization/deserialization.
 
-    This mixin can be added to metadata classes to provide automatic
-    version detection and handling.
+    Subclasses can set ``_default_output_version`` to control the fallback
+    version used when ``output_version`` has not been explicitly set.
+    Defaults to :data:`OUTPUT_FORMAT_VERSION`.
 
     Usage::
 
@@ -216,12 +204,15 @@ class VersionedMetadataMixin:
             def deserialize(self, data):
                 version = self.detect_data_version(data)
                 if is_v2(version):
-                    self.deserialize_2_0(data)
+                    self._deserialize_v2(data)
                 else:
-                    self.deserialize_1_x(data)
+                    self._deserialize_v1(data)
     """
 
-    # Default output version (can be overridden per-class or per-instance)
+    # Subclasses can override this to change the default output version.
+    _default_output_version: Tuple[int, int] = OUTPUT_FORMAT_VERSION
+
+    # Per-instance override (None = use _default_output_version)
     _output_version: Optional[Tuple[int, int]] = None
 
     @property
@@ -229,23 +220,39 @@ class VersionedMetadataMixin:
         """
         Get the version to use when serializing.
 
-        :return: Version tuple
+        Returns the instance override if set, otherwise the class default.
+
+        :return: Version tuple (major, minor)
         :rtype: tuple
         """
         if self._output_version is not None:
             return self._output_version
-        # Enforce distributed compose
-        return DEFAULT_VERSION
+        return self._default_output_version
 
     @output_version.setter
-    def output_version(self, version: Union[str, Tuple[int, int]]):
+    def output_version(self, version: Union[str, Tuple[int, int]]) -> None:
         """
         Set the version to use when serializing.
 
-        :param version: Version to use
-        :type version: str or tuple
+        :param version: Version tuple or string (e.g., (2, 0) or "2.0")
+        :type version: tuple or str
         """
         self._output_version = get_version_tuple(version)
+
+    def get_output_version(self, force_version: Optional[Tuple[int, int]] = None) -> Tuple[int, int]:
+        """
+        Resolve the effective output version.
+
+        Priority: force_version > output_version (instance) > _default_output_version (class)
+
+        :param force_version: Explicit version override
+        :type force_version: tuple or None
+        :return: Version tuple
+        :rtype: tuple
+        """
+        if force_version is not None:
+            return force_version
+        return self.output_version
 
     def detect_data_version(self, data: Dict[str, Any]) -> Tuple[int, int]:
         """
@@ -262,7 +269,7 @@ class VersionedMetadataMixin:
         """
         Check if Location objects should be used for output.
 
-        :return: True if using v2.0 format
+        :return: True if using v2.0+ format
         :rtype: bool
         """
         return supports_location_objects(self.output_version)
