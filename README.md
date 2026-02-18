@@ -32,10 +32,11 @@ data integrity verification and supports bidirectional conversion between v2.0
 - [x] Add version detection (`detect_version_from_data`, `is_v1`, `is_v2`)
 - [x] Export version API from `productmd/__init__.py`
 - [x] Write unit tests for version module
-- [ ] Implement `Location` class with full validation
-- [ ] Implement `FileEntry` class for OCI image contents
-- [ ] Add checksum computation utilities (`compute_checksum`)
-- [ ] Add URL scheme detection (`is_remote`, `is_oci`)
+- [x] Implement `Location` class with full validation
+- [x] Implement `FileEntry` class for OCI image contents
+- [x] Add checksum computation utilities (`compute_checksum`)
+- [x] Add URL scheme detection (`is_remote`, `is_oci`)
+- [x] Write unit tests for `Location` and `FileEntry` classes
 - [ ] Add OCI image layer extraction utilities
 
 ### Phase 2: Metadata Classes
