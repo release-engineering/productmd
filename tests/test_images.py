@@ -220,7 +220,7 @@ class TestImages(unittest.TestCase):
         self.assertEqual(identify_image(i), ("KDE", "live", "iso", "x86_64", 1, False, []))
         # identifier (dict)
         parser = []
-        i.serialize(parser)
+        i.serialize(parser, force_version=(1, 2))
         imgdict = parser[0]
         self.assertEqual(identify_image(imgdict), ("KDE", "live", "iso", "x86_64", 1, False, []))
 
@@ -275,7 +275,6 @@ class TestImages(unittest.TestCase):
         i = Image(im)
         self.assertRaises(ValueError, im.add, "Server", "src", i)
 
-    @unittest.skip("Pending images.py v2.0 wiring — header version mismatch with fixture")
     def test_move_src_images_under_binary_arches(self):
         """
         Test if src images were moved under binary arches correctly.
@@ -306,12 +305,12 @@ class TestImages(unittest.TestCase):
         i.checksums = {'sha256': 'XXXXXX'}
 
         data = []
-        i.serialize(data)
+        i.serialize(data, force_version=(1, 2))
         self.assertFalse('unified' in data[0])
 
         i.unified = True
         data = []
-        i.serialize(data)
+        i.serialize(data, force_version=(1, 2))
         self.assertTrue(data[0]['unified'])
 
     def test_unified_iso_deserialize(self):

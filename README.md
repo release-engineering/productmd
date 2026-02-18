@@ -41,10 +41,10 @@ data integrity verification and supports bidirectional conversion between v2.0
 
 ### Phase 2: Metadata Classes
 
-- [ ] Update `VERSION` to `(2, 0)` in `productmd/common.py`
+- [x] Update `VERSION` to `(2, 0)` in `productmd/common.py`
 - [ ] Update `VariantPaths` to use Location objects
 - [ ] Update `Rpms.add()` to accept Location objects
-- [ ] Update `Image` class to use `location` attribute
+- [x] Update `Image` class to use `location` attribute
 - [ ] Implement `ExtraFiles` class with `add()` method
 - [ ] Implement v2.0 serialization for all metadata classes
 - [ ] Implement v2.0 deserialization for all metadata classes
