@@ -19,12 +19,14 @@ import re
 import productmd.common
 from productmd.common import Header, RPM_ARCHES
 from productmd.composeinfo import Compose
+from productmd.location import Location
 from productmd.rpms import SUPPORTED_CATEGORIES
+from productmd.version import VERSION_2_0, VersionedMetadataMixin, version_to_string
 
 __all__ = ("Modules",)
 
 
-class Modules(productmd.common.MetadataBase):
+class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
     def __init__(self):
         super().__init__()
         self.header = Header(self, "productmd.modules")
@@ -73,20 +75,165 @@ class Modules(productmd.common.MetadataBase):
         uid += ":%s" % uid_dict['context'] if uid_dict['context'] else ""
         return uid, uid_dict
 
-    def serialize(self, parser):
+    def serialize(self, parser, force_version=None):
+        """
+        Serialize module metadata.
+
+        :param parser: Dictionary to serialize into
+        :type parser: dict
+        :param force_version: Force output version (overrides output_version)
+        :type force_version: tuple or None
+        """
         self.validate()
         data = parser
+        output_version = self.get_output_version(force_version)
+
         self.header.serialize(data)
+
+        # Ensure header version matches the output format version
+        data["header"]["version"] = version_to_string(output_version)
         data["payload"] = {}
         self.compose.serialize(data["payload"])
-        data["payload"]["modules"] = self.modules
+
+        if output_version >= VERSION_2_0:
+            self._serialize_v2(data)
+        else:
+            self._serialize_v1(data)
+
         return data
+
+    @staticmethod
+    def _get_modulemd_path(entry):
+        """Extract the first modulemd path from an entry.
+
+        Handles both v1.0 format (modulemd_path is a string) and
+        v1.1+ format (modulemd_path is a dict mapping category to path).
+
+        :param entry: Module entry dict
+        :type entry: dict
+        :return: First path string, or empty string if not found
+        :rtype: str
+        """
+        modulemd_path = entry.get("modulemd_path", {})
+        if isinstance(modulemd_path, str):
+            return modulemd_path
+        if isinstance(modulemd_path, dict) and modulemd_path:
+            return next(iter(modulemd_path.values()))
+        return ""
+
+    def _serialize_v1(self, data):
+        """Serialize module entries in v1.x format (metadata/modulemd_path)."""
+        v1_modules = {}
+        for variant in self.modules:
+            v1_modules[variant] = {}
+            for arch in self.modules[variant]:
+                v1_modules[variant][arch] = {}
+                for uid, entry in self.modules[variant][arch].items():
+                    # Strip internal _location key; output only v1.x fields
+                    v1_entry = {}
+                    v1_entry["metadata"] = dict(entry.get("metadata", {}))
+                    modulemd_path = entry.get("modulemd_path", {})
+                    if isinstance(modulemd_path, dict):
+                        v1_entry["modulemd_path"] = dict(modulemd_path)
+                    else:
+                        v1_entry["modulemd_path"] = modulemd_path
+                    v1_entry["rpms"] = list(entry.get("rpms", []))
+                    v1_modules[variant][arch][uid] = v1_entry
+        data["payload"]["modules"] = v1_modules
+
+    def _serialize_v2(self, data):
+        """Serialize module entries in v2.0 format (flattened, location object)."""
+        v2_modules = {}
+        for variant in self.modules:
+            v2_modules[variant] = {}
+            for arch in self.modules[variant]:
+                v2_modules[variant][arch] = {}
+                for uid, entry in self.modules[variant][arch].items():
+                    metadata = entry.get("metadata", {})
+                    v2_entry = {
+                        "name": metadata.get("name", ""),
+                        "stream": metadata.get("stream", ""),
+                        "version": metadata.get("version", ""),
+                        "context": metadata.get("context", ""),
+                        "arch": arch,
+                    }
+
+                    # Build location from modulemd_path or existing _location
+                    loc = entry.get("_location")
+                    if loc is not None:
+                        v2_entry["location"] = loc.serialize()
+                    else:
+                        path = self._get_modulemd_path(entry)
+                        v2_entry["location"] = Location(
+                            url=path,
+                            local_path=path,
+                        ).serialize()
+
+                    v2_entry["rpms"] = list(entry.get("rpms", []))
+                    v2_modules[variant][arch][uid] = v2_entry
+        data["payload"]["modules"] = v2_modules
 
     def deserialize(self, data):
         self.header.deserialize(data)
-        self.compose.deserialize(data["payload"])
-        self.modules = data["payload"]["modules"]
+        file_version = self.header.version_tuple
+
+        if file_version >= VERSION_2_0:
+            self._deserialize_v2(data)
+        else:
+            self._deserialize_v1(data)
         self.validate()
+
+        # Preserve the file's format version so round-trips stay in the
+        # same format.
+        self.output_version = file_version
+
+    def _deserialize_v1(self, data):
+        """Deserialize from v1.x format (metadata/modulemd_path as direct fields)."""
+        self.compose.deserialize(data["payload"])
+        # NOTE: directly references the input dict — mutations to self.modules
+        # (e.g. via add()) will also mutate the input data. This is
+        # pre-existing behavior preserved for backward compatibility.
+        self.modules = data["payload"]["modules"]
+
+    def _deserialize_v2(self, data):
+        """Deserialize from v2.0 format (flattened fields, location object)."""
+        self.compose.deserialize(data["payload"])
+        self.modules = {}
+        payload_modules = data["payload"]["modules"]
+
+        for variant in payload_modules:
+            self.modules[variant] = {}
+            for arch in payload_modules[variant]:
+                self.modules[variant][arch] = {}
+                for uid, v2_entry in payload_modules[variant][arch].items():
+                    loc = Location.from_dict(v2_entry["location"])
+
+                    # Reconstruct v1.x-compatible internal format
+                    name = v2_entry.get("name", "")
+                    stream = v2_entry.get("stream", "")
+                    version = v2_entry.get("version", "")
+                    context = v2_entry.get("context", "")
+
+                    entry = {
+                        "metadata": {
+                            "uid": uid,
+                            "name": name,
+                            "stream": stream,
+                            "version": version,
+                            "context": context,
+                            "koji_tag": "",
+                        },
+                        # v2.0 has a single location replacing the category→path
+                        # dict. Only "binary" is reconstructed; other categories
+                        # (if they existed in the original v1.x data) are lost.
+                        "modulemd_path": {"binary": loc.local_path},
+                        "rpms": list(v2_entry.get("rpms", [])),
+                    }
+
+                    # Preserve full location for round-trip fidelity
+                    entry["_location"] = loc
+
+                    self.modules[variant][arch][uid] = entry
 
     def add(self, variant, arch, uid, koji_tag, modulemd_path, category, rpms):
         if not variant:
