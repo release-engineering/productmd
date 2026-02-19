@@ -488,3 +488,162 @@ class TestModulesRoundTrip:
 
         entry_v1 = data_v1["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
         assert entry_v1["modulemd_path"] == "Server/x86_64/os/repodata/modules.yaml.gz"
+
+
+class TestModulesAddWithLocation:
+    """Tests for Modules.add() with the location parameter."""
+
+    def test_add_with_location_and_modulemd_path(self):
+        """Test add() with both modulemd_path and location explicitly provided."""
+        modules = _create_modules()
+        loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz",
+            size=123456,
+            checksum="sha256:" + "a" * 64,
+            local_path="Server/x86_64/os/repodata/modules.yaml.gz",
+        )
+
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            modulemd_path="Server/x86_64/os/repodata/modules.yaml.gz",
+            category="binary",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+            location=loc,
+        )
+
+        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
+        assert entry["_location"] is loc
+
+    def test_add_with_location_derives_modulemd_path(self):
+        """Test add() with location but modulemd_path=None derives path from location.local_path."""
+        modules = _create_modules()
+        loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz",
+            size=123456,
+            checksum="sha256:" + "a" * 64,
+            local_path="Server/x86_64/os/repodata/modules.yaml.gz",
+        )
+
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+            location=loc,
+        )
+
+        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
+        assert entry["_location"] is loc
+
+    def test_add_without_modulemd_path_or_location_raises(self):
+        """Test add() with modulemd_path=None and no location raises ValueError."""
+        modules = _create_modules()
+
+        with pytest.raises(ValueError, match="Either 'modulemd_path' or 'location' must be provided"):
+            modules.add(
+                variant="Server",
+                arch="x86_64",
+                uid="testmod:1.0:20240101000000:abcd1234",
+                rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+            )
+
+    def test_add_with_invalid_location_type_raises(self):
+        """Test add() with non-Location object raises TypeError."""
+        modules = _create_modules()
+
+        with pytest.raises(TypeError, match="'location' must be a Location instance"):
+            modules.add(
+                variant="Server",
+                arch="x86_64",
+                uid="testmod:1.0:20240101000000:abcd1234",
+                modulemd_path="Server/x86_64/os/repodata/modules.yaml.gz",
+                rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+                location={"url": "not a Location object"},
+            )
+
+    def test_add_without_koji_tag(self):
+        """Test add() without koji_tag defaults to empty string."""
+        modules = _create_modules()
+
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            modulemd_path="Server/x86_64/os/repodata/modules.yaml.gz",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+        )
+
+        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert entry["metadata"]["koji_tag"] == ""
+
+    def test_add_with_location_serializes_v20(self):
+        """Test that add() with location produces correct v2.0 output."""
+        modules = _create_modules()
+        loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz",
+            size=123456,
+            checksum="sha256:" + "a" * 64,
+            local_path="Server/x86_64/os/repodata/modules.yaml.gz",
+        )
+
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+            location=loc,
+        )
+
+        data = {}
+        modules.serialize(data, force_version=VERSION_2_0)
+
+        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert entry["location"]["url"] == "https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz"
+        assert entry["location"]["size"] == 123456
+        assert entry["location"]["checksum"] == "sha256:" + "a" * 64
+
+    def test_add_with_location_serializes_v12(self):
+        """Test that add() with location still produces correct v1.2 output."""
+        modules = _create_modules()
+        loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz",
+            size=123456,
+            checksum="sha256:" + "a" * 64,
+            local_path="Server/x86_64/os/repodata/modules.yaml.gz",
+        )
+
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            koji_tag="module-tag-12345",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+            location=loc,
+        )
+
+        data = {}
+        modules.serialize(data, force_version=VERSION_1_2)
+
+        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert "location" not in entry
+        assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
+        assert entry["metadata"]["koji_tag"] == "module-tag-12345"
+
+    def test_add_without_location_has_no_location_key(self):
+        """Test that add() without location does not store _location key."""
+        modules = _create_modules()
+        modules.add(
+            variant="Server",
+            arch="x86_64",
+            uid="testmod:1.0:20240101000000:abcd1234",
+            koji_tag="module-tag-12345",
+            modulemd_path="Server/x86_64/os/repodata/modules.yaml.gz",
+            rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
+        )
+
+        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        assert "_location" not in entry

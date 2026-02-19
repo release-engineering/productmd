@@ -235,7 +235,33 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
 
                     self.modules[variant][arch][uid] = entry
 
-    def add(self, variant, arch, uid, koji_tag, modulemd_path, category, rpms):
+    def add(self, variant, arch, uid, koji_tag="", modulemd_path=None, category="binary", rpms=None, location=None):
+        """
+        Map a module to a variant and arch.
+
+        :param variant: Variant UID
+        :type  variant: str
+        :param arch: Architecture
+        :type  arch: str
+        :param uid: Module UID (name:stream[:version[:context]])
+        :type  uid: str
+        :param koji_tag: Koji build tag (required for v1.x, optional for v2.0)
+        :type  koji_tag: str
+        :param modulemd_path: Relative path to the modulemd YAML file
+        :type  modulemd_path: str or None
+        :param category: Module category (binary, debug, source)
+        :type  category: str
+        :param rpms: List of RPM NEVRAs belonging to this module
+        :type  rpms: list or tuple
+        :param location: Location object for v2.0 distributed composes.
+            When provided, the Location is stored alongside v1.x fields
+            and used during v2.0 serialization. If *modulemd_path* is not
+            explicitly set, it defaults to ``location.local_path``.
+        :type  location: :class:`~productmd.location.Location` or None
+        """
+        if rpms is None:
+            rpms = []
+
         if not variant:
             raise ValueError("Non-empty variant is expected")
 
@@ -251,15 +277,19 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
         version = uid_dict["version"]
         context = uid_dict["context"]
 
+        # When location is provided without an explicit modulemd_path, derive
+        # it from location.local_path for v1.x backward compatibility.
+        if location is not None and modulemd_path is None:
+            modulemd_path = location.local_path
+
+        if modulemd_path is None:
+            raise ValueError("Either 'modulemd_path' or 'location' must be provided")
+
+        if location is not None and not isinstance(location, Location):
+            raise TypeError(f"'location' must be a Location instance, got: {type(location)}")
+
         if modulemd_path.startswith("/"):
             raise ValueError("Relative path expected: %s" % modulemd_path)
-
-        if not koji_tag:
-            raise ValueError("Non-empty 'koji_tag' is expected")
-
-        for param_name, param in {"variant": variant, "koji_tag": koji_tag, "modulemd_path": modulemd_path}.items():
-            if not param:
-                raise ValueError("Non-empty '%s' is expected" % param_name)
 
         if not isinstance(rpms, (list, tuple)):
             raise ValueError("Wrong type of 'rpms'")
@@ -277,3 +307,5 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
         }
         metadata.setdefault("modulemd_path", {})[category] = modulemd_path
         metadata.setdefault("rpms", []).extend(list(rpms))
+        if location is not None:
+            metadata["_location"] = location
