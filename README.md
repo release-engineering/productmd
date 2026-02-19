@@ -42,7 +42,7 @@ data integrity verification and supports bidirectional conversion between v2.0
 ### Phase 2: Metadata Classes
 
 - [x] Update `VERSION` to `(2, 0)` in `productmd/common.py`
-- [ ] Update `VariantPaths` to use Location objects
+- [x] Update `VariantPaths` to use Location objects
 - [x] Update `Rpms.add()` to accept Location objects
 - [x] Update `Image` class to use `location` attribute
 - [x] Implement `ExtraFiles` class with `add()` method

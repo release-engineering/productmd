@@ -31,6 +31,8 @@ import re
 
 import productmd.common
 from productmd.common import Header, RELEASE_VERSION_RE
+from productmd.location import Location
+from productmd.version import VERSION_2_0, VersionedMetadataMixin, version_to_string
 
 
 __all__ = (
@@ -104,7 +106,7 @@ VARIANT_TYPES = [
 ]
 
 
-class ComposeInfo(productmd.common.MetadataBase):
+class ComposeInfo(productmd.common.MetadataBase, VersionedMetadataMixin):
     """
     This class only encapsulates other classes with actual data.
     """
@@ -170,25 +172,43 @@ class ComposeInfo(productmd.common.MetadataBase):
         result += "-%s%s.%s" % (self.compose.date, self.compose.type_suffix, self.compose.respin)
         return result
 
-    def serialize(self, parser):
+    def serialize(self, parser, force_version=None):
+        """
+        Serialize compose info metadata.
+
+        :param parser: Dictionary to serialize into
+        :type parser: dict
+        :param force_version: Force output version (overrides output_version)
+        :type force_version: tuple or None
+        """
         data = parser
+        output_version = self.get_output_version(force_version)
+
         self.header.serialize(data)
+
+        # Ensure header version matches the output format version
+        data["header"]["version"] = version_to_string(output_version)
         data["payload"] = {}
         self.compose.serialize(data["payload"])
         self.release.serialize(data["payload"])
         if self.release.is_layered:
             self.base_product.serialize(data["payload"])
-        self.variants.serialize(data["payload"])
+        self.variants.serialize(data["payload"], output_version=output_version)
         return data
 
     def deserialize(self, data):
         self.header.deserialize(data)
+        file_version = self.header.version_tuple
+
         self.compose.deserialize(data["payload"])
         self.release.deserialize(data["payload"])
         if self.release.is_layered:
             self.base_product.deserialize(data["payload"])
-        self.variants.deserialize(data["payload"])
-        self.header.set_current_version()
+        self.variants.deserialize(data["payload"], file_version=file_version)
+
+        # Preserve the file's format version so round-trips stay in the
+        # same format.
+        self.output_version = file_version
 
     def __getitem__(self, name):
         return self.variants[name]
@@ -633,7 +653,7 @@ class Variants(VariantBase):
         super().__init__(metadata)
         self._section = "variants"
 
-    def serialize(self, data):
+    def serialize(self, data, output_version=None):
         self.validate()
 
         data[self._section] = {}
@@ -643,9 +663,9 @@ class Variants(VariantBase):
 
         for variant_id in variant_ids:
             variant = self.variants[variant_id]
-            variant.serialize(data[self._section])
+            variant.serialize(data[self._section], output_version=output_version)
 
-    def deserialize(self, data):
+    def deserialize(self, data, file_version=None):
         # variant UIDs should be identical to IDs at the top level
         all_variants = data[self._section].keys()
 
@@ -673,7 +693,7 @@ class Variants(VariantBase):
         variant_ids.sort()
         for variant_id in variant_ids:
             variant = Variant(self._metadata)
-            variant.deserialize(data[self._section], variant_id)
+            variant.deserialize(data[self._section], variant_id, file_version=file_version)
             self.add(variant)
 
 
@@ -749,10 +769,24 @@ class VariantPaths(productmd.common.MetadataBase):
         for name in self._fields:
             setattr(self, name, {})
 
+        # Parallel storage for Location objects (v2.0 round-trip fidelity)
+        # Structure: {field_name: {arch: Location}}
+        self._locations = {}
+
     def __repr__(self):
         return '<%s:variant=%s>' % (self.__class__.__name__, self._variant.uid)
 
-    def deserialize(self, data):
+    def deserialize(self, data, file_version=None):
+        # Reset locations from any previous deserialize call
+        self._locations = {}
+        if file_version is not None and file_version >= VERSION_2_0:
+            self._deserialize_v2(data)
+        else:
+            self._deserialize_v1(data)
+        self.validate()
+
+    def _deserialize_v1(self, data):
+        """Deserialize from v1.x format (path strings)."""
         paths = data
         for arch in sorted(self._variant.arches):
             for name in self._fields:
@@ -760,10 +794,34 @@ class VariantPaths(productmd.common.MetadataBase):
                 if value:
                     field = getattr(self, name)
                     field[arch] = value
-        self.validate()
 
-    def serialize(self, data):
+    def _deserialize_v2(self, data):
+        """Deserialize from v2.0 format (Location objects)."""
+        paths = data
+        for arch in sorted(self._variant.arches):
+            for name in self._fields:
+                value = paths.get(name, {}).get(arch, None)
+                if value:
+                    if isinstance(value, dict) and "url" in value:
+                        # v2.0 Location object
+                        loc = Location.from_dict(value)
+                        field = getattr(self, name)
+                        field[arch] = loc.local_path
+                        self._locations.setdefault(name, {})[arch] = loc
+                    else:
+                        # Fallback: plain string (shouldn't happen in v2.0)
+                        field = getattr(self, name)
+                        field[arch] = value
+
+    def serialize(self, data, output_version=None):
         self.validate()
+        if output_version is not None and output_version >= VERSION_2_0:
+            self._serialize_v2(data)
+        else:
+            self._serialize_v1(data)
+
+    def _serialize_v1(self, data):
+        """Serialize in v1.x format (path strings)."""
         paths = data
         for arch in sorted(self._variant.arches):
             for name in self._fields:
@@ -771,6 +829,28 @@ class VariantPaths(productmd.common.MetadataBase):
                 value = field.get(arch, None)
                 if value:
                     paths.setdefault(name, {})[arch] = value
+
+    def _serialize_v2(self, data):
+        """Serialize in v2.0 format (Location objects)."""
+        paths = data
+        for arch in sorted(self._variant.arches):
+            for name in self._fields:
+                field = getattr(self, name)
+                value = field.get(arch, None)
+                if value:
+                    # Use stored Location if available (round-trip)
+                    loc = self._locations.get(name, {}).get(arch, None)
+                    if loc is not None:
+                        paths.setdefault(name, {})[arch] = loc.serialize()
+                    else:
+                        # Synthesize Location from path string
+                        loc = Location(
+                            url=value,
+                            size=None,
+                            checksum=None,
+                            local_path=value,
+                        )
+                        paths.setdefault(name, {})[arch] = loc.serialize()
 
 
 class Variant(VariantBase):
@@ -838,7 +918,7 @@ class Variant(VariantBase):
             return result
         return self._metadata.compose.id
 
-    def deserialize(self, data, variant_uid):
+    def deserialize(self, data, variant_uid, file_version=None):
         full_data = data
         data = data[variant_uid]
 
@@ -853,7 +933,7 @@ class Variant(VariantBase):
             self.release.deserialize(data)
 
         paths = data["paths"]
-        self.paths.deserialize(paths)
+        self.paths.deserialize(paths, file_version=file_version)
 
         variant_uids = []
         if "variants" in data:
@@ -867,12 +947,12 @@ class Variant(VariantBase):
         for variant_uid in variant_uids:
             variant = Variant(self._metadata)
             variant.parent = self
-            variant.deserialize(full_data, variant_uid)
+            variant.deserialize(full_data, variant_uid, file_version=file_version)
             self.add(variant)
 
         self.validate()
 
-    def serialize(self, data):
+    def serialize(self, data, output_version=None):
         dump = {}
 
         # variant details
@@ -887,12 +967,12 @@ class Variant(VariantBase):
             self.release.serialize(dump)
 
         paths = dump.setdefault("paths", {})
-        self.paths.serialize(paths)
+        self.paths.serialize(paths, output_version=output_version)
 
         # variants
         variant_ids = set()
         for variant in self.variants.values():
-            variant.serialize(data)
+            variant.serialize(data, output_version=output_version)
             variant_ids.add(variant.id)
         if variant_ids:
             dump["variants"] = sorted(variant_ids)
