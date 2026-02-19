@@ -45,11 +45,11 @@ data integrity verification and supports bidirectional conversion between v2.0
 - [ ] Update `VariantPaths` to use Location objects
 - [x] Update `Rpms.add()` to accept Location objects
 - [x] Update `Image` class to use `location` attribute
-- [ ] Implement `ExtraFiles` class with `add()` method
-- [ ] Implement v2.0 serialization for all metadata classes
-- [ ] Implement v2.0 deserialization for all metadata classes
-- [ ] Support v1.2 serialization/deserialization (backward compat)
-- [ ] Write unit tests for each metadata class
+- [x] Implement `ExtraFiles` class with `add()` method
+- [x] Implement v2.0 serialization for all metadata classes (images, rpms, extra_files, modules)
+- [x] Implement v2.0 deserialization for all metadata classes (images, rpms, extra_files, modules)
+- [x] Support v1.2 serialization/deserialization (backward compat)
+- [x] Write unit tests for each metadata class (images, rpms, extra_files, modules)
 
 ### Phase 3: Conversion Utilities
 
