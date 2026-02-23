@@ -64,7 +64,8 @@ class TestComposeInfo(unittest.TestCase):
         # check if first and second files are identical
         self.assertSameFiles(first, second)
 
-    def test_create(self):
+    def _create_compose_info(self):
+        """Helper method to create a basic ComposeInfo object for testing."""
         ci = ComposeInfo()
         ci.release.name = "Fedora"
         ci.release.short = "F"
@@ -84,13 +85,15 @@ class TestComposeInfo(unittest.TestCase):
         variant.arches = set(["armhfp", "i386", "x86_64"])
 
         ci.variants.add(variant)
-
-        ci.dump(self.ci_path)
-        self._test_identity(ci)
         return ci
 
+    def test_create(self):
+        ci = self._create_compose_info()
+        ci.dump(self.ci_path)
+        self._test_identity(ci)
+
     def test_is_ga(self):
-        ci = self.test_create()
+        ci = self._create_compose_info()
         self.assertEqual(ci.compose.final, False)
         self.assertEqual(ci.compose.is_ga, False)
         ci.dump(self.ci_path)
@@ -166,7 +169,6 @@ class TestComposeInfo(unittest.TestCase):
 
         ci.dump(self.ci_path)
         self._test_identity(ci)
-        return ci
 
     def test_create_with_prefixed_uid(self):
         ci = ComposeInfo()
@@ -202,7 +204,6 @@ class TestComposeInfo(unittest.TestCase):
 
         ci.dump(self.ci_path)
         self._test_identity(ci)
-        return ci
 
     def test_get_variants(self):
         ci = ComposeInfo()
