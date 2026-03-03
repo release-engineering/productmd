@@ -175,7 +175,7 @@ class TestIterAllLocations:
         assert len(entries) == 2
         for e in entries:
             assert isinstance(e, LocationEntry)
-            assert e.module_type == "image"
+            assert e.metadata_type == "image"
             assert e.variant == "Server"
             assert e.arch == "x86_64"
             assert e.path.startswith("Server/x86_64/iso/")
@@ -187,7 +187,7 @@ class TestIterAllLocations:
 
         assert len(entries) == 1
         e = entries[0]
-        assert e.module_type == "rpm"
+        assert e.metadata_type == "rpm"
         assert e.variant == "Server"
         assert e.arch == "x86_64"
         assert "bash" in e.path
@@ -199,7 +199,7 @@ class TestIterAllLocations:
 
         assert len(entries) == 1
         e = entries[0]
-        assert e.module_type == "extra_file"
+        assert e.metadata_type == "extra_file"
         assert e.path == "Server/x86_64/os/GPL"
 
     def test_modules_yields_entries(self):
@@ -209,7 +209,7 @@ class TestIterAllLocations:
 
         assert len(entries) == 1
         e = entries[0]
-        assert e.module_type == "module"
+        assert e.metadata_type == "module"
         assert "modules.yaml.gz" in e.path
 
     def test_composeinfo_yields_variant_paths(self):
@@ -219,7 +219,7 @@ class TestIterAllLocations:
 
         # Server variant has os_tree and packages for x86_64 = 2 entries
         assert len(entries) == 2
-        types = {e.module_type for e in entries}
+        types = {e.metadata_type for e in entries}
         assert types == {"variant_path"}
         paths = {e.path for e in entries}
         assert "Server/x86_64/os" in paths
@@ -231,11 +231,11 @@ class TestIterAllLocations:
         entries = list(iter_all_locations(images=im))
 
         # Only image entries, no rpm/module/etc
-        module_types = {e.module_type for e in entries}
-        assert module_types == {"image"}
+        metadata_types = {e.metadata_type for e in entries}
+        assert metadata_types == {"image"}
 
     def test_all_modules_combined(self):
-        """Test iteration across all module types."""
+        """Test iteration across all metadata types."""
         im = _create_images()
         rpms = _create_rpms()
         ef = _create_extra_files()
@@ -252,8 +252,8 @@ class TestIterAllLocations:
             )
         )
 
-        module_types = {e.module_type for e in entries}
-        assert module_types == {"image", "rpm", "extra_file", "module", "variant_path"}
+        metadata_types = {e.metadata_type for e in entries}
+        assert metadata_types == {"image", "rpm", "extra_file", "module", "variant_path"}
         # 2 images + 1 rpm + 1 extra_file + 1 module + 2 variant_paths = 7
         assert len(entries) == 7
 
@@ -352,7 +352,7 @@ class TestUpgradeToV2:
         """Test that url_mapper is used instead of base_url when provided."""
         im = _create_images()
 
-        def mapper(local_path, variant, arch, module_type):
+        def mapper(local_path, variant, arch, metadata_type):
             return f"oci://registry.example.com/{variant}/{arch}/{os.path.basename(local_path)}"
 
         result = upgrade_to_v2(
@@ -371,18 +371,18 @@ class TestUpgradeToV2:
         rpms = _create_rpms()
         calls = []
 
-        def spy_mapper(local_path, variant, arch, module_type):
-            calls.append((local_path, variant, arch, module_type))
+        def spy_mapper(local_path, variant, arch, metadata_type):
+            calls.append((local_path, variant, arch, metadata_type))
             return f"https://mapped/{local_path}"
 
         upgrade_to_v2(rpms=rpms, url_mapper=spy_mapper)
 
         assert len(calls) == 1
-        local_path, variant, arch, module_type = calls[0]
+        local_path, variant, arch, metadata_type = calls[0]
         assert "bash" in local_path
         assert variant == "Server"
         assert arch == "x86_64"
-        assert module_type == "rpm"
+        assert metadata_type == "rpm"
 
     def test_compute_checksums(self, tmp_path):
         """Test compute_checksums populates checksum and size from local files."""

@@ -28,6 +28,7 @@ Example::
 
 import os
 from collections import namedtuple
+from enum import Enum
 from typing import Callable, Dict, Iterator, Optional
 
 from productmd.location import Location, compute_checksum
@@ -36,16 +37,31 @@ from productmd.version import VERSION_1_2, VERSION_2_0
 
 __all__ = (
     "LocationEntry",
+    "MetadataType",
     "iter_all_locations",
     "upgrade_to_v2",
     "downgrade_to_v1",
 )
 
 
+class MetadataType(str, Enum):
+    """Type of metadata entry in a compose.
+
+    Inherits from ``str`` so values can be compared directly with
+    plain strings (e.g., ``entry.metadata_type == "image"``).
+    """
+
+    IMAGE = "image"
+    RPM = "rpm"
+    EXTRA_FILE = "extra_file"
+    MODULE = "module"
+    VARIANT_PATH = "variant_path"
+
+
 LocationEntry = namedtuple(
     "LocationEntry",
     [
-        "module_type",
+        "metadata_type",
         "variant",
         "arch",
         "path",
@@ -56,8 +72,7 @@ LocationEntry = namedtuple(
 """
 A single artifact location from compose metadata.
 
-:param module_type: Type of metadata module
-    (``"image"``, ``"rpm"``, ``"extra_file"``, ``"module"``, ``"variant_path"``)
+:param metadata_type: :class:`MetadataType` indicating the kind of artifact
 :param variant: Variant UID
 :param arch: Architecture
 :param path: Relative path to the artifact
@@ -131,7 +146,7 @@ def _iter_images(images: object) -> Iterator[LocationEntry]:
                     _img.location = loc
 
                 yield LocationEntry(
-                    "image",
+                    MetadataType.IMAGE,
                     variant,
                     arch,
                     image.path,
@@ -151,7 +166,7 @@ def _iter_rpms(rpms: object) -> Iterator[LocationEntry]:
                         _data["_location"] = loc
 
                     yield LocationEntry(
-                        "rpm",
+                        MetadataType.RPM,
                         variant,
                         arch,
                         rpm_data["path"],
@@ -170,7 +185,7 @@ def _iter_extra_files(extra_files: object) -> Iterator[LocationEntry]:
                     _entry["_location"] = loc
 
                 yield LocationEntry(
-                    "extra_file",
+                    MetadataType.EXTRA_FILE,
                     variant,
                     arch,
                     entry["file"],
@@ -192,7 +207,7 @@ def _iter_modules(modules: object) -> Iterator[LocationEntry]:
                     _entry["_location"] = loc
 
                 yield LocationEntry(
-                    "module",
+                    MetadataType.MODULE,
                     variant,
                     arch,
                     path,
@@ -213,7 +228,7 @@ def _iter_variant_paths(variant: object) -> Iterator[LocationEntry]:
                 _paths._locations.setdefault(_field, {})[_arch] = loc
 
             yield LocationEntry(
-                "variant_path",
+                MetadataType.VARIANT_PATH,
                 variant.uid,
                 arch,
                 path,
@@ -283,7 +298,7 @@ def upgrade_to_v2(
     :param base_url: Base URL prefix for constructing remote URLs
     :param compute_checksums: Compute SHA-256 checksums and sizes from local files
     :param compose_path: Path to local compose root (required when *compute_checksums* is True)
-    :param url_mapper: Custom callable ``(local_path, variant, arch, module_type) -> url``.
+    :param url_mapper: Custom callable ``(local_path, variant, arch, metadata_type) -> url``.
         When provided, *base_url* is ignored.
     :return: Dict mapping module names to upgraded metadata objects
     :rtype: dict
@@ -311,7 +326,7 @@ def upgrade_to_v2(
     ):
         # Build URL
         if url_mapper is not None:
-            url = url_mapper(entry.path, entry.variant, entry.arch, entry.module_type)
+            url = url_mapper(entry.path, entry.variant, entry.arch, entry.metadata_type)
         else:
             url = base_url + entry.path
 
