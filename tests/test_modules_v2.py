@@ -6,6 +6,12 @@ from productmd.modules import Modules
 from productmd.location import Location
 from productmd.version import VERSION_1_2, VERSION_2_0, OUTPUT_FORMAT_VERSION
 
+# NSVC key (v1.x internal format + v1.x serialized output)
+NSVC = "testmod:1.0:20240101000000:abcd1234"
+# NSVCA key (v2.0 serialized output, includes arch)
+NSVCA_X86 = "testmod:1.0:20240101000000:abcd1234:x86_64"
+NSVCA_ARM = "testmod:1.0:20240101000000:abcd1234:aarch64"
+
 
 def _create_modules():
     """Create a Modules container with compose metadata."""
@@ -80,7 +86,7 @@ def _make_v2_data():
             "modules": {
                 "Server": {
                     "x86_64": {
-                        "testmod:1.0:20240101000000:abcd1234": {
+                        "testmod:1.0:20240101000000:abcd1234:x86_64": {
                             "name": "testmod",
                             "stream": "1.0",
                             "version": "20240101000000",
@@ -129,13 +135,13 @@ class TestModulesSerialization:
     """Tests for Modules serialization in v1.2 and v2.0 formats."""
 
     @pytest.mark.parametrize(
-        "version, present_key, absent_key",
+        "version, entry_key, present_key, absent_key",
         [
-            (VERSION_1_2, "metadata", "arch"),
-            (VERSION_2_0, "arch", "metadata"),
+            (VERSION_1_2, NSVC, "metadata", "arch"),
+            (VERSION_2_0, NSVCA_X86, "arch", "metadata"),
         ],
     )
-    def test_serialize_format_keys(self, version, present_key, absent_key):
+    def test_serialize_format_keys(self, version, entry_key, present_key, absent_key):
         """Test serialization produces correct keys for each format version."""
         modules = _create_modules()
         _add_sample_module(modules)
@@ -143,7 +149,7 @@ class TestModulesSerialization:
         data = {}
         modules.serialize(data, force_version=version)
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][entry_key]
         assert present_key in entry, f"expected '{present_key}' in {version} output"
         assert absent_key not in entry, f"unexpected '{absent_key}' in {version} output"
 
@@ -157,8 +163,8 @@ class TestModulesSerialization:
 
         assert data["header"]["version"] == "1.2"
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
-        assert entry["metadata"]["uid"] == "testmod:1.0:20240101000000:abcd1234"
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVC]
+        assert entry["metadata"]["uid"] == NSVC
         assert entry["metadata"]["name"] == "testmod"
         assert entry["metadata"]["stream"] == "1.0"
         assert entry["metadata"]["version"] == "20240101000000"
@@ -177,7 +183,7 @@ class TestModulesSerialization:
 
         assert data["header"]["version"] == "2.0"
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
         assert entry["name"] == "testmod"
         assert entry["stream"] == "1.0"
         assert entry["version"] == "20240101000000"
@@ -206,12 +212,12 @@ class TestModulesSerialization:
             checksum="sha256:" + "a" * 64,
             local_path="Server/x86_64/os/repodata/modules.yaml.gz",
         )
-        modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]["_location"] = loc
+        modules.modules["Server"]["x86_64"][NSVC]["_location"] = loc
 
         data = {}
         modules.serialize(data, force_version=VERSION_2_0)
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
         assert entry["location"]["url"] == "https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz"
         assert entry["location"]["size"] == 123456
         assert entry["location"]["checksum"] == "sha256:" + "a" * 64
@@ -223,7 +229,7 @@ class TestModulesSerialization:
         modules = Modules()
         modules.deserialize(data)
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules.modules["Server"]["x86_64"][NSVC]
         assert entry["metadata"]["name"] == "testmod"
         assert entry["metadata"]["koji_tag"] == "module-tag-12345"
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
@@ -238,10 +244,11 @@ class TestModulesSerialization:
         modules = Modules()
         modules.deserialize(data)
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        # v2.0 NSVCA key is stripped back to NSVC internally
+        entry = modules.modules["Server"]["x86_64"][NSVC]
 
         # v1.x compatibility fields populated from v2.0 data
-        assert entry["metadata"]["uid"] == "testmod:1.0:20240101000000:abcd1234"
+        assert entry["metadata"]["uid"] == NSVC
         assert entry["metadata"]["name"] == "testmod"
         assert entry["metadata"]["stream"] == "1.0"
         assert entry["metadata"]["version"] == "20240101000000"
@@ -309,7 +316,7 @@ class TestModulesRoundTrip:
         modules2 = Modules()
         modules2.deserialize(data)
 
-        entry = modules2.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules2.modules["Server"]["x86_64"][NSVC]
         assert entry["metadata"]["name"] == "testmod"
         assert entry["metadata"]["koji_tag"] == "module-tag-12345"
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
@@ -326,7 +333,7 @@ class TestModulesRoundTrip:
             checksum="sha256:" + "a" * 64,
             local_path="Server/x86_64/os/repodata/modules.yaml.gz",
         )
-        modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]["_location"] = loc
+        modules.modules["Server"]["x86_64"][NSVC]["_location"] = loc
 
         # Serialize as v2.0
         data = {}
@@ -338,8 +345,8 @@ class TestModulesRoundTrip:
         modules2.deserialize(data)
         assert modules2.header.version_tuple == (2, 0)
 
-        # Verify v1.x compatibility fields
-        entry = modules2.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        # Verify v1.x compatibility fields (internal key is NSVC)
+        entry = modules2.modules["Server"]["x86_64"][NSVC]
         assert entry["metadata"]["name"] == "testmod"
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
 
@@ -359,7 +366,7 @@ class TestModulesRoundTrip:
             checksum="sha256:" + "a" * 64,
             local_path="Server/x86_64/os/repodata/modules.yaml.gz",
         )
-        modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]["_location"] = loc
+        modules.modules["Server"]["x86_64"][NSVC]["_location"] = loc
 
         # First serialize
         data1 = {}
@@ -388,7 +395,7 @@ class TestModulesRoundTrip:
         modules.serialize(data_v1, force_version=VERSION_1_2)
 
         assert data_v1["header"]["version"] == "1.2"
-        entry = data_v1["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data_v1["payload"]["modules"]["Server"]["x86_64"][NSVC]
         assert "metadata" in entry
         assert "modulemd_path" in entry
         assert "location" not in entry
@@ -409,7 +416,7 @@ class TestModulesRoundTrip:
         modules.serialize(data_v2, force_version=VERSION_2_0)
 
         assert data_v2["header"]["version"] == "2.0"
-        entry = data_v2["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data_v2["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
         assert entry["name"] == "testmod"
         assert entry["stream"] == "1.0"
         assert entry["arch"] == "x86_64"
@@ -445,8 +452,8 @@ class TestModulesRoundTrip:
         data = {}
         modules.serialize(data, force_version=VERSION_2_0)
 
-        x86_entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
-        arm_entry = data["payload"]["modules"]["Server"]["aarch64"]["testmod:1.0:20240101000000:abcd1234"]
+        x86_entry = data["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
+        arm_entry = data["payload"]["modules"]["Server"]["aarch64"][NSVCA_ARM]
 
         assert x86_entry["arch"] == "x86_64"
         assert arm_entry["arch"] == "aarch64"
@@ -479,15 +486,52 @@ class TestModulesRoundTrip:
         data = {}
         modules.serialize(data, force_version=VERSION_2_0)
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
         assert entry["location"]["local_path"] == "Server/x86_64/os/repodata/modules.yaml.gz"
 
         # Serialize as v1.2 — should preserve string format
         data_v1 = {}
         modules.serialize(data_v1, force_version=VERSION_1_2)
 
-        entry_v1 = data_v1["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry_v1 = data_v1["payload"]["modules"]["Server"]["x86_64"][NSVC]
         assert entry_v1["modulemd_path"] == "Server/x86_64/os/repodata/modules.yaml.gz"
+
+    def test_nsvca_arch_mismatch_raises(self):
+        """Test that NSVCA key with wrong arch suffix raises ValueError."""
+        data = {
+            "header": {"type": "productmd.modules", "version": "2.0"},
+            "payload": {
+                "compose": {
+                    "id": "Test-1.0-20240101.0",
+                    "date": "20240101",
+                    "type": "production",
+                    "respin": 0,
+                },
+                "modules": {
+                    "Server": {
+                        "x86_64": {
+                            # Key says aarch64 but entry and bucket say x86_64
+                            "testmod:1.0:20240101000000:abcd1234:aarch64": {
+                                "name": "testmod",
+                                "stream": "1.0",
+                                "version": "20240101000000",
+                                "context": "abcd1234",
+                                "arch": "x86_64",
+                                "location": {
+                                    "url": "path",
+                                    "local_path": "path",
+                                },
+                                "rpms": [],
+                            }
+                        }
+                    }
+                },
+            },
+        }
+
+        modules = Modules()
+        with pytest.raises(ValueError, match="NSVCA key .* does not end with arch"):
+            modules.deserialize(data)
 
 
 class TestModulesAddWithLocation:
@@ -513,7 +557,7 @@ class TestModulesAddWithLocation:
             location=loc,
         )
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules.modules["Server"]["x86_64"][NSVC]
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
         assert entry["_location"] is loc
 
@@ -535,7 +579,7 @@ class TestModulesAddWithLocation:
             location=loc,
         )
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules.modules["Server"]["x86_64"][NSVC]
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
         assert entry["_location"] is loc
 
@@ -577,7 +621,7 @@ class TestModulesAddWithLocation:
             rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
         )
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules.modules["Server"]["x86_64"][NSVC]
         assert entry["metadata"]["koji_tag"] == ""
 
     def test_add_with_location_serializes_v20(self):
@@ -601,7 +645,7 @@ class TestModulesAddWithLocation:
         data = {}
         modules.serialize(data, force_version=VERSION_2_0)
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVCA_X86]
         assert entry["location"]["url"] == "https://cdn.example.com/Server/x86_64/os/repodata/modules.yaml.gz"
         assert entry["location"]["size"] == 123456
         assert entry["location"]["checksum"] == "sha256:" + "a" * 64
@@ -628,7 +672,7 @@ class TestModulesAddWithLocation:
         data = {}
         modules.serialize(data, force_version=VERSION_1_2)
 
-        entry = data["payload"]["modules"]["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = data["payload"]["modules"]["Server"]["x86_64"][NSVC]
         assert "location" not in entry
         assert entry["modulemd_path"]["binary"] == "Server/x86_64/os/repodata/modules.yaml.gz"
         assert entry["metadata"]["koji_tag"] == "module-tag-12345"
@@ -645,5 +689,5 @@ class TestModulesAddWithLocation:
             rpms=["pkg1-0:1.0-1.fc41.x86_64.rpm"],
         )
 
-        entry = modules.modules["Server"]["x86_64"]["testmod:1.0:20240101000000:abcd1234"]
+        entry = modules.modules["Server"]["x86_64"][NSVC]
         assert "_location" not in entry
