@@ -70,10 +70,10 @@ data integrity verification and supports bidirectional conversion between v2.0
 
 ### Phase 5: CLI Tools
 
-- [ ] Create `productmd-upgrade` command
-- [ ] Create `productmd-downgrade` command
-- [ ] Create `productmd-localize` command
-- [ ] Create `productmd-verify` command
+- [x] Create `productmd-upgrade` command
+- [x] Create `productmd-downgrade` command
+- [x] Create `productmd-localize` command
+- [x] Create `productmd-verify` command
 - [ ] Add man pages and help documentation
 
 ### Phase 6: Documentation
