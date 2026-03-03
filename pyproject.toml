@@ -32,6 +32,9 @@ Repository = "https://github.com/release-engineering/productmd"
 # 🚧 Documentation Refactor in Progress
 # Documentation = "https://productmd.readthedocs.io/en/latest"
 
+[project.scripts]
+productmd = "productmd.cli:main"
+
 [project.optional-dependencies]
 oci = ["oras"]
 

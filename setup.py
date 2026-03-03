@@ -40,5 +40,10 @@ setup(
     license="LGPLv2.1",
     packages=packages,
     scripts=[],
+    entry_points={
+        "console_scripts": [
+            "productmd=productmd.cli:main",
+        ],
+    },
     test_suite="tests",
 )
