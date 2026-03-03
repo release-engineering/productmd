@@ -53,10 +53,10 @@ data integrity verification and supports bidirectional conversion between v2.0
 
 ### Phase 3: Conversion Utilities
 
-- [ ] Implement `upgrade_to_v2()` function
-- [ ] Implement `downgrade_to_v1()` function
-- [ ] Implement `iter_all_locations()` generator
-- [ ] Write conversion tests (round-trip validation)
+- [x] Implement `upgrade_to_v2()` function
+- [x] Implement `downgrade_to_v1()` function
+- [x] Implement `iter_all_locations()` generator
+- [x] Write conversion tests (round-trip validation)
 
 ### Phase 4: Localization Tool
 
