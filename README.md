@@ -90,7 +90,7 @@ data integrity verification and supports bidirectional conversion between v2.0
 - [ ] Test with real Fedora/RHEL composes
 - [ ] Performance testing with large composes
 - [ ] Integration testing with existing tools
-- [ ] Create test fixtures for v2.0 metadata
+- [x] Create test fixtures for v2.0 metadata
 
 ## Documentation
 

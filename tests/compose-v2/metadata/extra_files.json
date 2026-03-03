@@ -1,0 +1,80 @@
+{
+  "header": {
+    "type": "productmd.extra_files",
+    "version": "2.0"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Fedora-41-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "extra_files": {
+      "Server": {
+        "x86_64": [
+          {
+            "file": "GPL",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/GPL",
+              "size": 18092,
+              "checksum": "sha256:1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+              "local_path": "Server/x86_64/os/GPL"
+            }
+          },
+          {
+            "file": "RPM-GPG-KEY-fedora-41-primary",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/RPM-GPG-KEY-fedora-41-primary",
+              "size": 1714,
+              "checksum": "sha256:2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b",
+              "local_path": "Server/x86_64/os/RPM-GPG-KEY-fedora-41-primary"
+            }
+          },
+          {
+            "file": "EULA",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/EULA",
+              "size": 2547,
+              "checksum": "sha256:3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c",
+              "local_path": "Server/x86_64/os/EULA"
+            }
+          }
+        ],
+        "aarch64": [
+          {
+            "file": "GPL",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/aarch64/os/GPL",
+              "size": 18092,
+              "checksum": "sha256:1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+              "local_path": "Server/aarch64/os/GPL"
+            }
+          },
+          {
+            "file": "RPM-GPG-KEY-fedora-41-primary",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/aarch64/os/RPM-GPG-KEY-fedora-41-primary",
+              "size": 1714,
+              "checksum": "sha256:2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b",
+              "local_path": "Server/aarch64/os/RPM-GPG-KEY-fedora-41-primary"
+            }
+          }
+        ]
+      },
+      "Workstation": {
+        "x86_64": [
+          {
+            "file": "GPL",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Workstation/x86_64/os/GPL",
+              "size": 18092,
+              "checksum": "sha256:1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+              "local_path": "Workstation/x86_64/os/GPL"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

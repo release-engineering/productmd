@@ -142,7 +142,11 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
         data["payload"]["modules"] = v1_modules
 
     def _serialize_v2(self, data):
-        """Serialize module entries in v2.0 format (flattened, location object)."""
+        """Serialize module entries in v2.0 format (flattened, location object).
+
+        v2.0 uses NSVCA keys (name:stream:version:context:arch) instead of
+        the v1.x NSVC keys (without arch).
+        """
         v2_modules = {}
         for variant in self.modules:
             v2_modules[variant] = {}
@@ -170,7 +174,9 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
                         ).serialize()
 
                     v2_entry["rpms"] = list(entry.get("rpms", []))
-                    v2_modules[variant][arch][uid] = v2_entry
+                    # v2.0 key is NSVCA (includes arch)
+                    nsvca = f"{uid}:{arch}"
+                    v2_modules[variant][arch][nsvca] = v2_entry
         data["payload"]["modules"] = v2_modules
 
     def deserialize(self, data):
@@ -196,7 +202,11 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
         self.modules = data["payload"]["modules"]
 
     def _deserialize_v2(self, data):
-        """Deserialize from v2.0 format (flattened fields, location object)."""
+        """Deserialize from v2.0 format (flattened fields, location object).
+
+        v2.0 uses NSVCA keys (name:stream:version:context:arch). The arch
+        suffix is stripped to produce the NSVC key used internally.
+        """
         self.compose.deserialize(data["payload"])
         self.modules = {}
         payload_modules = data["payload"]["modules"]
@@ -205,8 +215,17 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
             self.modules[variant] = {}
             for arch in payload_modules[variant]:
                 self.modules[variant][arch] = {}
-                for uid, v2_entry in payload_modules[variant][arch].items():
+                for nsvca, v2_entry in payload_modules[variant][arch].items():
                     loc = Location.from_dict(v2_entry["location"])
+
+                    # Extract NSVC by stripping the arch suffix from the
+                    # NSVCA key.  Validate that the arch in the key matches
+                    # the arch field in the entry.
+                    entry_arch = v2_entry.get("arch", arch)
+                    if nsvca.endswith(f":{entry_arch}"):
+                        uid = nsvca[: -(len(entry_arch) + 1)]
+                    else:
+                        raise ValueError(f"NSVCA key '{nsvca}' does not end with arch ':{entry_arch}'")
 
                     # Reconstruct v1.x-compatible internal format
                     name = v2_entry.get("name", "")
@@ -243,7 +262,8 @@ class Modules(productmd.common.MetadataBase, VersionedMetadataMixin):
         :type  variant: str
         :param arch: Architecture
         :type  arch: str
-        :param uid: Module UID (name:stream[:version[:context]])
+        :param uid: Module NSVC identifier (name:stream[:version[:context]]).
+            In v2.0 serialized format, the key becomes NSVCA (arch appended).
         :type  uid: str
         :param koji_tag: Koji build tag (required for v1.x, optional for v2.0)
         :type  koji_tag: str

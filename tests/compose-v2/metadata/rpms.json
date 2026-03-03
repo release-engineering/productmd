@@ -1,0 +1,98 @@
+{
+  "header": {
+    "type": "productmd.rpms",
+    "version": "2.0"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Fedora-41-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "rpms": {
+      "Server": {
+        "x86_64": {
+          "bash-0:5.2.26-3.fc41.src": {
+            "bash-0:5.2.26-3.fc41.x86_64": {
+              "location": {
+                "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                "size": 1849356,
+                "checksum": "sha256:6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b",
+                "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            },
+            "bash-doc-0:5.2.26-3.fc41.x86_64": {
+              "location": {
+                "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/Packages/b/bash-doc-5.2.26-3.fc41.x86_64.rpm",
+                "size": 245678,
+                "checksum": "sha256:7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c",
+                "local_path": "Server/x86_64/os/Packages/b/bash-doc-5.2.26-3.fc41.x86_64.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            },
+            "bash-debuginfo-0:5.2.26-3.fc41.x86_64": {
+              "location": {
+                "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/debug/tree/Packages/b/bash-debuginfo-5.2.26-3.fc41.x86_64.rpm",
+                "size": 3456789,
+                "checksum": "sha256:ab1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c",
+                "local_path": "Server/x86_64/debug/tree/Packages/b/bash-debuginfo-5.2.26-3.fc41.x86_64.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "debug"
+            },
+            "bash-0:5.2.26-3.fc41.src": {
+              "location": {
+                "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/source/tree/Packages/b/bash-5.2.26-3.fc41.src.rpm",
+                "size": 5678901,
+                "checksum": "sha256:bc2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
+                "local_path": "Server/source/tree/Packages/b/bash-5.2.26-3.fc41.src.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "source"
+            }
+          },
+          "kernel-0:6.9.5-200.fc41.src": {
+            "kernel-0:6.9.5-200.fc41.x86_64": {
+              "location": {
+                "url": "oci://quay.io/fedora/rpms:41-server-x86_64-kernel@sha256:8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d",
+                "size": 45678900,
+                "checksum": "sha256:8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d",
+                "local_path": "Server/x86_64/os/Packages/k/kernel-6.9.5-200.fc41.x86_64.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            },
+            "kernel-devel-0:6.9.5-200.fc41.x86_64": {
+              "location": {
+                "url": "oci://quay.io/fedora/rpms:41-server-x86_64-kernel-devel@sha256:9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e",
+                "size": 15678900,
+                "checksum": "sha256:9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e",
+                "local_path": "Server/x86_64/os/Packages/k/kernel-devel-6.9.5-200.fc41.x86_64.rpm"
+              },
+              "sigkey": null,
+              "category": "binary"
+            }
+          }
+        },
+        "aarch64": {
+          "bash-0:5.2.26-3.fc41.src": {
+            "bash-0:5.2.26-3.fc41.aarch64": {
+              "location": {
+                "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/aarch64/os/Packages/b/bash-5.2.26-3.fc41.aarch64.rpm",
+                "size": 1756432,
+                "checksum": "sha256:0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
+                "local_path": "Server/aarch64/os/Packages/b/bash-5.2.26-3.fc41.aarch64.rpm"
+              },
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            }
+          }
+        }
+      }
+    }
+  }
+}

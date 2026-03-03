@@ -1,0 +1,78 @@
+{
+  "header": {
+    "type": "productmd.modules",
+    "version": "2.0"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Fedora-41-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "modules": {
+      "Server": {
+        "x86_64": {
+          "nodejs:20:4120250101112233:f41:x86_64": {
+            "name": "nodejs",
+            "stream": "20",
+            "version": "4120250101112233",
+            "context": "f41",
+            "arch": "x86_64",
+            "location": {
+              "url": "oci://quay.io/fedora/modules:nodejs-20-x86_64@sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+              "size": 45678900,
+              "checksum": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+              "local_path": "Server/x86_64/os/Packages"
+            },
+            "rpms": [
+              "nodejs-1:20.10.0-1.module_f41+12345+abcdef12.x86_64.rpm",
+              "nodejs-devel-1:20.10.0-1.module_f41+12345+abcdef12.x86_64.rpm",
+              "nodejs-docs-1:20.10.0-1.module_f41+12345+abcdef12.noarch.rpm",
+              "npm-1:10.2.3-1.module_f41+12345+abcdef12.x86_64.rpm"
+            ]
+          },
+          "postgresql:16:4120250101223344:f41:x86_64": {
+            "name": "postgresql",
+            "stream": "16",
+            "version": "4120250101223344",
+            "context": "f41",
+            "arch": "x86_64",
+            "location": {
+              "url": "https://cdn.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/os/repodata/modules.yaml.gz",
+              "size": 34567,
+              "checksum": "sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+              "local_path": "Server/x86_64/os/repodata/modules.yaml.gz"
+            },
+            "rpms": [
+              "postgresql-16.1-2.module_f41+23456+bcdef123.x86_64.rpm",
+              "postgresql-server-16.1-2.module_f41+23456+bcdef123.x86_64.rpm",
+              "postgresql-contrib-16.1-2.module_f41+23456+bcdef123.x86_64.rpm"
+            ]
+          }
+        },
+        "aarch64": {
+          "nodejs:20:4120250101112233:f41:aarch64": {
+            "name": "nodejs",
+            "stream": "20",
+            "version": "4120250101112233",
+            "context": "f41",
+            "arch": "aarch64",
+            "location": {
+              "url": "oci://quay.io/fedora/modules:nodejs-20-aarch64@sha256:123456abcdef7890123456abcdef7890123456abcdef7890123456abcdef7890",
+              "size": 43567800,
+              "checksum": "sha256:123456abcdef7890123456abcdef7890123456abcdef7890123456abcdef7890",
+              "local_path": "Server/aarch64/os/Packages"
+            },
+            "rpms": [
+              "nodejs-1:20.10.0-1.module_f41+12345+abcdef12.aarch64.rpm",
+              "nodejs-devel-1:20.10.0-1.module_f41+12345+abcdef12.aarch64.rpm",
+              "nodejs-docs-1:20.10.0-1.module_f41+12345+abcdef12.noarch.rpm",
+              "npm-1:10.2.3-1.module_f41+12345+abcdef12.aarch64.rpm"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
