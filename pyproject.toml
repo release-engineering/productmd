@@ -32,9 +32,13 @@ Repository = "https://github.com/release-engineering/productmd"
 # 🚧 Documentation Refactor in Progress
 # Documentation = "https://productmd.readthedocs.io/en/latest"
 
+[project.optional-dependencies]
+oci = ["oras"]
+
 [dependency-groups]
 test = [
     "pytest",
+    "oras",
 ]
 coverage = [
     "pytest-cov",
@@ -96,7 +100,7 @@ env_list = ["py38", "py39", "py310", "py311", "py312", "py313", "format", "lint"
 
 [tool.tox.env_run_base]
 description = "Run tests with pytest"
-deps = ["pytest"]
+deps = ["pytest", "oras"]
 commands = [["pytest", { replace = "posargs", default = [], extend = true }]]
 
 [tool.tox.env.lint]
