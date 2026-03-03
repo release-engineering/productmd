@@ -31,6 +31,7 @@ Example::
 import logging
 import os
 import time
+import urllib.request
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, List, Optional, Tuple
@@ -38,11 +39,6 @@ from urllib.error import HTTPError, URLError
 
 from productmd.common import _get_default_headers
 from productmd.convert import downgrade_to_v1, iter_all_locations
-
-try:
-    import urllib.request
-except ImportError:
-    pass
 
 
 __all__ = (
