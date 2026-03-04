@@ -348,6 +348,16 @@ class TestUpgradeToV2:
             assert e.location.url == f"https://cdn.example.com/{e.path}"
             assert e.location.local_path == e.path
 
+    def test_base_url_without_trailing_slash(self):
+        """Test that base_url without trailing slash is normalized."""
+        im = _create_images()
+        result = upgrade_to_v2(images=im, base_url="https://cdn.example.com")
+
+        entries = list(iter_all_locations(images=result["images"]))
+        for e in entries:
+            assert e.location.url == f"https://cdn.example.com/{e.path}"
+            assert "https://cdn.example.comServer" not in e.location.url
+
     def test_url_mapper_overrides_base_url(self):
         """Test that url_mapper is used instead of base_url when provided."""
         im = _create_images()

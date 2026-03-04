@@ -316,6 +316,11 @@ def upgrade_to_v2(
     new_modules = _copy_metadata(modules) if modules is not None else None
     new_composeinfo = _copy_metadata(composeinfo) if composeinfo is not None else None
 
+    # Normalize base_url to ensure it ends with a slash so that
+    # base_url + path produces a valid URL.
+    if base_url and not base_url.endswith("/"):
+        base_url += "/"
+
     # Iterate over all artifacts and attach Locations
     for entry in iter_all_locations(
         images=new_images,
