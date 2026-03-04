@@ -70,11 +70,7 @@ def register(subparsers: object) -> None:
     parser.add_argument(
         "--compute-checksums",
         action="store_true",
-        help="Compute SHA-256 checksums from local files (requires --compose-dir)",
-    )
-    parser.add_argument(
-        "--compose-dir",
-        help="Path to local compose root (required with --compute-checksums)",
+        help="Compute SHA-256 checksums from local files",
     )
     parser.add_argument(
         "--url-map",
@@ -90,13 +86,15 @@ def run(args: object) -> None:
     :param args: Parsed argparse namespace
     :type args: object
     """
-    if args.compute_checksums and not args.compose_dir:
-        print_error("--compose-dir is required when --compute-checksums is enabled")
-        sys.exit(1)
-
     metadata = load_metadata(args)
     if not metadata:
         print_error(f"No metadata found at {args.input}")
+        sys.exit(1)
+
+    compose_path = getattr(args, "_compose_path", None)
+
+    if args.compute_checksums and compose_path is None:
+        print_error("Cannot compute checksums: could not determine compose root from input path. Pass a compose directory as input.")
         sys.exit(1)
 
     url_mapper = None
@@ -111,7 +109,7 @@ def run(args: object) -> None:
         output_dir=args.output,
         base_url=args.base_url,
         compute_checksums=args.compute_checksums,
-        compose_path=args.compose_dir,
+        compose_path=compose_path,
         url_mapper=url_mapper,
         **metadata,
     )

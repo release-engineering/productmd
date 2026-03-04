@@ -65,10 +65,10 @@ def run(args: object) -> None:
         return
 
     # Artifact checksum verification requires knowing the compose root.
-    # With -c the input is a compose directory. Without -c (single file),
-    # we cannot reliably locate artifacts — fall back to quick mode.
-    if not args.compose:
-        print("Single file mode: skipping artifact verification (use -c for full verify)")
+    # Auto-detected from the input path via load_metadata().
+    compose_path = getattr(args, "_compose_path", None)
+    if compose_path is None:
+        print("Could not determine compose root: skipping artifact verification")
         if args.report:
             _write_report(
                 args.report,
@@ -81,7 +81,7 @@ def run(args: object) -> None:
             )
         return
 
-    base_path = args.input
+    base_path = compose_path
 
     # Collect all entries for progress counter
     entries = list(iter_all_locations(**metadata))

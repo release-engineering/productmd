@@ -4,16 +4,17 @@ CLI tools for productmd metadata operations.
 Provides a single ``productmd`` command with subcommands for upgrading,
 downgrading, localizing, and verifying compose metadata.
 
-All inputs must be local files or directories — remote URLs are not
-supported.  Use ``-c`` to indicate the input path is a compose directory.
+Input auto-detection: if the input is a file, it is loaded as a single
+metadata file.  If it is a directory, it is treated as a compose
+directory and scanned for metadata.  Remote URLs are not supported.
 
 Usage::
 
     productmd upgrade --output /tmp/v2 --base-url https://cdn/ images.json
-    productmd upgrade -c --output /tmp/v2 --base-url https://cdn/ /path/to/compose
+    productmd upgrade --output /tmp/v2 --base-url https://cdn/ /path/to/compose
     productmd downgrade --output /tmp/v1 rpms.json
     productmd localize --output /mnt/local images.json
-    productmd verify -c /path/to/compose
+    productmd verify /path/to/compose
 """
 
 import argparse
@@ -21,7 +22,7 @@ import json
 import logging
 import os
 import sys
-from typing import Dict
+from typing import Dict, Optional, Tuple
 
 from productmd.compose import Compose
 
@@ -78,7 +79,7 @@ def load_single_file(file_path: str) -> Dict[str, object]:
     return {key: obj}
 
 
-def load_compose_dir(compose_path: str) -> Dict[str, object]:
+def load_compose_dir(compose_path: str) -> Tuple[Dict[str, object], str]:
     """
     Load all metadata from a compose directory.
 
@@ -87,8 +88,8 @@ def load_compose_dir(compose_path: str) -> Dict[str, object]:
 
     :param compose_path: Path to a compose root directory
     :type compose_path: str
-    :return: Dict of metadata objects keyed by module name
-    :rtype: Dict[str, object]
+    :return: Tuple of (metadata dict, resolved compose path)
+    :rtype: tuple
     """
     if not os.path.isdir(compose_path):
         raise NotADirectoryError(f"No such directory: {compose_path}")
@@ -108,41 +109,77 @@ def load_compose_dir(compose_path: str) -> Dict[str, object]:
         except RuntimeError as e:
             logger.debug("Skipping %s: %s", name, e)
 
-    return result
+    if not result:
+        raise RuntimeError(f"Directory does not appear to be a compose: no metadata found in {compose_path}")
+
+    return result, compose.compose_path
 
 
 def add_input_args(parser: object) -> None:
     """
-    Add input arguments common to all subcommands.
-
-    Adds a positional ``input`` argument for the file or directory path,
-    and a ``-c``/``--compose`` flag to indicate the input is a compose
-    directory rather than a single metadata file.
+    Add the positional input argument common to all subcommands.
 
     :param parser: argparse subcommand parser
     :type parser: object
     """
     parser.add_argument(
-        "-c",
-        "--compose",
-        action="store_true",
-        help="Treat input as a compose directory (scans metadata/ for all files)",
-    )
-    parser.add_argument(
         "input",
-        help="Path to a metadata file, or compose directory with -c",
+        help="Path to a metadata file or compose directory",
     )
+
+
+def _discover_compose_root(file_path: str) -> Optional[str]:
+    """
+    Try to find a compose root from a metadata file's location.
+
+    Checks standard compose layouts:
+
+    - ``<root>/metadata/<file>`` → try ``Compose(<root>)``
+    - ``<root>/<file>`` → try ``Compose(<root>)``
+
+    The compose root is validated by checking that at least one
+    metadata file (``composeinfo.json``) exists under it.
+
+    :param file_path: Path to a metadata file
+    :type file_path: str
+    :return: Resolved compose path, or ``None`` if not found
+    :rtype: str or None
+    """
+    parent = os.path.dirname(os.path.abspath(file_path))
+
+    candidates = []
+    # Standard layout: <root>/metadata/images.json
+    if os.path.basename(parent) == "metadata":
+        candidates.append(os.path.dirname(parent))
+    # Try parent directly
+    candidates.append(parent)
+
+    for candidate in candidates:
+        try:
+            compose = Compose(candidate)
+            # Validate that this is actually a compose — try to load composeinfo
+            compose.info  # noqa: B018 — triggers metadata file lookup
+            return compose.compose_path
+        except (RuntimeError, OSError):
+            continue
+
+    return None
 
 
 def load_metadata(args: object) -> Dict[str, object]:
     """
     Load metadata based on parsed CLI arguments.
 
-    Validates the input path (rejects remote URLs), then loads either
-    a single metadata file or a full compose directory depending on
-    the ``-c`` flag.
+    Auto-detects whether the input is a file or directory:
 
-    :param args: Parsed argparse namespace with ``input`` and ``compose``
+    - **File**: loads a single metadata file and tries to discover the
+      compose root from its location (stored as ``args._compose_path``).
+    - **Directory**: loads all metadata from the compose directory
+      (stored as ``args._compose_path``).
+
+    Remote URLs are rejected.
+
+    :param args: Parsed argparse namespace with ``input``
     :type args: object
     :return: Dict of metadata objects keyed by module name
     :rtype: Dict[str, object]
@@ -158,10 +195,16 @@ def load_metadata(args: object) -> Dict[str, object]:
             f"  productmd <command> metadata.json ..."
         )
 
-    if args.compose:
-        return load_compose_dir(path)
+    if os.path.isfile(path):
+        result = load_single_file(path)
+        args._compose_path = _discover_compose_root(path)
+        return result
+    elif os.path.isdir(path):
+        result, compose_path = load_compose_dir(path)
+        args._compose_path = compose_path
+        return result
     else:
-        return load_single_file(path)
+        raise FileNotFoundError(f"No such file or directory: {path}")
 
 
 def print_error(msg: str) -> None:
