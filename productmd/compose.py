@@ -34,6 +34,7 @@ Example::
 import os
 
 import productmd.composeinfo
+import productmd.extra_files
 import productmd.images
 import productmd.rpms
 import productmd.modules
@@ -74,6 +75,7 @@ class Compose:
         self._images = None
         self._rpms = None
         self._modules = None
+        self._extra_files = None
 
     def _find_metadata_file(self, paths):
         for i in paths:
@@ -131,6 +133,18 @@ class Compose:
         ]
         self._modules = self._load_metadata(paths, productmd.modules.Modules)
         return self._modules
+
+    @property
+    def extra_files(self):
+        """(:class:`productmd.extra_files.ExtraFiles`) -- Compose extra files metadata"""
+        if self._extra_files is not None:
+            return self._extra_files
+
+        paths = [
+            "metadata/extra_files.json",
+        ]
+        self._extra_files = self._load_metadata(paths, productmd.extra_files.ExtraFiles)
+        return self._extra_files
 
     def _load_metadata(self, paths, cls):
         path = self._find_metadata_file(paths)
