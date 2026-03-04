@@ -37,7 +37,7 @@ data integrity verification and supports bidirectional conversion between v2.0
 - [x] Add checksum computation utilities (`compute_checksum`)
 - [x] Add URL scheme detection (`is_remote`, `is_oci`)
 - [x] Write unit tests for `Location` and `FileEntry` classes
-- [ ] Add OCI image layer extraction utilities
+- [x] Add OCI image layer extraction utilities
 
 ### Phase 2: Metadata Classes
 
@@ -60,12 +60,12 @@ data integrity verification and supports bidirectional conversion between v2.0
 
 ### Phase 4: Localization Tool
 
-- [ ] Implement `localize_compose()` function
-- [ ] Implement parallel download with progress tracking
-- [ ] Implement OCI registry download support (using skopeo/oras)
-- [ ] Implement OCI image layer extraction for `contents` field
-- [ ] Implement HTTPS download with retry logic
-- [ ] Implement checksum verification
+- [x] Implement `localize_compose()` function
+- [x] Implement parallel download with progress tracking
+- [x] Implement OCI registry download support (using skopeo/oras)
+- [x] Implement OCI image layer extraction for `contents` field
+- [x] Implement HTTPS download with retry logic
+- [x] Implement checksum verification
 - [ ] Write integration tests
 
 ### Phase 5: CLI Tools
