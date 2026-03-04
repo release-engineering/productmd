@@ -27,6 +27,7 @@ Example::
 """
 
 import os
+import warnings
 from collections import namedtuple
 from enum import Enum
 from typing import Callable, Dict, Iterator, Optional
@@ -280,6 +281,7 @@ def upgrade_to_v2(
     base_url: str = "",
     compute_checksums: bool = False,
     compose_path: Optional[str] = None,
+    strict_checksums: bool = False,
     url_mapper: Optional[Callable] = None,
 ) -> Dict[str, object]:
     """
@@ -298,11 +300,14 @@ def upgrade_to_v2(
     :param base_url: Base URL prefix for constructing remote URLs
     :param compute_checksums: Compute SHA-256 checksums and sizes from local files
     :param compose_path: Path to local compose root (required when *compute_checksums* is True)
+    :param strict_checksums: Raise :class:`FileNotFoundError` instead of warning
+        when a file cannot be found for checksum computation
     :param url_mapper: Custom callable ``(local_path, variant, arch, metadata_type) -> url``.
         When provided, *base_url* is ignored.
     :return: Dict mapping module names to upgraded metadata objects
     :rtype: dict
     :raises ValueError: If *compute_checksums* is True but *compose_path* is not provided
+    :raises FileNotFoundError: If *strict_checksums* is True and a file is missing
     """
     if compute_checksums and compose_path is None:
         raise ValueError("compose_path is required when compute_checksums is True")
@@ -340,12 +345,17 @@ def upgrade_to_v2(
         size = entry.location.size if entry.location is not None else None
         checksum = entry.location.checksum if entry.location is not None else None
 
-        # Compute checksum and size from local files if requested
-        if compute_checksums and compose_path is not None:
+        # Compute checksum and size from local files if requested.
+        # Variant paths are directories, not files — skip them.
+        if compute_checksums and compose_path is not None and entry.metadata_type != MetadataType.VARIANT_PATH:
             file_path = os.path.join(compose_path, entry.path)
             if os.path.isfile(file_path):
                 checksum = compute_checksum(file_path, "sha256")
                 size = os.path.getsize(file_path)
+            elif strict_checksums:
+                raise FileNotFoundError(f"Cannot compute checksum: file not found: {file_path}")
+            else:
+                warnings.warn(f"Cannot compute checksum: file not found: {file_path}", stacklevel=2)
 
         loc = Location(
             url=url,

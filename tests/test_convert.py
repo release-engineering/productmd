@@ -423,6 +423,58 @@ class TestUpgradeToV2:
         with pytest.raises(ValueError, match="compose_path is required"):
             upgrade_to_v2(images=im, compute_checksums=True)
 
+    def test_compute_checksums_missing_file_warns(self, tmp_path):
+        """Test that missing files emit a warning when computing checksums."""
+        # Create compose dir but don't create the RPM file
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.warns(UserWarning, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+            )
+
+    def test_strict_checksums_missing_file_raises(self, tmp_path):
+        """Test that strict_checksums raises FileNotFoundError for missing files."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.raises(FileNotFoundError, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+                strict_checksums=True,
+            )
+
+    def test_strict_checksums_all_files_exist(self, tmp_path):
+        """Test that strict_checksums succeeds when all files exist."""
+        compose_dir = tmp_path / "compose"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        rpm_dir.mkdir(parents=True)
+        rpm_file = rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm"
+        rpm_file.write_text("fake rpm content")
+
+        rpms = _create_rpms()
+        result = upgrade_to_v2(
+            rpms=rpms,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            strict_checksums=True,
+        )
+
+        entries = list(iter_all_locations(rpms=result["rpms"]))
+        e = entries[0]
+        assert e.location.checksum is not None
+        assert e.location.checksum.startswith("sha256:")
+
     def test_output_files_written(self, tmp_path):
         """Test that metadata files are written to output_dir."""
         im = _create_images()

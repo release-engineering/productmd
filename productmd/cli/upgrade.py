@@ -73,6 +73,11 @@ def register(subparsers: object) -> None:
         help="Compute SHA-256 checksums from local files",
     )
     parser.add_argument(
+        "--strict-checksums",
+        action="store_true",
+        help="Error if any checksum cannot be computed (implies --compute-checksums)",
+    )
+    parser.add_argument(
         "--url-map",
         help="JSON file with per-type URL mapping templates",
     )
@@ -93,7 +98,10 @@ def run(args: object) -> None:
 
     compose_path = getattr(args, "_compose_path", None)
 
-    if args.compute_checksums and compose_path is None:
+    # --strict-checksums implies --compute-checksums
+    compute_checksums = args.compute_checksums or args.strict_checksums
+
+    if compute_checksums and compose_path is None:
         print_error("Cannot compute checksums: could not determine compose root from input path. Pass a compose directory as input.")
         sys.exit(1)
 
@@ -108,8 +116,9 @@ def run(args: object) -> None:
     result = upgrade_to_v2(
         output_dir=args.output,
         base_url=args.base_url,
-        compute_checksums=args.compute_checksums,
+        compute_checksums=compute_checksums,
         compose_path=compose_path,
+        strict_checksums=args.strict_checksums,
         url_mapper=url_mapper,
         **metadata,
     )
