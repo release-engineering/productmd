@@ -1,6 +1,7 @@
 """``productmd upgrade`` subcommand — upgrade v1.2 metadata to v2.0."""
 
 import json
+import os
 import sys
 from typing import Callable
 
@@ -113,6 +114,34 @@ def run(args: object) -> None:
             print_error(f"Failed to load URL map: {e}")
             sys.exit(1)
 
+    # Show progress when computing checksums (can be slow on large composes).
+    # Each completed artifact is logged above the progress bar.
+    progress = None
+    if compute_checksums:
+        from productmd.cli.progress import _format_filename
+
+        def progress(processed, total, path, checksum):
+            # Clear the progress bar line, print the log entry, then redraw the bar
+            try:
+                cols = os.get_terminal_size().columns
+            except (AttributeError, ValueError, OSError):
+                cols = 120
+            sys.stderr.write("\r" + " " * cols + "\r")
+            if checksum:
+                sys.stderr.write(f"  {checksum}  {path}\n")
+            else:
+                sys.stderr.write(f"  (no checksum)  {path}\n")
+            # Draw the progress bar for the next artifact
+            desc = _format_filename(path)
+            pct = int(100 * processed / total) if total > 0 else 0
+            bar_width = 20
+            filled = int(bar_width * processed / total) if total > 0 else 0
+            bar = "=" * filled + " " * (bar_width - filled)
+            sys.stderr.write(f"\rChecksumming: {processed}/{total} {pct:3d}% [{bar}]  {desc}")
+            sys.stderr.flush()
+            if processed == total:
+                sys.stderr.write("\n")
+
     result = upgrade_to_v2(
         output_dir=args.output,
         base_url=args.base_url,
@@ -120,6 +149,7 @@ def run(args: object) -> None:
         compose_path=compose_path,
         strict_checksums=args.strict_checksums,
         url_mapper=url_mapper,
+        progress_callback=progress,
         **metadata,
     )
 

@@ -475,6 +475,37 @@ class TestUpgradeToV2:
         assert e.location.checksum is not None
         assert e.location.checksum.startswith("sha256:")
 
+    def test_progress_callback(self):
+        """Test that progress_callback is called with correct values."""
+        im = _create_images()
+        rpms = _create_rpms()
+
+        calls = []
+
+        def on_progress(processed, total, path, checksum):
+            calls.append((processed, total, path, checksum))
+
+        upgrade_to_v2(
+            images=im,
+            rpms=rpms,
+            base_url="https://cdn.example.com/",
+            progress_callback=on_progress,
+        )
+
+        # Should be called once per artifact (2 images + 1 rpm = 3)
+        assert len(calls) == 3
+        # First call: processed=1, total=3
+        assert calls[0][0] == 1
+        assert calls[0][1] == 3
+        # Last call: processed=total
+        assert calls[-1][0] == calls[-1][1]
+        # All paths should be non-empty strings
+        for processed, total, path, checksum in calls:
+            assert isinstance(path, str)
+            assert len(path) > 0
+            # Without compute_checksums, checksum is None
+            assert checksum is None
+
     def test_output_files_written(self, tmp_path):
         """Test that metadata files are written to output_dir."""
         im = _create_images()

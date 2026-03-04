@@ -283,6 +283,7 @@ def upgrade_to_v2(
     compose_path: Optional[str] = None,
     strict_checksums: bool = False,
     url_mapper: Optional[Callable] = None,
+    progress_callback: Optional[Callable] = None,
 ) -> Dict[str, object]:
     """
     Upgrade v1.x metadata to v2.0 format with Location objects.
@@ -304,6 +305,10 @@ def upgrade_to_v2(
         when a file cannot be found for checksum computation
     :param url_mapper: Custom callable ``(local_path, variant, arch, metadata_type) -> url``.
         When provided, *base_url* is ignored.
+    :param progress_callback: Optional callable ``(processed, total, path, checksum)``
+        invoked after each artifact is processed.  *checksum* is the
+        computed checksum string or ``None``.  Useful for displaying
+        progress during checksum computation on large composes.
     :return: Dict mapping module names to upgraded metadata objects
     :rtype: dict
     :raises ValueError: If *compute_checksums* is True but *compose_path* is not provided
@@ -326,14 +331,21 @@ def upgrade_to_v2(
     if base_url and not base_url.endswith("/"):
         base_url += "/"
 
+    # Collect all entries upfront so we know the total count for
+    # progress reporting.
+    entries = list(
+        iter_all_locations(
+            images=new_images,
+            rpms=new_rpms,
+            extra_files=new_extra_files,
+            modules=new_modules,
+            composeinfo=new_composeinfo,
+        )
+    )
+    total = len(entries)
+
     # Iterate over all artifacts and attach Locations
-    for entry in iter_all_locations(
-        images=new_images,
-        rpms=new_rpms,
-        extra_files=new_extra_files,
-        modules=new_modules,
-        composeinfo=new_composeinfo,
-    ):
+    for processed, entry in enumerate(entries, 1):
         # Build URL
         if url_mapper is not None:
             url = url_mapper(entry.path, entry.variant, entry.arch, entry.metadata_type)
@@ -364,6 +376,9 @@ def upgrade_to_v2(
             local_path=entry.path,
         )
         entry.set_location(loc)
+
+        if progress_callback is not None:
+            progress_callback(processed, total, entry.path, checksum)
 
     # Set output version and collect results
     if new_images is not None:

@@ -6,6 +6,7 @@ import sys
 from typing import Dict
 
 from productmd.cli import add_input_args, load_metadata, print_error
+from productmd.cli.progress import _format_filename
 from productmd.convert import iter_all_locations
 
 
@@ -89,42 +90,59 @@ def run(args: object) -> None:
 
     total = len(entries)
     for i, entry in enumerate(entries, 1):
-        sys.stdout.write(f"\rVerifying: {i}/{total}")
-        sys.stdout.flush()
+        status = None
+        error_msg = None
 
         if entry.location is None or entry.location.checksum is None:
             results["skipped"] += 1
-            continue
+            status = "SKIP"
+        else:
+            # Only verify local files
+            file_path = os.path.join(base_path, entry.path)
+            if not os.path.isfile(file_path):
+                # Try under compose/ subdirectory
+                file_path = os.path.join(base_path, "compose", entry.path)
 
-        # Only verify local files
-        file_path = os.path.join(base_path, entry.path)
-        if not os.path.isfile(file_path):
-            # Try under compose/ subdirectory
-            file_path = os.path.join(base_path, "compose", entry.path)
-
-        if not os.path.isfile(file_path):
-            results["skipped"] += 1
-            continue
-
-        try:
-            if entry.location.verify(file_path):
-                results["verified"] += 1
+            if not os.path.isfile(file_path):
+                results["skipped"] += 1
+                status = "SKIP"
             else:
-                results["failed"] += 1
-                results["errors"].append(
-                    {
-                        "path": entry.path,
-                        "error": "checksum or size mismatch",
-                    }
-                )
-        except (OSError, ValueError) as e:
-            results["failed"] += 1
-            results["errors"].append(
-                {
-                    "path": entry.path,
-                    "error": str(e),
-                }
-            )
+                try:
+                    if entry.location.verify(file_path):
+                        results["verified"] += 1
+                        status = "OK"
+                    else:
+                        results["failed"] += 1
+                        error_msg = "checksum or size mismatch"
+                        results["errors"].append({"path": entry.path, "error": error_msg})
+                        status = "FAIL"
+                except (OSError, ValueError) as e:
+                    results["failed"] += 1
+                    error_msg = str(e)
+                    results["errors"].append({"path": entry.path, "error": error_msg})
+                    status = "FAIL"
+
+        # Clear the progress bar, print log entry, redraw bar
+        try:
+            cols = os.get_terminal_size().columns
+        except (AttributeError, ValueError, OSError):
+            cols = 120
+        sys.stdout.write("\r" + " " * cols + "\r")
+        if status == "FAIL":
+            sys.stdout.write(f"  FAIL   {entry.path}: {error_msg}\n")
+        elif status == "SKIP":
+            sys.stdout.write(f"  SKIP   {entry.path}\n")
+        else:
+            sys.stdout.write(f"  OK     {entry.path}\n")
+
+        # Redraw progress bar
+        desc = _format_filename(entry.path)
+        pct = int(100 * i / total) if total > 0 else 0
+        bar_width = 20
+        filled = int(bar_width * i / total) if total > 0 else 0
+        bar = "=" * filled + " " * (bar_width - filled)
+        sys.stdout.write(f"\rVerifying: {i}/{total} {pct:3d}% [{bar}]  {desc}")
+        sys.stdout.flush()
 
     sys.stdout.write("\n")
     sys.stdout.flush()
