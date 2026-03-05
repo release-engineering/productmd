@@ -506,6 +506,108 @@ class TestUpgradeToV2:
             # Without compute_checksums, checksum is None
             assert checksum is None
 
+    def test_parallel_checksums_matches_sequential(self, tmp_path):
+        """Test that parallel checksums produce identical results to sequential."""
+        # Create real files on disk
+        compose_dir = tmp_path / "compose"
+        iso_dir = compose_dir / "Server" / "x86_64" / "iso"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        iso_dir.mkdir(parents=True)
+        rpm_dir.mkdir(parents=True)
+        (iso_dir / "boot.iso").write_bytes(b"fake iso content " * 100)
+        (rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm").write_bytes(b"fake rpm " * 50)
+
+        im = _create_images()
+        rpms = _create_rpms()
+
+        # Sequential
+        result_seq = upgrade_to_v2(
+            images=im,
+            rpms=rpms,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=1,
+        )
+
+        seq_entries = list(
+            iter_all_locations(
+                images=result_seq["images"],
+                rpms=result_seq["rpms"],
+            )
+        )
+
+        # Parallel
+        im2 = _create_images()
+        rpms2 = _create_rpms()
+        result_par = upgrade_to_v2(
+            images=im2,
+            rpms=rpms2,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=4,
+        )
+
+        par_entries = list(
+            iter_all_locations(
+                images=result_par["images"],
+                rpms=result_par["rpms"],
+            )
+        )
+
+        assert len(seq_entries) == len(par_entries)
+        for seq, par in zip(seq_entries, par_entries):
+            assert seq.location.checksum == par.location.checksum
+            assert seq.location.size == par.location.size
+
+    def test_parallel_checksums_progress_callback(self, tmp_path):
+        """Test that progress callback fires in order with parallel checksums."""
+        compose_dir = tmp_path / "compose"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        rpm_dir.mkdir(parents=True)
+        (rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm").write_bytes(b"fake rpm")
+
+        rpms = _create_rpms()
+        calls = []
+
+        def on_progress(processed, total, path, checksum):
+            calls.append((processed, total, path, checksum))
+
+        upgrade_to_v2(
+            rpms=rpms,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=4,
+            progress_callback=on_progress,
+        )
+
+        assert len(calls) >= 1
+        # Verify calls are in order (processed increases monotonically)
+        for i, (processed, total, path, checksum) in enumerate(calls):
+            assert processed == i + 1
+            assert total == len(calls)
+        # Last call has checksum (file exists)
+        assert calls[-1][3] is not None
+        assert calls[-1][3].startswith("sha256:")
+
+    def test_parallel_checksums_strict_missing_file(self, tmp_path):
+        """Test that strict_checksums raises before parallel computation."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.raises(FileNotFoundError, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+                strict_checksums=True,
+                parallel_checksums=4,
+            )
+
     def test_output_files_written(self, tmp_path):
         """Test that metadata files are written to output_dir."""
         im = _create_images()

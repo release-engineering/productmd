@@ -79,6 +79,12 @@ def register(subparsers: object) -> None:
         help="Error if any checksum cannot be computed (implies --compute-checksums)",
     )
     parser.add_argument(
+        "--parallel-checksums",
+        type=int,
+        default=4,
+        help="Number of threads for checksum computation (default: 4)",
+    )
+    parser.add_argument(
         "--url-map",
         help="JSON file with per-type URL mapping templates",
     )
@@ -118,10 +124,14 @@ def run(args: object) -> None:
     # Each completed artifact is logged above the progress bar.
     # The progress bar is disabled when output is redirected or in CI.
     progress = None
+    parallel_checksums = args.parallel_checksums
     if compute_checksums:
         from productmd.cli.progress import _format_filename, _should_show_progress_bar
 
         show_bar = _should_show_progress_bar()
+
+        if parallel_checksums > 1:
+            sys.stderr.write(f"Computing checksums with {parallel_checksums} threads...\n")
 
         def progress(processed, total, path, checksum):
             if show_bar:
@@ -157,6 +167,7 @@ def run(args: object) -> None:
         strict_checksums=args.strict_checksums,
         url_mapper=url_mapper,
         progress_callback=progress,
+        parallel_checksums=parallel_checksums,
         **metadata,
     )
 
