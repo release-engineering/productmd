@@ -6,7 +6,7 @@ import sys
 from typing import Dict
 
 from productmd.cli import add_input_args, load_metadata, print_error
-from productmd.cli.progress import _format_filename
+from productmd.cli.progress import _format_filename, _should_show_progress_bar
 from productmd.convert import iter_all_locations
 
 
@@ -88,6 +88,7 @@ def run(args: object) -> None:
     entries = list(iter_all_locations(**metadata))
     results = {"verified": 0, "failed": 0, "skipped": 0, "errors": []}
 
+    show_bar = _should_show_progress_bar()
     total = len(entries)
     for i, entry in enumerate(entries, 1):
         status = None
@@ -122,12 +123,15 @@ def run(args: object) -> None:
                     results["errors"].append({"path": entry.path, "error": error_msg})
                     status = "FAIL"
 
-        # Clear the progress bar, print log entry, redraw bar
-        try:
-            cols = os.get_terminal_size().columns
-        except (AttributeError, ValueError, OSError):
-            cols = 120
-        sys.stdout.write("\r" + " " * cols + "\r")
+        if show_bar:
+            # Clear the progress bar line before printing log entry
+            try:
+                cols = os.get_terminal_size().columns
+            except (AttributeError, ValueError, OSError):
+                cols = 120
+            sys.stdout.write("\r" + " " * cols + "\r")
+
+        # Always print the per-artifact log line
         if status == "FAIL":
             sys.stdout.write(f"  FAIL   {entry.path}: {error_msg}\n")
         elif status == "SKIP":
@@ -135,17 +139,19 @@ def run(args: object) -> None:
         else:
             sys.stdout.write(f"  OK     {entry.path}\n")
 
-        # Redraw progress bar
-        desc = _format_filename(entry.path)
-        pct = int(100 * i / total) if total > 0 else 0
-        bar_width = 20
-        filled = int(bar_width * i / total) if total > 0 else 0
-        bar = "=" * filled + " " * (bar_width - filled)
-        sys.stdout.write(f"\rVerifying: {i}/{total} {pct:3d}% [{bar}]  {desc}")
-        sys.stdout.flush()
+        if show_bar:
+            # Redraw progress bar
+            desc = _format_filename(entry.path)
+            pct = int(100 * i / total) if total > 0 else 0
+            bar_width = 20
+            filled = int(bar_width * i / total) if total > 0 else 0
+            bar = "=" * filled + " " * (bar_width - filled)
+            sys.stdout.write(f"\rVerifying: {i}/{total} {pct:3d}% [{bar}]  {desc}")
+            sys.stdout.flush()
 
-    sys.stdout.write("\n")
-    sys.stdout.flush()
+    if show_bar:
+        sys.stdout.write("\n")
+        sys.stdout.flush()
 
     # Print summary
     print(f"\nVerified: {results['verified']}  Failed: {results['failed']}  Skipped: {results['skipped']}")

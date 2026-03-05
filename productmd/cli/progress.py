@@ -18,6 +18,29 @@ from typing import Callable, Optional, Tuple
 _DESC_WIDTH = 50
 
 
+def _should_show_progress_bar() -> bool:
+    """
+    Return True if interactive progress bars should be shown.
+
+    Progress bars use ``\\r`` carriage returns for in-place updates,
+    which creates messy output when redirected to a file or pipe.
+    They are disabled when:
+
+    - The ``CI`` environment variable is set (GitHub Actions, GitLab CI,
+      Jenkins, and most CI systems set this).
+    - ``sys.stdout`` is not a TTY (output redirected to a file or pipe).
+
+    Per-artifact log lines (checksums, OK/FAIL/SKIP) are always printed
+    regardless of this check.
+
+    :return: True if progress bars should be displayed
+    :rtype: bool
+    """
+    if os.environ.get("CI"):
+        return False
+    return sys.stdout.isatty()
+
+
 def _format_filename(path: str, max_width: int = _DESC_WIDTH) -> str:
     """
     Truncate a file path to fit within *max_width* characters.
@@ -129,6 +152,7 @@ def make_progress_callback(parallel: int = 1) -> Tuple[Callable, Callable]:
     :return: (callback, cleanup) tuple
     :rtype: Tuple[Callable, Callable]
     """
+    show_bar = _should_show_progress_bar()
     state = {
         "completed": 0,
         "start_times": {},
@@ -137,11 +161,11 @@ def make_progress_callback(parallel: int = 1) -> Tuple[Callable, Callable]:
     def callback(event):
         if event.event_type == "start":
             state["start_times"][event.filename] = time.time()
-            if parallel <= 1:
+            if show_bar and parallel <= 1:
                 _print_bar(event.filename, 0, event.total_bytes, 0)
 
         elif event.event_type == "progress":
-            if parallel <= 1:
+            if show_bar and parallel <= 1:
                 start = state["start_times"].get(event.filename, time.time())
                 elapsed = time.time() - start
                 speed = event.bytes_downloaded / elapsed if elapsed > 0 else 0
@@ -160,19 +184,26 @@ def make_progress_callback(parallel: int = 1) -> Tuple[Callable, Callable]:
             speed = total / elapsed if elapsed > 0 else 0
 
             if parallel <= 1:
-                # Sequential: finish the bar at 100% and move to next line
-                _print_bar(event.filename, total, total, speed)
-                sys.stdout.write("\n")
-                sys.stdout.flush()
+                if show_bar:
+                    # Sequential: finish the bar at 100% and move to next line
+                    _print_bar(event.filename, total, total, speed)
+                    sys.stdout.write("\n")
+                    sys.stdout.flush()
+                else:
+                    # Non-TTY/CI: print completion line without bar
+                    print(
+                        f"  {_format_filename(event.filename)} done  {_format_size(total)}  {_format_speed(speed)}",
+                        flush=True,
+                    )
             else:
-                # Parallel: print completion line
+                # Parallel: always print completion line
                 print(
                     f"  {_format_filename(event.filename)} done  {_format_size(total)}  {_format_speed(speed)}",
                     flush=True,
                 )
 
         elif event.event_type == "skip":
-            if parallel <= 1:
+            if show_bar and parallel <= 1:
                 # Clear any in-progress bar before printing
                 try:
                     cols = os.get_terminal_size().columns
@@ -183,7 +214,7 @@ def make_progress_callback(parallel: int = 1) -> Tuple[Callable, Callable]:
             print(f"  Skipped: {event.filename}", flush=True)
 
         elif event.event_type == "error":
-            if parallel <= 1:
+            if show_bar and parallel <= 1:
                 sys.stdout.write("\n")
                 sys.stdout.flush()
             print(f"  FAILED: {event.filename}: {event.error}", flush=True)

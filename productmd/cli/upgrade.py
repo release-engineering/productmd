@@ -116,31 +116,38 @@ def run(args: object) -> None:
 
     # Show progress when computing checksums (can be slow on large composes).
     # Each completed artifact is logged above the progress bar.
+    # The progress bar is disabled when output is redirected or in CI.
     progress = None
     if compute_checksums:
-        from productmd.cli.progress import _format_filename
+        from productmd.cli.progress import _format_filename, _should_show_progress_bar
+
+        show_bar = _should_show_progress_bar()
 
         def progress(processed, total, path, checksum):
-            # Clear the progress bar line, print the log entry, then redraw the bar
-            try:
-                cols = os.get_terminal_size().columns
-            except (AttributeError, ValueError, OSError):
-                cols = 120
-            sys.stderr.write("\r" + " " * cols + "\r")
+            if show_bar:
+                # Clear the progress bar line before printing log entry
+                try:
+                    cols = os.get_terminal_size().columns
+                except (AttributeError, ValueError, OSError):
+                    cols = 120
+                sys.stderr.write("\r" + " " * cols + "\r")
+
+            # Always print the per-artifact log line
             if checksum:
                 sys.stderr.write(f"  {checksum}  {path}\n")
             else:
                 sys.stderr.write(f"  (no checksum)  {path}\n")
-            # Draw the progress bar for the next artifact
-            desc = _format_filename(path)
-            pct = int(100 * processed / total) if total > 0 else 0
-            bar_width = 20
-            filled = int(bar_width * processed / total) if total > 0 else 0
-            bar = "=" * filled + " " * (bar_width - filled)
-            sys.stderr.write(f"\rChecksumming: {processed}/{total} {pct:3d}% [{bar}]  {desc}")
-            sys.stderr.flush()
-            if processed == total:
-                sys.stderr.write("\n")
+
+            if show_bar:
+                desc = _format_filename(path)
+                pct = int(100 * processed / total) if total > 0 else 0
+                bar_width = 20
+                filled = int(bar_width * processed / total) if total > 0 else 0
+                bar = "=" * filled + " " * (bar_width - filled)
+                sys.stderr.write(f"\rChecksumming: {processed}/{total} {pct:3d}% [{bar}]  {desc}")
+                sys.stderr.flush()
+                if processed == total:
+                    sys.stderr.write("\n")
 
     result = upgrade_to_v2(
         output_dir=args.output,
