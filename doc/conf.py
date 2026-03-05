@@ -219,6 +219,11 @@ man_pages = [
     ('images', 'productmd-images', 'productmd Documentation', ['Daniel Mach <dmach@redhat.com>'], 1),
     ('rpms', 'productmd-rpms', 'productmd Documentation', ['Daniel Mach <dmach@redhat.com>'], 1),
     ('treeinfo', 'productmd-treeinfo', 'productmd Documentation', ['Daniel Mach <dmach@redhat.com>'], 1),
+    # CLI tools
+    ('cli-upgrade', 'productmd-upgrade', 'productmd CLI tools', ['Guillermo N. Leiro <gleiro@redhat.com>'], 1),
+    ('cli-downgrade', 'productmd-downgrade', 'productmd CLI tools', ['Guillermo N. Leiro <gleiro@redhat.com>'], 1),
+    ('cli-localize', 'productmd-localize', 'productmd CLI tools', ['Guillermo N. Leiro <gleiro@redhat.com>'], 1),
+    ('cli-verify', 'productmd-verify', 'productmd CLI tools', ['Guillermo N. Leiro <gleiro@redhat.com>'], 1),
     # file formats -- v1.x
     ('composeinfo-1.1', 'productmd-composeinfo', 'productmd Documentation', ['Daniel Mach <dmach@redhat.com>'], 5),
     ('discinfo-1.0', 'productmd-discinfo', 'productmd Documentation', ['Daniel Mach <dmach@redhat.com>'], 5),
