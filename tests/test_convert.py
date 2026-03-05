@@ -506,6 +506,7 @@ class TestUpgradeToV2:
             # Without compute_checksums, checksum is None
             assert checksum is None
 
+    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_parallel_checksums_matches_sequential(self, tmp_path):
         """Test that parallel checksums produce identical results to sequential."""
         # Create real files on disk
@@ -557,9 +558,14 @@ class TestUpgradeToV2:
         )
 
         assert len(seq_entries) == len(par_entries)
-        for seq, par in zip(seq_entries, par_entries):
-            assert seq.location.checksum == par.location.checksum
-            assert seq.location.size == par.location.size
+        # Compare by path (not position) because _copy_metadata may
+        # produce different entry orderings on Python < 3.7.
+        seq_by_path = {e.path: e for e in seq_entries}
+        par_by_path = {e.path: e for e in par_entries}
+        assert set(seq_by_path.keys()) == set(par_by_path.keys())
+        for path in seq_by_path:
+            assert seq_by_path[path].location.checksum == par_by_path[path].location.checksum
+            assert seq_by_path[path].location.size == par_by_path[path].location.size
 
     def test_parallel_checksums_progress_callback(self, tmp_path):
         """Test that progress callback fires in order with parallel checksums."""
