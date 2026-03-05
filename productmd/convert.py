@@ -27,9 +27,11 @@ Example::
 """
 
 import os
+import warnings
 from collections import namedtuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
-from typing import Callable, Dict, Iterator, Optional
+from typing import Callable, Dict, Iterator, Optional, Tuple
 
 from productmd.location import Location, compute_checksum
 from productmd.version import VERSION_1_2, VERSION_2_0
@@ -270,6 +272,21 @@ def _copy_metadata(obj: object) -> object:
     return new_obj
 
 
+def _compute_checksum_and_size(file_path: str) -> Tuple[str, int]:
+    """
+    Compute SHA-256 checksum and file size.
+
+    Thread-safe — each call creates its own hashlib instance and
+    file handle.
+
+    :param file_path: Path to the file
+    :return: Tuple of (checksum string, file size in bytes)
+    """
+    checksum = compute_checksum(file_path, "sha256")
+    size = os.path.getsize(file_path)
+    return checksum, size
+
+
 def upgrade_to_v2(
     output_dir: Optional[str] = None,
     images: Optional[object] = None,
@@ -280,7 +297,10 @@ def upgrade_to_v2(
     base_url: str = "",
     compute_checksums: bool = False,
     compose_path: Optional[str] = None,
+    strict_checksums: bool = False,
     url_mapper: Optional[Callable] = None,
+    progress_callback: Optional[Callable] = None,
+    parallel_checksums: int = 4,
 ) -> Dict[str, object]:
     """
     Upgrade v1.x metadata to v2.0 format with Location objects.
@@ -298,11 +318,21 @@ def upgrade_to_v2(
     :param base_url: Base URL prefix for constructing remote URLs
     :param compute_checksums: Compute SHA-256 checksums and sizes from local files
     :param compose_path: Path to local compose root (required when *compute_checksums* is True)
+    :param strict_checksums: Raise :class:`FileNotFoundError` instead of warning
+        when a file cannot be found for checksum computation
     :param url_mapper: Custom callable ``(local_path, variant, arch, metadata_type) -> url``.
         When provided, *base_url* is ignored.
+    :param progress_callback: Optional callable ``(processed, total, path, checksum)``
+        invoked after each artifact is processed.  *checksum* is the
+        computed checksum string or ``None``.  Useful for displaying
+        progress during checksum computation on large composes.
+    :param parallel_checksums: Number of threads for parallel checksum
+        computation (default: 4).  Only used when *compute_checksums*
+        is True.  Set to 1 for sequential computation.
     :return: Dict mapping module names to upgraded metadata objects
     :rtype: dict
     :raises ValueError: If *compute_checksums* is True but *compose_path* is not provided
+    :raises FileNotFoundError: If *strict_checksums* is True and a file is missing
     """
     if compute_checksums and compose_path is None:
         raise ValueError("compose_path is required when compute_checksums is True")
@@ -316,39 +346,110 @@ def upgrade_to_v2(
     new_modules = _copy_metadata(modules) if modules is not None else None
     new_composeinfo = _copy_metadata(composeinfo) if composeinfo is not None else None
 
-    # Iterate over all artifacts and attach Locations
-    for entry in iter_all_locations(
-        images=new_images,
-        rpms=new_rpms,
-        extra_files=new_extra_files,
-        modules=new_modules,
-        composeinfo=new_composeinfo,
-    ):
-        # Build URL
-        if url_mapper is not None:
-            url = url_mapper(entry.path, entry.variant, entry.arch, entry.metadata_type)
-        else:
-            url = base_url + entry.path
+    # Normalize base_url to ensure it ends with a slash so that
+    # base_url + path produces a valid URL.
+    if base_url and not base_url.endswith("/"):
+        base_url += "/"
 
-        # Preserve existing size/checksum from the current location if
-        # available, so we don't lose data when not computing checksums.
-        size = entry.location.size if entry.location is not None else None
-        checksum = entry.location.checksum if entry.location is not None else None
-
-        # Compute checksum and size from local files if requested
-        if compute_checksums and compose_path is not None:
-            file_path = os.path.join(compose_path, entry.path)
-            if os.path.isfile(file_path):
-                checksum = compute_checksum(file_path, "sha256")
-                size = os.path.getsize(file_path)
-
-        loc = Location(
-            url=url,
-            size=size,
-            checksum=checksum,
-            local_path=entry.path,
+    # Collect all entries upfront so we know the total count for
+    # progress reporting.
+    entries = list(
+        iter_all_locations(
+            images=new_images,
+            rpms=new_rpms,
+            extra_files=new_extra_files,
+            modules=new_modules,
+            composeinfo=new_composeinfo,
         )
-        entry.set_location(loc)
+    )
+    total = len(entries)
+
+    # Process entries in batches when parallel checksums are enabled.
+    # Each batch computes checksums in parallel, then builds Location
+    # objects and fires the progress callback sequentially.  This gives
+    # the user periodic progress output instead of one long pause.
+    #
+    # When checksums are not requested or parallel_checksums <= 1,
+    # batch_size is set to total so everything runs in one pass.
+    use_parallel = compute_checksums and compose_path is not None and parallel_checksums > 1
+    batch_size = parallel_checksums if use_parallel else total
+
+    # Validate missing files upfront before starting any threads.
+    # This ensures strict_checksums errors are raised early.
+    if compute_checksums and compose_path is not None:
+        for entry in entries:
+            if entry.metadata_type == MetadataType.VARIANT_PATH:
+                continue
+            file_path = os.path.join(compose_path, entry.path)
+            if not os.path.isfile(file_path):
+                if strict_checksums:
+                    raise FileNotFoundError(f"Cannot compute checksum: file not found: {file_path}")
+                else:
+                    warnings.warn(f"Cannot compute checksum: file not found: {file_path}", stacklevel=2)
+
+    # Use a single executor for the entire operation to avoid repeated
+    # thread creation overhead on large composes.
+    executor = ThreadPoolExecutor(max_workers=parallel_checksums) if use_parallel else None
+
+    try:
+        for group_start in range(0, total, batch_size):
+            group = entries[group_start : group_start + batch_size]
+            group_checksums = {}
+
+            # Compute checksums for this batch
+            if compute_checksums and compose_path is not None:
+                tasks_in_group = []
+                for offset, entry in enumerate(group):
+                    idx = group_start + offset
+                    if entry.metadata_type == MetadataType.VARIANT_PATH:
+                        continue
+                    file_path = os.path.join(compose_path, entry.path)
+                    if os.path.isfile(file_path):
+                        tasks_in_group.append((idx, file_path))
+
+                if executor is not None and len(tasks_in_group) > 1:
+                    future_to_index = {}
+                    for idx, file_path in tasks_in_group:
+                        future = executor.submit(_compute_checksum_and_size, file_path)
+                        future_to_index[future] = idx
+                    for future in as_completed(future_to_index):
+                        group_checksums[future_to_index[future]] = future.result()
+                else:
+                    for idx, file_path in tasks_in_group:
+                        group_checksums[idx] = _compute_checksum_and_size(file_path)
+
+            # Build Locations and fire progress for this batch (sequential, in order)
+            for offset, entry in enumerate(group):
+                idx = group_start + offset
+                processed = idx + 1
+
+                # Build URL
+                if url_mapper is not None:
+                    url = url_mapper(entry.path, entry.variant, entry.arch, entry.metadata_type)
+                else:
+                    url = base_url + entry.path
+
+                # Preserve existing size/checksum from the current location
+                size = entry.location.size if entry.location is not None else None
+                checksum = entry.location.checksum if entry.location is not None else None
+
+                # Apply computed checksum from this batch
+                if idx in group_checksums:
+                    checksum, size = group_checksums[idx]
+
+                loc = Location(
+                    url=url,
+                    size=size,
+                    checksum=checksum,
+                    local_path=entry.path,
+                )
+                entry.set_location(loc)
+
+                if progress_callback is not None:
+                    progress_callback(processed, total, entry.path, checksum)
+    finally:
+        if executor is not None:
+            executor.shutdown(wait=False)
 
     # Set output version and collect results
     if new_images is not None:

@@ -348,6 +348,16 @@ class TestUpgradeToV2:
             assert e.location.url == f"https://cdn.example.com/{e.path}"
             assert e.location.local_path == e.path
 
+    def test_base_url_without_trailing_slash(self):
+        """Test that base_url without trailing slash is normalized."""
+        im = _create_images()
+        result = upgrade_to_v2(images=im, base_url="https://cdn.example.com")
+
+        entries = list(iter_all_locations(images=result["images"]))
+        for e in entries:
+            assert e.location.url == f"https://cdn.example.com/{e.path}"
+            assert "https://cdn.example.comServer" not in e.location.url
+
     def test_url_mapper_overrides_base_url(self):
         """Test that url_mapper is used instead of base_url when provided."""
         im = _create_images()
@@ -412,6 +422,197 @@ class TestUpgradeToV2:
         im = _create_images()
         with pytest.raises(ValueError, match="compose_path is required"):
             upgrade_to_v2(images=im, compute_checksums=True)
+
+    def test_compute_checksums_missing_file_warns(self, tmp_path):
+        """Test that missing files emit a warning when computing checksums."""
+        # Create compose dir but don't create the RPM file
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.warns(UserWarning, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+            )
+
+    def test_strict_checksums_missing_file_raises(self, tmp_path):
+        """Test that strict_checksums raises FileNotFoundError for missing files."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.raises(FileNotFoundError, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+                strict_checksums=True,
+            )
+
+    def test_strict_checksums_all_files_exist(self, tmp_path):
+        """Test that strict_checksums succeeds when all files exist."""
+        compose_dir = tmp_path / "compose"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        rpm_dir.mkdir(parents=True)
+        rpm_file = rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm"
+        rpm_file.write_text("fake rpm content")
+
+        rpms = _create_rpms()
+        result = upgrade_to_v2(
+            rpms=rpms,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            strict_checksums=True,
+        )
+
+        entries = list(iter_all_locations(rpms=result["rpms"]))
+        e = entries[0]
+        assert e.location.checksum is not None
+        assert e.location.checksum.startswith("sha256:")
+
+    def test_progress_callback(self):
+        """Test that progress_callback is called with correct values."""
+        im = _create_images()
+        rpms = _create_rpms()
+
+        calls = []
+
+        def on_progress(processed, total, path, checksum):
+            calls.append((processed, total, path, checksum))
+
+        upgrade_to_v2(
+            images=im,
+            rpms=rpms,
+            base_url="https://cdn.example.com/",
+            progress_callback=on_progress,
+        )
+
+        # Should be called once per artifact (2 images + 1 rpm = 3)
+        assert len(calls) == 3
+        # First call: processed=1, total=3
+        assert calls[0][0] == 1
+        assert calls[0][1] == 3
+        # Last call: processed=total
+        assert calls[-1][0] == calls[-1][1]
+        # All paths should be non-empty strings
+        for processed, total, path, checksum in calls:
+            assert isinstance(path, str)
+            assert len(path) > 0
+            # Without compute_checksums, checksum is None
+            assert checksum is None
+
+    @pytest.mark.filterwarnings("ignore::UserWarning")
+    def test_parallel_checksums_matches_sequential(self, tmp_path):
+        """Test that parallel checksums produce identical results to sequential."""
+        # Create real files on disk
+        compose_dir = tmp_path / "compose"
+        iso_dir = compose_dir / "Server" / "x86_64" / "iso"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        iso_dir.mkdir(parents=True)
+        rpm_dir.mkdir(parents=True)
+        (iso_dir / "boot.iso").write_bytes(b"fake iso content " * 100)
+        (rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm").write_bytes(b"fake rpm " * 50)
+
+        im = _create_images()
+        rpms = _create_rpms()
+
+        # Sequential
+        result_seq = upgrade_to_v2(
+            images=im,
+            rpms=rpms,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=1,
+        )
+
+        seq_entries = list(
+            iter_all_locations(
+                images=result_seq["images"],
+                rpms=result_seq["rpms"],
+            )
+        )
+
+        # Parallel
+        im2 = _create_images()
+        rpms2 = _create_rpms()
+        result_par = upgrade_to_v2(
+            images=im2,
+            rpms=rpms2,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=4,
+        )
+
+        par_entries = list(
+            iter_all_locations(
+                images=result_par["images"],
+                rpms=result_par["rpms"],
+            )
+        )
+
+        assert len(seq_entries) == len(par_entries)
+        # Compare by path (not position) because _copy_metadata may
+        # produce different entry orderings on Python < 3.7.
+        seq_by_path = {e.path: e for e in seq_entries}
+        par_by_path = {e.path: e for e in par_entries}
+        assert set(seq_by_path.keys()) == set(par_by_path.keys())
+        for path in seq_by_path:
+            assert seq_by_path[path].location.checksum == par_by_path[path].location.checksum
+            assert seq_by_path[path].location.size == par_by_path[path].location.size
+
+    def test_parallel_checksums_progress_callback(self, tmp_path):
+        """Test that progress callback fires in order with parallel checksums."""
+        compose_dir = tmp_path / "compose"
+        rpm_dir = compose_dir / "Server" / "x86_64" / "os" / "Packages" / "b"
+        rpm_dir.mkdir(parents=True)
+        (rpm_dir / "bash-5.2.26-3.fc41.x86_64.rpm").write_bytes(b"fake rpm")
+
+        rpms = _create_rpms()
+        calls = []
+
+        def on_progress(processed, total, path, checksum):
+            calls.append((processed, total, path, checksum))
+
+        upgrade_to_v2(
+            rpms=rpms,
+            base_url="https://cdn/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=4,
+            progress_callback=on_progress,
+        )
+
+        assert len(calls) >= 1
+        # Verify calls are in order (processed increases monotonically)
+        for i, (processed, total, path, checksum) in enumerate(calls):
+            assert processed == i + 1
+            assert total == len(calls)
+        # Last call has checksum (file exists)
+        assert calls[-1][3] is not None
+        assert calls[-1][3].startswith("sha256:")
+
+    def test_parallel_checksums_strict_missing_file(self, tmp_path):
+        """Test that strict_checksums raises before parallel computation."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        rpms = _create_rpms()
+        with pytest.raises(FileNotFoundError, match="file not found"):
+            upgrade_to_v2(
+                rpms=rpms,
+                base_url="https://cdn/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+                strict_checksums=True,
+                parallel_checksums=4,
+            )
 
     def test_output_files_written(self, tmp_path):
         """Test that metadata files are written to output_dir."""

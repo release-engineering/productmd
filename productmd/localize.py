@@ -164,7 +164,7 @@ def _download_https(
 
         except (HTTPError, URLError, OSError) as e:
             last_error = e
-            logger.warning(f"Download attempt {attempt + 1}/{retries + 1} failed for {url}: {e}")
+            logger.warning("Download attempt %d/%d failed for %s: %s", attempt + 1, retries + 1, url, e)
             # Clean up partial temp file
             if os.path.exists(tmp_path):
                 try:
@@ -206,7 +206,7 @@ def _should_skip(
             return False
 
     # No checksum to verify — fall back to existence check
-    logger.warning(f"No checksum available for {dest_path}, skipping based on file existence")
+    logger.warning("No checksum available for %s, skipping based on file existence", dest_path)
     return True
 
 
@@ -514,7 +514,7 @@ def _download_oci_tasks(
         if skip_existing and _should_skip_oci(task, verify_checksums):
             skipped += 1
             _emit(progress_callback, "skip", task.rel_path)
-            logger.info(f"Skipping existing OCI artifact: {task.rel_path}")
+            logger.info("Skipping existing OCI artifact: %s", task.rel_path)
             continue
         pending_tasks.append(task)
 
@@ -532,7 +532,7 @@ def _download_oci_tasks(
                 failed += file_count
                 errors.append((task.rel_path, e))
                 _emit(progress_callback, "error", task.rel_path, error=e)
-                logger.error(f"Failed to download OCI artifact {task.rel_path}: {e}")
+                logger.error("Failed to download OCI artifact %s: %s", task.rel_path, e)
                 if fail_fast:
                     break
     else:
@@ -557,7 +557,7 @@ def _download_oci_tasks(
                     failed += file_count
                     errors.append((task.rel_path, e))
                     _emit(progress_callback, "error", task.rel_path, error=e)
-                    logger.error(f"Failed to download OCI artifact {task.rel_path}: {e}")
+                    logger.error("Failed to download OCI artifact %s: %s", task.rel_path, e)
                     if fail_fast:
                         for f in future_to_task:
                             f.cancel()
@@ -634,7 +634,7 @@ def localize_compose(
         if skip_existing and _should_skip(task.dest_path, task.location, verify_checksums):
             skipped += 1
             _emit(progress_callback, "skip", task.rel_path)
-            logger.info(f"Skipping existing file: {task.rel_path}")
+            logger.info("Skipping existing file: %s", task.rel_path)
             continue
         download_tasks.append(task)
 
@@ -654,7 +654,7 @@ def localize_compose(
                 failed += 1
                 errors.append((task.rel_path, e))
                 _emit(progress_callback, "error", task.rel_path, error=e)
-                logger.error(f"Failed to download {task.rel_path}: {e}")
+                logger.error("Failed to download %s: %s", task.rel_path, e)
                 if fail_fast:
                     break
     else:
@@ -685,7 +685,7 @@ def localize_compose(
                     failed += 1
                     errors.append((task.rel_path, e))
                     _emit(progress_callback, "error", task.rel_path, error=e)
-                    logger.error(f"Failed to download {task.rel_path}: {e}")
+                    logger.error("Failed to download %s: %s", task.rel_path, e)
                     if fail_fast:
                         # Cancel remaining futures
                         for f in future_to_task:
@@ -722,5 +722,5 @@ def localize_compose(
     )
 
     result = LocalizeResult(downloaded, skipped, failed, errors)
-    logger.info(f"Localization complete: {result.downloaded} downloaded, {result.skipped} skipped, {result.failed} failed")
+    logger.info("Localization complete: %d downloaded, %d skipped, %d failed", result.downloaded, result.skipped, result.failed)
     return result

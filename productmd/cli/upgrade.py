@@ -1,0 +1,174 @@
+"""``productmd upgrade`` subcommand — upgrade v1.2 metadata to v2.0."""
+
+import json
+import os
+import sys
+from typing import Callable
+
+from productmd.cli import add_input_args, load_metadata, print_error
+from productmd.convert import upgrade_to_v2
+
+
+def _load_url_mapper(url_map_path: str) -> Callable:
+    """
+    Load a URL mapping function from a JSON file.
+
+    The JSON file should contain per-type URL templates::
+
+        {
+            "rpm": "https://cdn.example.com/rpms/{path}",
+            "image": "https://cdn.example.com/images/{path}",
+            "module": "https://cdn.example.com/modules/{path}",
+            "extra_file": "https://cdn.example.com/extra/{path}",
+            "variant_path": "https://cdn.example.com/repos/{path}",
+            "default": "https://cdn.example.com/{path}"
+        }
+
+    Templates use ``{path}``, ``{variant}``, ``{arch}``, and
+    ``{metadata_type}`` as placeholders.
+
+    :param url_map_path: Path to JSON file
+    :type url_map_path: str
+    :return: URL mapper callable
+    :rtype: Callable
+    """
+    with open(url_map_path) as f:
+        url_map = json.load(f)
+
+    def mapper(local_path, variant, arch, metadata_type):
+        template = url_map.get(metadata_type, url_map.get("default", "{path}"))
+        return template.format(
+            path=local_path,
+            variant=variant,
+            arch=arch,
+            metadata_type=metadata_type,
+        )
+
+    return mapper
+
+
+def register(subparsers: object) -> None:
+    """Register the upgrade subcommand.
+
+    :param subparsers: argparse subparsers action
+    :type subparsers: object
+    """
+    parser = subparsers.add_parser(
+        "upgrade",
+        help="Upgrade v1.2 compose metadata to v2.0 format",
+        description=("Load v1.2 compose metadata, create Location objects for each artifact, and write v2.0 metadata files."),
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Output directory for v2.0 metadata files",
+    )
+    parser.add_argument(
+        "--base-url",
+        default="",
+        help="Base URL prefix for remote artifact URLs",
+    )
+    parser.add_argument(
+        "--compute-checksums",
+        action="store_true",
+        help="Compute SHA-256 checksums from local files",
+    )
+    parser.add_argument(
+        "--strict-checksums",
+        action="store_true",
+        help="Error if any checksum cannot be computed (implies --compute-checksums)",
+    )
+    parser.add_argument(
+        "--parallel-checksums",
+        type=int,
+        default=4,
+        help="Number of threads for checksum computation (default: 4)",
+    )
+    parser.add_argument(
+        "--url-map",
+        help="JSON file with per-type URL mapping templates",
+    )
+    add_input_args(parser)
+    parser.set_defaults(func=run)
+
+
+def run(args: object) -> None:
+    """Execute the upgrade subcommand.
+
+    :param args: Parsed argparse namespace
+    :type args: object
+    """
+    metadata = load_metadata(args)
+    if not metadata:
+        print_error(f"No metadata found at {args.input}")
+        sys.exit(1)
+
+    compose_path = getattr(args, "_compose_path", None)
+
+    # --strict-checksums implies --compute-checksums
+    compute_checksums = args.compute_checksums or args.strict_checksums
+
+    if compute_checksums and compose_path is None:
+        print_error("Cannot compute checksums: could not determine compose root from input path. Pass a compose directory as input.")
+        sys.exit(1)
+
+    url_mapper = None
+    if args.url_map:
+        try:
+            url_mapper = _load_url_mapper(args.url_map)
+        except (OSError, json.JSONDecodeError) as e:
+            print_error(f"Failed to load URL map: {e}")
+            sys.exit(1)
+
+    # Show progress when computing checksums (can be slow on large composes).
+    # Each completed artifact is logged above the progress bar.
+    # The progress bar is disabled when output is redirected or in CI.
+    progress = None
+    parallel_checksums = args.parallel_checksums
+    if compute_checksums:
+        from productmd.cli.progress import _format_filename, _should_show_progress_bar
+
+        show_bar = _should_show_progress_bar()
+
+        if parallel_checksums > 1:
+            sys.stderr.write(f"Computing checksums with {parallel_checksums} threads...\n")
+
+        def progress(processed, total, path, checksum):
+            if show_bar:
+                # Clear the progress bar line before printing log entry
+                try:
+                    cols = os.get_terminal_size().columns
+                except (AttributeError, ValueError, OSError):
+                    cols = 120
+                sys.stderr.write("\r" + " " * cols + "\r")
+
+            # Always print the per-artifact log line
+            if checksum:
+                sys.stderr.write(f"  {checksum}  {path}\n")
+            else:
+                sys.stderr.write(f"  (no checksum)  {path}\n")
+
+            if show_bar:
+                desc = _format_filename(path)
+                pct = int(100 * processed / total) if total > 0 else 0
+                bar_width = 20
+                filled = int(bar_width * processed / total) if total > 0 else 0
+                bar = "=" * filled + " " * (bar_width - filled)
+                sys.stderr.write(f"\rChecksumming: {processed}/{total} {pct:3d}% [{bar}]  {desc}")
+                sys.stderr.flush()
+                if processed == total:
+                    sys.stderr.write("\n")
+
+    result = upgrade_to_v2(
+        output_dir=args.output,
+        base_url=args.base_url,
+        compute_checksums=compute_checksums,
+        compose_path=compose_path,
+        strict_checksums=args.strict_checksums,
+        url_mapper=url_mapper,
+        progress_callback=progress,
+        parallel_checksums=parallel_checksums,
+        **metadata,
+    )
+
+    print(f"Upgraded {len(result)} metadata file(s) to v2.0 in {args.output}")

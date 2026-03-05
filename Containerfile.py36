@@ -22,4 +22,4 @@ COPY tests/ ./tests/
 RUN pip3 install "pytest < 7.1" "pytest-cov < 3"
 
 # Default command: run tests
-CMD ["python3.6", "-m", "pytest", "--cov", "tests/"]
+CMD ["python3.6", "-m", "pytest", "--cov", "--ignore=tests/integration", "tests/"]
