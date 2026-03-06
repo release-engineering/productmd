@@ -49,6 +49,11 @@ coverage = [
 ]
 docs = [
     "sphinx",
+    "sphinx-rtd-theme",
+]
+dev-docs = [
+    { include-group = "docs" },
+    "sphinx-autobuild",
 ]
 dev = [
     { include-group = "test" },
@@ -139,8 +144,16 @@ commands = [["bandit", "-c", "pyproject.toml", "-r", "productmd/"]]
 
 [tool.tox.env.docs]
 description = "Build Sphinx documentation"
-deps = ["sphinx"]
+deps = ["sphinx", "sphinx-rtd-theme"]
 commands = [
     ["sphinx-build", "-b", "html", "doc", "doc/_build/html"],
     ["sphinx-build", "-b", "man", "doc", "doc/_build/man"],
+]
+
+[tool.tox.env.serve-docs]
+description = "Autobuild and serve the docs"
+deps = ["sphinx", "sphinx-rtd-theme", "sphinx-autobuild"]
+ignore_outcome = true
+commands = [
+    ["sphinx-autobuild", "doc/", "doc/_build/html"],
 ]
