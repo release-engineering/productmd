@@ -47,6 +47,9 @@ test = [
 coverage = [
     "pytest-cov",
 ]
+docs = [
+    "sphinx",
+]
 dev = [
     { include-group = "test" },
     "ruff",
