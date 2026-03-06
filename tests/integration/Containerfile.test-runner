@@ -12,7 +12,7 @@ COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
 # Install productmd with OCI extra and test dependencies
 COPY . /app/
 RUN pip install --no-cache-dir -e ".[oci]" && \
-    pip install --no-cache-dir pytest tqdm
+    pip install --no-cache-dir pytest
 
 # Copy integration tests
 COPY tests/integration/test_integration.py /tests/test_integration.py
