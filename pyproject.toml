@@ -3,6 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
+dependencies = []
 name = "productmd"
 version = "1.50"
 description = "Product, compose and installation media metadata library"
@@ -66,6 +67,8 @@ include = [
 ]
 exclude = [
     "tests/integration/",
+    "tests/mock_cli.py",
+    "tests/README.md",
 ]
 
 [tool.hatch.build.targets.wheel]
