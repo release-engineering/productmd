@@ -128,4 +128,7 @@ commands = [["bandit", "-c", "pyproject.toml", "-r", "productmd/"]]
 [tool.tox.env.docs]
 description = "Build Sphinx documentation"
 deps = ["sphinx"]
-commands = [["sphinx-build", "-b", "html", "doc", "doc/_build/html"]]
+commands = [
+    ["sphinx-build", "-b", "html", "doc", "doc/_build/html"],
+    ["sphinx-build", "-b", "man", "doc", "doc/_build/man"],
+]

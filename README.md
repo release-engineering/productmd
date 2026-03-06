@@ -74,7 +74,7 @@ data integrity verification and supports bidirectional conversion between v2.0
 - [x] Create `productmd-downgrade` command
 - [x] Create `productmd-localize` command
 - [x] Create `productmd-verify` command
-- [ ] Add man pages and help documentation
+- [x] Add man pages and help documentation
 
 ### Phase 6: Documentation
 
