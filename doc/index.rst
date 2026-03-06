@@ -15,6 +15,9 @@ Contents:
     :maxdepth: 2
 
     terminology
+    productmd-2.0
+    migration-guide
+    distributed-composes
 
 
 Python modules:
@@ -26,9 +29,13 @@ Python modules:
     compose
     composeinfo
     discinfo
+    extra_files
     images
+    location
+    modules
     rpms
     treeinfo
+    version
 
 
 CLI Tools:
@@ -36,11 +43,23 @@ CLI Tools:
 .. toctree::
     :maxdepth: 2
 
+    cli
     cli-upgrade
     cli-downgrade
     cli-localize
     cli-verify
 
+
+File formats (v2.0 -- distributed composes):
+
+.. toctree::
+    :maxdepth: 2
+
+    composeinfo-2.0
+    extra_files-2.0
+    images-2.0
+    modules-2.0
+    rpms-2.0
 
 File formats (v1.1 -- local composes):
 
