@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run productmd integration tests using container compose.
 #
-# Supports podman-compose, podman compose, docker compose, and docker-compose.
+# Supports podman-compose, podman compose.
 # Starts an HTTP server, TLS-enabled OCI registry, seeds the registry with
 # test artifacts, and runs the integration test suite.
 #
@@ -9,31 +9,26 @@
 #   ./tests/integration/run.sh
 #
 # The script will:
-#   1. Detect the available compose tool (podman or docker)
-#   2. Build registry image first (generates TLS certs at build time)
-#   3. Build remaining images (they COPY the CA cert from the registry image)
-#   4. Start infrastructure services (registry, httpserver, registry-seed)
-#   5. Wait for registry to be seeded
-#   6. Wait for generated OCI metadata to be served via HTTP
-#   7. Run test-runner container
-#   8. Tear down all services
-#   9. Exit with the test runner's exit code
+#   1. Build registry image first (generates TLS certs at build time)
+#   2. Build remaining images (they COPY the CA cert from the registry image)
+#   3. Start infrastructure services (registry, httpserver, registry-seed)
+#   4. Wait for registry to be seeded
+#   5. Wait for generated OCI metadata to be served via HTTP
+#   6. Run test-runner container
+#   7. Tear down all services
+#   8. Exit with the test runner's exit code
 set -e
 
 cd "$(dirname "$0")"
 
-# Detect compose tool
+# Get podman compose comand
 if command -v podman-compose &> /dev/null; then
     COMPOSE="podman-compose"
 elif command -v podman &> /dev/null && podman compose version &> /dev/null 2>&1; then
     COMPOSE="podman compose"
-elif command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
-    COMPOSE="docker compose"
-elif command -v docker-compose &> /dev/null; then
-    COMPOSE="docker-compose"
 else
     echo "Error: No container compose tool found."
-    echo "Install one of: podman-compose, podman compose, docker compose, docker-compose"
+    echo "Install one of: podman-compose, podman compose"
     exit 1
 fi
 
