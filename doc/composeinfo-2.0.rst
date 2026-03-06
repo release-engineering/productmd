@@ -12,7 +12,6 @@ Changes from 1.1
 * Variant paths are now :class:`~productmd.location.Location` objects instead of plain strings
 * Location objects include ``url``, ``size``, ``checksum``, and ``local_path`` fields
 * URLs may be HTTPS URLs, OCI registry references, or relative paths
-* Checksums use ``algorithm:hexdigest`` format (e.g., ``sha256:abc123...``)
 * ``force_version`` parameter added to ``serialize()`` for version control
 
 
@@ -23,6 +22,11 @@ All variant paths (``os_tree``, ``packages``, ``source_tree``, ``source_packages
 ``debug_tree``, ``debug_packages``, ``repository``, ``source_repository``,
 ``debug_repository``, ``identity``, ``isos``, ``jigdos``) are stored as Location objects
 in v2.0 format, instead of plain relative path strings.
+
+Since variant paths reference **directories** rather than individual files,
+their Location objects typically have ``null`` values for ``checksum`` and
+``size``.  The ``url`` and ``local_path`` fields indicate where the
+directory tree can be found.
 
 See :class:`~productmd.location.Location` for details.
 

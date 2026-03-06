@@ -106,7 +106,7 @@ v2.0 module entry::
             "url": "oci://quay.io/fedora/modules:nodejs-20-x86_64@sha256:abcdef12...",
             "size": 45678900,
             "checksum": "sha256:abcdef12...",
-            "local_path": "Server/x86_64/os/Packages"
+            "local_path": "Server/x86_64/os/repodata/modules.yaml.gz"
         },
         "rpms": ["nodejs-1:20.10.0-1.module_f41+12345+abcdef12.x86_64.rpm"]
     }
@@ -142,7 +142,7 @@ Fedora 41 modules with OCI and HTTPS URLs::
                                 "url": "oci://quay.io/fedora/modules:nodejs-20-x86_64@sha256:abcdef12...",
                                 "size": 45678900,
                                 "checksum": "sha256:abcdef12...",
-                                "local_path": "Server/x86_64/os/Packages"
+                                "local_path": "Server/x86_64/os/repodata/modules.yaml.gz"
                             },
                             "rpms": [
                                 "nodejs-1:20.10.0-1.module_f41+12345+abcdef12.x86_64.rpm",
@@ -156,10 +156,10 @@ Fedora 41 modules with OCI and HTTPS URLs::
                             "context": "f41",
                             "arch": "x86_64",
                             "location": {
-                                "url": "https://cdn.fedoraproject.org/.../Server/x86_64/os/Packages/",
+                                "url": "https://cdn.fedoraproject.org/.../Server/x86_64/os/repodata/modules.yaml.gz",
                                 "size": 0,
                                 "checksum": "sha256:fedcba09...",
-                                "local_path": "Server/x86_64/os/Packages"
+                                "local_path": "Server/x86_64/os/repodata/modules.yaml.gz"
                             },
                             "rpms": [
                                 "postgresql-16.1-2.module_f41+23456+bcdef123.x86_64.rpm",
