@@ -38,10 +38,12 @@ Example::
 
   print(qcow2s)
 
-  # ... prints the set of qcow2 images in all our variants:
-  [<Image:Server-RT/x86_64/images/rhel-kvm-rt-image-7.6-220.x86_64.qcow2:qcow2:x86_64>,
- <Image:Server/x86_64/images/rhel-guest-image-7.6-210.x86_64.qcow2:qcow2:x86_64>,
- <Image:Server/ppc64le/images/rhel-guest-image-7.6-210.ppc64le.qcow2:qcow2:ppc64le>]
+    print(qcow2s)
+
+    # ... prints the set of qcow2 images in all our variants:
+    # [<Image:Server-RT/x86_64/images/rhel-kvm-rt-image-7.6-220.x86_64.qcow2:qcow2:x86_64>,
+    #  <Image:Server/x86_64/images/rhel-guest-image-7.6-210.x86_64.qcow2:qcow2:x86_64>,
+    #  <Image:Server/ppc64le/images/rhel-guest-image-7.6-210.ppc64le.qcow2:qcow2:ppc64le>]
 
 """
 
