@@ -3,7 +3,6 @@ images -- Image metadata
 ========================
 
 .. automodule:: productmd.images
-    :members:
 
 Classes
 =======
