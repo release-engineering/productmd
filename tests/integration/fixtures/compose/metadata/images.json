@@ -1,0 +1,56 @@
+{
+  "header": {
+    "type": "productmd.images",
+    "version": "1.2"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Test-1.0-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "images": {
+      "Server": {
+        "x86_64": [
+          {
+            "path": "Server/x86_64/iso/boot.iso",
+            "mtime": 1738627200,
+            "size": 57,
+            "volume_id": "Test-1.0",
+            "type": "boot",
+            "format": "iso",
+            "arch": "x86_64",
+            "disc_number": 1,
+            "disc_count": 1,
+            "checksums": {
+              "sha256": "188731f92ad35be5cb0da223247092dbe1ade7d000d1a478e390e3645a1891b5"
+            },
+            "implant_md5": null,
+            "bootable": false,
+            "subvariant": "Server"
+          }
+        ],
+        "aarch64": [
+          {
+            "path": "Server/aarch64/iso/boot.iso",
+            "mtime": 1738627200,
+            "size": 66,
+            "volume_id": "Test-1.0",
+            "type": "boot",
+            "format": "iso",
+            "arch": "aarch64",
+            "disc_number": 1,
+            "disc_count": 1,
+            "checksums": {
+              "sha256": "cf37e4031396de7679f8d3c83b047d70b4b56a16cc409a204470d87ed113bcf5"
+            },
+            "implant_md5": null,
+            "bootable": false,
+            "subvariant": "Server"
+          }
+        ]
+      }
+    }
+  }
+}

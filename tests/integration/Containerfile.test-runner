@@ -1,0 +1,40 @@
+FROM python:3.11-slim
+
+LABEL description="Integration test runner for productmd CLI tools"
+
+WORKDIR /app
+
+# Copy the test CA cert from the registry image (generated at build time).
+# ENV vars for trusting it are set AFTER pip install so they don't break
+# pip's connection to PyPI during the build.
+COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
+
+# Install productmd with OCI extra and test dependencies
+COPY . /app/
+RUN pip install --no-cache-dir -e ".[oci]" && \
+    pip install --no-cache-dir pytest tqdm
+
+# Copy integration tests
+COPY tests/integration/test_integration.py /tests/test_integration.py
+
+# Now set the CA trust env vars — only affects runtime, not the build above.
+ENV REQUESTS_CA_BUNDLE=/certs/ca.crt
+ENV SSL_CERT_FILE=/certs/ca.crt
+
+# Wait for all services to be ready, then run tests.
+CMD ["sh", "-c", "\
+  echo 'Waiting for HTTP server...' && \
+  until python3 -c \"import urllib.request; urllib.request.urlopen('http://httpserver:80/metadata/images.json')\" 2>/dev/null; do sleep 1; done && \
+  echo 'HTTP server ready.' && \
+  echo 'Waiting for TLS registry...' && \
+  until python3 -c \"import urllib.request; urllib.request.urlopen('https://registry:5000/v2/')\" 2>/dev/null; do sleep 1; done && \
+  echo 'Registry ready.' && \
+  echo 'Waiting for registry seed (checking catalog)...' && \
+  until python3 -c \"import urllib.request, json; data = json.loads(urllib.request.urlopen('https://registry:5000/v2/_catalog').read()); assert len(data.get('repositories', [])) >= 3\" 2>/dev/null; do sleep 1; done && \
+  echo 'Registry seeded.' && \
+  echo 'Waiting for generated OCI metadata...' && \
+  until python3 -c \"import urllib.request; urllib.request.urlopen('http://httpserver:80/oci-metadata/images-oci.json')\" 2>/dev/null; do sleep 1; done && \
+  echo 'OCI metadata available. All services ready.' && \
+  echo '' && \
+  pytest -v --tb=short /tests/test_integration.py \
+"]

@@ -1,0 +1,36 @@
+{
+  "header": {
+    "type": "productmd.rpms",
+    "version": "1.2"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Test-1.0-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "rpms": {
+      "Server": {
+        "x86_64": {
+          "bash-0:5.2.26-3.fc41.src": {
+            "bash-0:5.2.26-3.fc41.x86_64": {
+              "path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            }
+          }
+        },
+        "aarch64": {
+          "bash-0:5.2.26-3.fc41.src": {
+            "bash-0:5.2.26-3.fc41.aarch64": {
+              "path": "Server/aarch64/os/Packages/b/bash-5.2.26-3.fc41.aarch64.rpm",
+              "sigkey": "a15b79cc",
+              "category": "binary"
+            }
+          }
+        }
+      }
+    }
+  }
+}

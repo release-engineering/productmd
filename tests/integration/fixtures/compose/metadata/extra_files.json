@@ -1,0 +1,36 @@
+{
+  "header": {
+    "type": "productmd.extra_files",
+    "version": "1.2"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Test-1.0-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "extra_files": {
+      "Server": {
+        "x86_64": [
+          {
+            "file": "Server/x86_64/os/GPL",
+            "size": 149,
+            "checksums": {
+              "sha256": "167a9c2719509ca99cdbda4f07459e64046463e2d02bb6bac86ae13c28b3762f"
+            }
+          }
+        ],
+        "aarch64": [
+          {
+            "file": "Server/aarch64/os/GPL",
+            "size": 233,
+            "checksums": {
+              "sha256": "d7e0df56f863b63ffddc593ae694e21a415902c583240a6e80d4f5bfba8a00e2"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

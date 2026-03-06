@@ -1,0 +1,50 @@
+services:
+  # TLS-enabled OCI registry with self-signed certs baked in at build time.
+  # The CA cert is shared to other containers via COPY --from=integration_registry.
+  registry:
+    build:
+      context: .
+      dockerfile: Containerfile.registry
+    image: integration_registry
+    ports:
+      - "5000:5000"
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+
+  # HTTP server serving the v1.2 compose tree, metadata, and
+  # generated v2.0 OCI metadata (written by registry-seed)
+  httpserver:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./fixtures/compose:/usr/share/nginx/html:ro,z
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - generated-metadata:/usr/share/nginx/html/oci-metadata:ro
+
+  # Seeds the OCI registry with test artifacts on startup.
+  # Also generates v2.0 metadata JSON with real OCI digests
+  # into the generated-metadata volume.
+  registry-seed:
+    build:
+      context: .
+      dockerfile: Containerfile.registry-seed
+    depends_on:
+      - registry
+    restart: "no"
+    volumes:
+      - generated-metadata:/generated-metadata
+
+  # Test runner — installs productmd and runs integration tests.
+  # Run separately via: $COMPOSE run --rm test-runner
+  # The run.sh script handles waiting for services before starting.
+  test-runner:
+    build:
+      context: ../..
+      dockerfile: tests/integration/Containerfile.test-runner
+    environment:
+      HTTP_BASE_URL: "http://httpserver:80"
+      REGISTRY_URL: "registry:5000"
+
+volumes:
+  generated-metadata:

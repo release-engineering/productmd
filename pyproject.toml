@@ -64,6 +64,9 @@ include = [
     "README.md",
     "setup.py",
 ]
+exclude = [
+    "tests/integration/",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["productmd"]
@@ -91,6 +94,9 @@ select = [
 # Pytest configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Exclude integration tests — they require Docker Compose services
+# and are run separately via tests/integration/run.sh
+addopts = "--ignore=tests/integration"
 
 # Bandit configuration
 [tool.bandit]

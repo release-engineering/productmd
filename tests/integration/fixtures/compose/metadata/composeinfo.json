@@ -1,0 +1,44 @@
+{
+  "header": {
+    "type": "productmd.composeinfo",
+    "version": "1.2"
+  },
+  "payload": {
+    "compose": {
+      "date": "20260204",
+      "id": "Test-1.0-20260204.0",
+      "respin": 0,
+      "type": "production"
+    },
+    "release": {
+      "name": "Test",
+      "short": "Test",
+      "version": "1.0",
+      "type": "ga"
+    },
+    "variants": {
+      "Server": {
+        "id": "Server",
+        "uid": "Server",
+        "name": "Test Server",
+        "type": "variant",
+        "arches": ["x86_64", "aarch64"],
+        "paths": {
+          "os_tree": {
+            "x86_64": "Server/x86_64/os",
+            "aarch64": "Server/aarch64/os"
+          },
+          "packages": {
+            "x86_64": "Server/x86_64/os/Packages",
+            "aarch64": "Server/aarch64/os/Packages"
+          },
+          "repository": {
+            "x86_64": "Server/x86_64/os",
+            "aarch64": "Server/aarch64/os"
+          }
+        },
+        "variants": {}
+      }
+    }
+  }
+}

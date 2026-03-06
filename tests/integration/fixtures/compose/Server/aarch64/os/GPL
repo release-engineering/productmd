@@ -1,0 +1,6 @@
+GNU GENERAL PUBLIC LICENSE (placeholder for integration testing)
+
+This is a fake GPL file used by productmd integration tests
+to verify aarch64 extra_files metadata round-trip behavior.
+
+This file is NOT the actual GPL license text.

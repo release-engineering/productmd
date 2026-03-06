@@ -1,0 +1,15 @@
+FROM ghcr.io/oras-project/oras:v1.2.0 AS oras
+
+FROM fedora:41
+
+COPY --from=oras /bin/oras /usr/local/bin/oras
+COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
+RUN dnf install -y --setopt=install_weak_deps=False curl && dnf clean all
+
+ENV SSL_CERT_FILE=/certs/ca.crt
+
+COPY fixtures/compose/ /fixtures/compose/
+COPY seed-registry.sh /seed-registry.sh
+RUN chmod +x /seed-registry.sh
+
+CMD ["/seed-registry.sh"]
