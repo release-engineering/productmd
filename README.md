@@ -78,11 +78,11 @@ data integrity verification and supports bidirectional conversion between v2.0
 
 ### Phase 6: Documentation
 
-- [ ] Write `doc/productmd-2.0.rst` — Complete format specification
-- [ ] Write `doc/migration-guide.rst` — v1.2 → v2.0 migration
-- [ ] Write `doc/distributed-composes.rst` — Use cases and patterns
-- [ ] Update existing docs: `doc/composeinfo.rst`, `doc/rpms.rst`, etc.
-- [ ] Add code examples and tutorials
+- [x] Write `doc/productmd-2.0.rst` — Complete format specification
+- [x] Write `doc/migration-guide.rst` — v1.2 → v2.0 migration
+- [x] Write `doc/distributed-composes.rst` — Use cases and patterns
+- [x] Update existing docs: `doc/composeinfo.rst`, `doc/rpms.rst`, etc.
+- [x] Add code examples and tutorials
 
 ### Phase 7: Testing & Validation
 
