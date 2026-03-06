@@ -1,6 +1,6 @@
 FROM ghcr.io/oras-project/oras:v1.2.0 AS oras
 
-FROM fedora:41
+FROM fedora:43
 
 COPY --from=oras /bin/oras /usr/local/bin/oras
 COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
