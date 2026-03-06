@@ -4,9 +4,9 @@ End-to-end tests for the `productmd` CLI tools using containerized services.
 
 ## Prerequisites
 
-- `podman` and `podman-compose` (or `docker` and `docker compose`)
+- `podman` and `podman-compose`
 - Network access to pull container images (`nginx:alpine`, `python:3.11-slim`,
-  `ghcr.io/oras-project/oras:v1.2.0`, `fedora:41`, `registry:2`)
+  `ghcr.io/oras-project/oras:v1.2.0`, `fedora:43`, `registry:2`)
 
 ## Services
 
