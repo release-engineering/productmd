@@ -1,0 +1,42 @@
+name: Docs
+
+on:
+  push:
+    paths:
+      - "doc/**"
+      - "productmd/**"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "doc/**"
+      - "productmd/**"
+      - ".github/workflows/docs.yml"
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and Python interpreter
+        uses: astral-sh/setup-uv@v7
+        with:
+          version-file: ".python-version"
+          version: "0.9.26"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --group docs
+
+      - name: Build HTML docs
+        run: uv run sphinx-build -W -b html doc doc/_build/html
+
+      - name: Build man pages
+        run: uv run sphinx-build -W -b man doc doc/_build/man
