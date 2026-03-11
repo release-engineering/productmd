@@ -838,9 +838,14 @@ class VariantPaths(productmd.common.MetadataBase):
                 field = getattr(self, name)
                 value = field.get(arch, None)
                 if value:
-                    # Use stored Location if available (round-trip)
-                    loc = self._locations.get(name, {}).get(arch, None)
-                    if loc is not None:
+                    # Check if value is already a Location object (direct assignment)
+                    if isinstance(value, Location):
+                        # User assigned a Location directly - use it and store for round-trip
+                        self._locations.setdefault(name, {})[arch] = value
+                        paths.setdefault(name, {})[arch] = value.serialize()
+                    # Use stored Location if available (round-trip from deserialization)
+                    elif name in self._locations and arch in self._locations[name]:
+                        loc = self._locations[name][arch]
                         paths.setdefault(name, {})[arch] = loc.serialize()
                     else:
                         # Synthesize Location from path string

@@ -413,3 +413,73 @@ class TestComposeInfoRoundTrip:
             data = {}
             ci.serialize(data, force_version=version)
             assert "Server" in data["payload"]["variants"]
+
+
+class TestVariantPathsLocationAssignment:
+    """Tests for issue #227: assigning Location objects to variant paths."""
+
+    def test_assign_location_object_to_variant_path(self):
+        """Test that assigning a Location object directly works as expected."""
+        ci = _create_composeinfo()
+        _add_server_variant(ci)
+
+        # Create a Location with different url and local_path
+        loc = Location(
+            url="https://pulp.example.com/pulp/content/Server/x86_64",
+            local_path="Server/x86_64/os",
+            size=1234567,
+            checksum="sha256:" + "a" * 64,
+        )
+
+        # This should work - directly assign Location to repository path
+        ci.variants["Server"].paths.repository["x86_64"] = loc
+
+        # Verify the assignment worked correctly
+        # Getting back should return the Location object
+        stored_loc = ci.variants["Server"].paths.repository["x86_64"]
+        assert isinstance(stored_loc, Location)
+        assert stored_loc.url == "https://pulp.example.com/pulp/content/Server/x86_64"
+        assert stored_loc.local_path == "Server/x86_64/os"
+        assert stored_loc.size == 1234567
+        assert stored_loc.checksum == "sha256:" + "a" * 64
+
+    def test_assign_string_to_variant_path_backward_compatible(self):
+        """Test that assigning a string still works (backward compatibility)."""
+        ci = _create_composeinfo()
+        _add_server_variant(ci)
+
+        # Assign a string (backward compatible behavior)
+        ci.variants["Server"].paths.repository["x86_64"] = "Server/x86_64/os"
+
+        # Verify the path is set
+        assert ci.variants["Server"].paths.repository["x86_64"] == "Server/x86_64/os"
+
+        # No Location should be stored (v1.x behavior)
+        paths = ci.variants["Server"].paths
+        assert "repository" not in paths._locations or "x86_64" not in paths._locations.get("repository", {})
+
+    def test_location_assignment_serializes_correctly(self):
+        """Test that assigned Location objects serialize correctly in v2.0."""
+        ci = _create_composeinfo()
+        _add_server_variant(ci)
+
+        # Assign Location using direct assignment
+        loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os",
+            local_path="Server/x86_64/os",
+            size=5555,
+            checksum="sha256:" + "c" * 64,
+        )
+        ci.variants["Server"].paths.repository["x86_64"] = loc
+
+        # Serialize as v2.0
+        data = {}
+        ci.serialize(data, force_version=VERSION_2_0)
+
+        # Check serialized data
+        repo = data["payload"]["variants"]["Server"]["paths"]["repository"]["x86_64"]
+        assert isinstance(repo, dict)
+        assert repo["url"] == "https://cdn.example.com/Server/x86_64/os"
+        assert repo["local_path"] == "Server/x86_64/os"
+        assert repo["size"] == 5555
+        assert repo["checksum"] == "sha256:" + "c" * 64
