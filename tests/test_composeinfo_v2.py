@@ -697,3 +697,47 @@ class TestVariantPathsStrictV2:
         os_tree = data["payload"]["variants"]["Server"]["paths"]["os_tree"]["x86_64"]
         assert isinstance(os_tree, str)
         assert os_tree == "Server/x86_64/os"
+
+
+class TestVariantPathsArchWarning:
+    """Tests for warning when path arch keys don't match variant.arches."""
+
+    def test_warns_on_unknown_arch(self):
+        """Serialize emits a warning when a path field has an arch not in variant.arches."""
+        ci = _create_composeinfo()
+
+        variant = Variant(ci)
+        variant.id = "Server"
+        variant.uid = "Server"
+        variant.name = "Server"
+        variant.type = "variant"
+        variant.arches = set(["x86_64"])
+        variant.paths.source_repository = {"src": "Server/source/os"}
+        ci.variants.add(variant)
+
+        import warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            data = {}
+            ci.serialize(data, force_version=VERSION_1_2)
+
+        arch_warnings = [x for x in w if "not in variant.arches" in str(x.message)]
+        assert len(arch_warnings) == 1
+        assert "source_repository" in str(arch_warnings[0].message)
+        assert "'src'" in str(arch_warnings[0].message)
+
+    def test_no_warning_for_matching_arches(self):
+        """Serialize does not warn when all arch keys match variant.arches."""
+        ci = _create_composeinfo()
+        _add_server_variant(ci)
+
+        import warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            data = {}
+            ci.serialize(data, force_version=VERSION_1_2)
+
+        arch_warnings = [x for x in w if "not in variant.arches" in str(x.message)]
+        assert len(arch_warnings) == 0

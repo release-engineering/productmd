@@ -28,6 +28,7 @@ Example::
 """
 
 import re
+import warnings
 
 import productmd.common
 from productmd.common import Header, RELEASE_VERSION_RE
@@ -855,10 +856,23 @@ class VariantPaths(productmd.common.MetadataBase):
 
     def serialize(self, data, output_version=None):
         self.validate()
+        self._warn_unknown_arches()
         if output_version is not None and output_version >= VERSION_2_0:
             self._serialize_v2(data)
         else:
             self._serialize_v1(data)
+
+    def _warn_unknown_arches(self):
+        """Emit a warning if any path field has arch keys not in variant.arches."""
+        for name in self._fields:
+            field = getattr(self, name)
+            for arch in field:
+                if arch not in self._variant.arches:
+                    warnings.warn(
+                        "Variant '%s': path '%s' has arch '%s' "
+                        "which is not in variant.arches %s" % (self._variant.uid, name, arch, sorted(self._variant.arches)),
+                        stacklevel=4,
+                    )
 
     def _serialize_v1(self, data):
         """Serialize in v1.x format (path strings)."""
