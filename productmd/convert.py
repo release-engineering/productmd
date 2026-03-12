@@ -224,10 +224,10 @@ def _iter_variant_paths(variant: object) -> Iterator[LocationEntry]:
     for field_name in paths._fields:
         field = getattr(paths, field_name)
         for arch, path in field.items():
-            loc = paths._locations.get(field_name, {}).get(arch)
+            loc = paths.get_location(field_name, arch)
 
             def _setter(loc, _paths=paths, _field=field_name, _arch=arch):
-                _paths._locations.setdefault(_field, {})[_arch] = loc
+                _paths.set_location(_field, _arch, loc)
 
             yield LocationEntry(
                 MetadataType.VARIANT_PATH,
@@ -252,21 +252,28 @@ def _iter_composeinfo(composeinfo: object) -> Iterator[LocationEntry]:
 def _copy_metadata(obj: object) -> object:
     """Create a deep copy of a metadata object via serialize/deserialize.
 
-    Serializes using the object's current output_version to avoid
-    triggering side effects (e.g. lazy Location synthesis on v1.x data).
+    Always serializes as v1.2 to avoid triggering v2.0 strict Location
+    requirements — the copy is a transient intermediate, not a format
+    conversion.  The caller (upgrade_to_v2 / downgrade_to_v1) will set
+    Locations and output_version on the copy afterwards.
+
+    .. note::
+
+       Because the copy round-trips through v1.2, any v2.0-only data
+       (e.g. ``contents`` / ``FileEntry`` on OCI Locations) is not
+       preserved.  This is intentional — ``upgrade_to_v2`` is designed
+       for v1.x → v2.0 conversion, not for re-processing existing
+       v2.0 metadata.
 
     :param obj: Metadata object to copy
     :return: New metadata object with identical data
     """
     data = {}
-    # Use the object's current output version to avoid side effects.
-    # For v1.x data, this prevents the v2.0 code path from running
-    # (which would lazily create Location objects on the originals).
-    current_version = getattr(obj, "output_version", None)
-    if current_version is not None:
-        obj.serialize(data, force_version=current_version)
-    else:
-        obj.serialize(data)
+    # Always serialize as v1.2 for the copy round-trip.  v2.0 serialization
+    # requires every path to have a Location, which may not be true on the
+    # source object.  The v1.2 path preserves all data without that
+    # requirement.
+    obj.serialize(data, force_version=VERSION_1_2)
     new_obj = type(obj)()
     new_obj.deserialize(data)
     return new_obj
