@@ -28,6 +28,7 @@ Example::
 """
 
 import re
+import warnings
 
 import productmd.common
 from productmd.common import Header, RELEASE_VERSION_RE
@@ -742,32 +743,43 @@ class VariantPaths(productmd.common.MetadataBase):
         self._variant = variant
         self.parent = None
 
-        # paths: product certificate
+        # paths: product certificate (not in _fields; handled separately, not Location-aware)
         self.identity = {}
 
+        # Binary
+        self.os_tree = {}
+        self.packages = {}
+        self.repository = {}
+        self.isos = {}
+        self.images = {}
+        self.jigdos = {}
+        # Source
+        self.source_tree = {}
+        self.source_packages = {}
+        self.source_repository = {}
+        self.source_isos = {}
+        self.source_jigdos = {}
+        # Debug
+        self.debug_tree = {}
+        self.debug_packages = {}
+        self.debug_repository = {}
+
         self._fields = [
-            # binary
             "os_tree",
             "packages",
             "repository",
             "isos",
             "images",
             "jigdos",
-            # source
             "source_tree",
             "source_packages",
             "source_repository",
             "source_isos",
             "source_jigdos",
-            # debug
             "debug_tree",
             "debug_packages",
             "debug_repository",
-            # debug isos and jigdos are not supported
         ]
-
-        for name in self._fields:
-            setattr(self, name, {})
 
         # Parallel storage for Location objects (v2.0 round-trip fidelity)
         # Structure: {field_name: {arch: Location}}
@@ -787,70 +799,114 @@ class VariantPaths(productmd.common.MetadataBase):
 
     def _deserialize_v1(self, data):
         """Deserialize from v1.x format (path strings)."""
-        paths = data
-        for arch in sorted(self._variant.arches):
-            for name in self._fields:
-                value = paths.get(name, {}).get(arch, None)
+        for name in self._fields:
+            field_data = data.get(name, {})
+            for arch, value in sorted(field_data.items()):
                 if value:
                     field = getattr(self, name)
                     field[arch] = value
 
     def _deserialize_v2(self, data):
         """Deserialize from v2.0 format (Location objects)."""
-        paths = data
-        for arch in sorted(self._variant.arches):
-            for name in self._fields:
-                value = paths.get(name, {}).get(arch, None)
+        for name in self._fields:
+            field_data = data.get(name, {})
+            for arch, value in sorted(field_data.items()):
                 if value:
-                    if isinstance(value, dict) and "url" in value:
-                        # v2.0 Location object
-                        loc = Location.from_dict(value)
-                        field = getattr(self, name)
-                        field[arch] = loc.local_path
-                        self._locations.setdefault(name, {})[arch] = loc
-                    else:
-                        # Fallback: plain string (shouldn't happen in v2.0)
-                        field = getattr(self, name)
-                        field[arch] = value
+                    if not isinstance(value, dict):
+                        raise TypeError("v2.0 path '%s[%s]' must be a Location dict, got %s" % (name, arch, type(value).__name__))
+                    loc = Location.from_dict(value)
+                    field = getattr(self, name)
+                    field[arch] = loc.local_path
+                    self._locations.setdefault(name, {})[arch] = loc
+
+    def set_location(self, field_name, arch, location):
+        """
+        Set a Location for a path field, updating both the path string
+        and the internal Location storage.
+
+        :param field_name: Path field name (e.g., ``"repository"``, ``"os_tree"``)
+        :type field_name: str
+        :param arch: Architecture key (e.g., ``"x86_64"``, ``"src"``)
+        :type arch: str
+        :param location: Location object
+        :type location: :class:`productmd.location.Location`
+        :raises ValueError: if ``field_name`` is not a known path field
+        :raises TypeError: if ``location`` is not a Location instance
+        """
+        if field_name not in self._fields:
+            raise ValueError("Unknown path field: %s" % field_name)
+        if not isinstance(location, Location):
+            raise TypeError("Expected Location, got %s" % type(location).__name__)
+        field = getattr(self, field_name)
+        field[arch] = location.local_path
+        self._locations.setdefault(field_name, {})[arch] = location
+
+    def get_location(self, field_name, arch):
+        """
+        Get the Location object for a path field, or None.
+
+        :param field_name: Path field name (e.g., ``"repository"``, ``"os_tree"``)
+        :type field_name: str
+        :param arch: Architecture key (e.g., ``"x86_64"``, ``"src"``)
+        :type arch: str
+        :return: Location object or None
+        :rtype: :class:`productmd.location.Location` or None
+        """
+        return self._locations.get(field_name, {}).get(arch)
 
     def serialize(self, data, output_version=None):
         self.validate()
+        self._warn_unknown_arches()
         if output_version is not None and output_version >= VERSION_2_0:
             self._serialize_v2(data)
         else:
             self._serialize_v1(data)
 
+    def _warn_unknown_arches(self):
+        """Emit a warning if any path field has arch keys not in variant.arches."""
+        for name in self._fields:
+            field = getattr(self, name)
+            for arch in field:
+                if arch not in self._variant.arches:
+                    warnings.warn(
+                        "Variant '%s': path '%s' has arch '%s' "
+                        "which is not in variant.arches %s" % (self._variant.uid, name, arch, sorted(self._variant.arches)),
+                        stacklevel=4,
+                    )
+
     def _serialize_v1(self, data):
         """Serialize in v1.x format (path strings)."""
         paths = data
-        for arch in sorted(self._variant.arches):
-            for name in self._fields:
-                field = getattr(self, name)
-                value = field.get(arch, None)
+        for name in self._fields:
+            field = getattr(self, name)
+            for arch in sorted(field.keys()):
+                value = field[arch]
                 if value:
-                    paths.setdefault(name, {})[arch] = value
+                    if isinstance(value, Location):
+                        paths.setdefault(name, {})[arch] = value.local_path
+                    else:
+                        paths.setdefault(name, {})[arch] = value
 
     def _serialize_v2(self, data):
         """Serialize in v2.0 format (Location objects)."""
         paths = data
-        for arch in sorted(self._variant.arches):
-            for name in self._fields:
-                field = getattr(self, name)
-                value = field.get(arch, None)
-                if value:
-                    # Use stored Location if available (round-trip)
-                    loc = self._locations.get(name, {}).get(arch, None)
-                    if loc is not None:
-                        paths.setdefault(name, {})[arch] = loc.serialize()
-                    else:
-                        # Synthesize Location from path string
-                        loc = Location(
-                            url=value,
-                            size=None,
-                            checksum=None,
-                            local_path=value,
-                        )
-                        paths.setdefault(name, {})[arch] = loc.serialize()
+        for name in self._fields:
+            field = getattr(self, name)
+            for arch in sorted(field.keys()):
+                value = field[arch]
+                if not value:
+                    continue
+                # Check _locations first (round-trip from deserialization)
+                loc = self._locations.get(name, {}).get(arch)
+                if loc is not None:
+                    paths.setdefault(name, {})[arch] = loc.serialize()
+                elif isinstance(value, Location):
+                    # User assigned a Location object directly
+                    paths.setdefault(name, {})[arch] = value.serialize()
+                else:
+                    raise ValueError(
+                        "Cannot serialize '%s[%s]' as v2.0: no Location set. Use set_location() or upgrade_to_v2()." % (name, arch)
+                    )
 
 
 class Variant(VariantBase):

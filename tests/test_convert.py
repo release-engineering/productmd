@@ -321,7 +321,7 @@ class TestIterAllLocations:
                 break
 
         server = ci.variants["Server"]
-        assert server.paths._locations["os_tree"]["x86_64"] is loc
+        assert server.paths.get_location("os_tree", "x86_64") is loc
 
 
 # ---------------------------------------------------------------------------
