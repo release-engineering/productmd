@@ -805,12 +805,12 @@ class TestDiscoverRepodataTasks:
 </repomd>
 """
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_generates_tasks_for_repodata_files(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_generates_tasks_for_repodata_files(self, mock_open, tmp_path):
         """Test that HttpTasks are created for each file in repomd.xml."""
         mock_response = MagicMock()
         mock_response.read.return_value = self.SAMPLE_REPOMD
-        mock_urlopen.return_value = mock_response
+        mock_open.return_value = mock_response
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
@@ -824,12 +824,12 @@ class TestDiscoverRepodataTasks:
         assert "https://cdn.example.com/BaseOS/x86_64/os/repodata/abc123-primary.xml.gz" in urls
         assert "https://cdn.example.com/BaseOS/x86_64/os/repodata/def456-filelists.xml.gz" in urls
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_saves_repomd_xml_locally(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_saves_repomd_xml_locally(self, mock_open, tmp_path):
         """Test that repomd.xml is written to the correct local path."""
         mock_response = MagicMock()
         mock_response.read.return_value = self.SAMPLE_REPOMD
-        mock_urlopen.return_value = mock_response
+        mock_open.return_value = mock_response
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
@@ -843,12 +843,12 @@ class TestDiscoverRepodataTasks:
         with open(repomd_path, "rb") as f:
             assert f.read() == self.SAMPLE_REPOMD
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_deduplicates_repos_by_url(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_deduplicates_repos_by_url(self, mock_open, tmp_path):
         """Test that the same repo URL is only fetched once."""
         mock_response = MagicMock()
         mock_response.read.return_value = self.SAMPLE_REPOMD
-        mock_urlopen.return_value = mock_response
+        mock_open.return_value = mock_response
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
@@ -859,15 +859,15 @@ class TestDiscoverRepodataTasks:
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
 
         # Only fetched once despite two identical entries
-        mock_urlopen.assert_called_once()
+        mock_open.assert_called_once()
         assert len(tasks) == 2
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_dest_paths_are_correct(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_dest_paths_are_correct(self, mock_open, tmp_path):
         """Test that dest_path values point to the right local paths."""
         mock_response = MagicMock()
         mock_response.read.return_value = self.SAMPLE_REPOMD
-        mock_urlopen.return_value = mock_response
+        mock_open.return_value = mock_response
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
@@ -882,12 +882,12 @@ class TestDiscoverRepodataTasks:
         assert expected_primary in dest_paths
         assert expected_filelists in dest_paths
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_fetch_failure_skips_repo(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_fetch_failure_skips_repo(self, mock_open, tmp_path):
         """Test that a failed repomd.xml fetch skips the repo gracefully."""
         from urllib.error import URLError
 
-        mock_urlopen.side_effect = URLError("connection refused")
+        mock_open.side_effect = URLError("connection refused")
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
@@ -898,12 +898,12 @@ class TestDiscoverRepodataTasks:
 
         assert tasks == []
 
-    @patch("productmd.localize.urllib.request.urlopen")
-    def test_invalid_xml_skips_repo(self, mock_urlopen, tmp_path):
+    @patch("productmd.localize._opener.open")
+    def test_invalid_xml_skips_repo(self, mock_open, tmp_path):
         """Test that invalid XML in repomd.xml skips the repo gracefully."""
         mock_response = MagicMock()
         mock_response.read.return_value = b"<not valid xml"
-        mock_urlopen.return_value = mock_response
+        mock_open.return_value = mock_response
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
