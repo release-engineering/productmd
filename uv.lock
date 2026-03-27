@@ -486,7 +486,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "defusedxml" },
+    { name = "defusedxml", specifier = "<0.8" },
     { name = "oras", marker = "extra == 'oci'" },
 ]
 provides-extras = ["oci"]

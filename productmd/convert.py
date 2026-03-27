@@ -71,8 +71,10 @@ LocationEntry = namedtuple(
         "set_location",
         "field_name",
     ],
-    defaults=(None,),
 )
+# INFO: Using __new__.__defaults__ instead of namedtuple(defaults=...)
+# because the defaults parameter requires Python 3.7+.
+LocationEntry.__new__.__defaults__ = (None,)
 """
 A single artifact location from compose metadata.
 

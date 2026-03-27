@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-dependencies = ["defusedxml"]
+dependencies = ["defusedxml<0.8"]
 name = "productmd"
 version = "1.50"
 description = "Product, compose and installation media metadata library"
