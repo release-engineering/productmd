@@ -225,6 +225,23 @@ class TestIterAllLocations:
         assert "Server/x86_64/os" in paths
         assert "Server/x86_64/os/Packages" in paths
 
+    def test_variant_path_has_field_name(self):
+        """Test that variant path entries carry the field_name attribute."""
+        ci = _create_composeinfo()
+        entries = list(iter_all_locations(composeinfo=ci))
+
+        field_names = {e.field_name for e in entries}
+        assert "os_tree" in field_names
+        assert "packages" in field_names
+
+    def test_non_variant_path_field_name_is_none(self):
+        """Test that non-variant-path entries have field_name=None."""
+        im = _create_images()
+        entries = list(iter_all_locations(images=im))
+
+        for e in entries:
+            assert e.field_name is None
+
     def test_skips_none_modules(self):
         """Test that None modules are skipped."""
         im = _create_images()

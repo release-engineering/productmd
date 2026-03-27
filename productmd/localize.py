@@ -38,11 +38,12 @@ import os
 import time
 import urllib.request
 from base64 import b64encode
+import xml.etree.ElementTree as ET
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, List, Optional, Tuple
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 from productmd.common import _get_default_headers
 from productmd.convert import downgrade_to_v1, iter_all_locations
@@ -222,6 +223,139 @@ _opener = urllib.request.build_opener(_SafeRedirectHandler)
 
 #: Default chunk size for streaming downloads (8 KB)
 _CHUNK_SIZE = 8192
+
+#: Variant path fields that are YUM repository roots containing repodata/
+_REPO_FIELDS = frozenset({"repository", "debug_repository", "source_repository"})
+
+#: XML namespace used in repomd.xml
+_REPOMD_NS = "http://linux.duke.edu/metadata/repo"
+
+
+def _parse_repomd_xml(xml_bytes: bytes) -> List[dict]:
+    """
+    Parse a ``repomd.xml`` and return metadata about each referenced file.
+
+    :param xml_bytes: Raw XML content of ``repomd.xml``
+    :return: List of dicts with keys ``href``, ``checksum``, ``checksum_type``, ``size``
+    """
+    root = ET.fromstring(xml_bytes)
+    entries = []
+    for data_elem in root.findall(f"{{{_REPOMD_NS}}}data"):
+        location = data_elem.find(f"{{{_REPOMD_NS}}}location")
+        if location is None:
+            continue
+        href = location.get("href")
+        if not href:
+            continue
+
+        entry = {"href": href}
+
+        checksum_elem = data_elem.find(f"{{{_REPOMD_NS}}}checksum")
+        if checksum_elem is not None and checksum_elem.text:
+            entry["checksum_type"] = checksum_elem.get("type", "sha256")
+            entry["checksum"] = checksum_elem.text
+
+        size_elem = data_elem.find(f"{{{_REPOMD_NS}}}size")
+        if size_elem is not None and size_elem.text:
+            entry["size"] = int(size_elem.text)
+
+        entries.append(entry)
+    return entries
+
+
+def _discover_repodata_tasks(
+    repo_entries: list,
+    compose_root: str,
+    retries: int = 3,
+) -> List:
+    """
+    Fetch ``repomd.xml`` for each repository and generate download tasks.
+
+    For each repository variant path, downloads ``repodata/repomd.xml``,
+    parses it to discover referenced files, and creates :class:`HttpTask`
+    entries for ``repomd.xml`` itself and each referenced file.
+
+    Deduplicates repositories by URL to avoid fetching the same
+    ``repomd.xml`` multiple times (e.g., source repos shared across arches).
+
+    :param repo_entries: List of ``(url, local_path)`` tuples for each
+        repository root
+    :param compose_root: Local compose root directory
+    :param retries: Number of retry attempts for fetching ``repomd.xml``
+    :return: List of :class:`HttpTask` for all repodata files
+    """
+    tasks = []
+    seen_urls = set()
+
+    for repo_url, repo_local_path in repo_entries:
+        if repo_url in seen_urls:
+            continue
+        seen_urls.add(repo_url)
+
+        # Ensure trailing slash for proper URL joining
+        if not repo_url.endswith("/"):
+            repo_url += "/"
+
+        repomd_url = urljoin(repo_url, "repodata/repomd.xml")
+        repomd_local = os.path.join(repo_local_path, "repodata", "repomd.xml")
+        repomd_dest = os.path.join(compose_root, repomd_local)
+
+        # Fetch repomd.xml
+        logger.info("Fetching repomd.xml from %s", repomd_url)
+        last_error = None
+        xml_bytes = None
+        for attempt in range(retries + 1):
+            try:
+                req = urllib.request.Request(repomd_url, headers=_get_default_headers())
+                response = urllib.request.urlopen(req)
+                xml_bytes = response.read()
+                break
+            except (HTTPError, URLError, OSError) as e:
+                last_error = e
+                logger.warning(
+                    "Fetch attempt %d/%d failed for %s: %s",
+                    attempt + 1,
+                    retries + 1,
+                    repomd_url,
+                    e,
+                )
+                if isinstance(e, HTTPError) and e.code in (401, 403):
+                    break
+                if attempt < retries:
+                    time.sleep(2**attempt)
+
+        if xml_bytes is None:
+            logger.error("Failed to fetch repomd.xml from %s: %s", repomd_url, last_error)
+            continue
+
+        # Save repomd.xml itself
+        os.makedirs(os.path.dirname(repomd_dest), exist_ok=True)
+        with open(repomd_dest, "wb") as f:
+            f.write(xml_bytes)
+
+        # Parse and generate tasks for referenced files
+        try:
+            repodata_entries = _parse_repomd_xml(xml_bytes)
+        except ET.ParseError as e:
+            logger.error("Failed to parse repomd.xml from %s: %s", repomd_url, e)
+            continue
+
+        for entry in repodata_entries:
+            href = entry["href"]
+            file_url = urljoin(repo_url, href)
+            file_local = os.path.join(repo_local_path, href)
+            file_dest = os.path.join(compose_root, file_local)
+
+            tasks.append(
+                HttpTask(
+                    url=file_url,
+                    dest_path=file_dest,
+                    location=None,
+                    rel_path=file_local,
+                )
+            )
+
+    return tasks
 
 
 def _emit(
@@ -408,17 +542,20 @@ def _collect_download_tasks(
     extra_files: Optional[object] = None,
     modules: Optional[object] = None,
     composeinfo: Optional[object] = None,
-) -> Tuple[List[HttpTask], List[OciTask]]:
+) -> Tuple[List[HttpTask], List[OciTask], list]:
     """
     Collect all remote artifacts that need downloading.
 
-    :return: Tuple of (http_tasks, oci_tasks) where http_tasks is a list
-        of :class:`HttpTask` namedtuples and oci_tasks is a list of
-        :class:`OciTask` namedtuples
+    :return: Tuple of (http_tasks, oci_tasks, repo_entries) where
+        http_tasks is a list of :class:`HttpTask` namedtuples,
+        oci_tasks is a list of :class:`OciTask` namedtuples, and
+        repo_entries is a list of ``(url, local_path)`` tuples for
+        YUM repository roots whose repodata needs downloading.
     """
     compose_root = os.path.join(output_dir, "compose")
     http_tasks = []
     oci_tasks = []
+    repo_entries = []
 
     for entry in iter_all_locations(
         images=images,
@@ -431,8 +568,11 @@ def _collect_download_tasks(
             continue
         if not entry.location.is_remote:
             continue
-        # Variant paths are directory references, not downloadable files
+        # Variant paths: repository fields need repodata downloading,
+        # all other fields are directory references (not downloadable).
         if entry.metadata_type == "variant_path":
+            if entry.field_name in _REPO_FIELDS:
+                repo_entries.append((entry.location.url, entry.location.local_path))
             continue
 
         if entry.location.is_oci:
@@ -466,7 +606,7 @@ def _collect_download_tasks(
                 )
             )
 
-    return http_tasks, oci_tasks
+    return http_tasks, oci_tasks, repo_entries
 
 
 def _deduplicate_http_tasks(
@@ -783,7 +923,7 @@ def localize_compose(
         raise ValueError("http_token is mutually exclusive with http_username/http_password")
 
     # Collect all remote download tasks
-    http_tasks, oci_tasks = _collect_download_tasks(
+    http_tasks, oci_tasks, repo_entries = _collect_download_tasks(
         output_dir,
         images,
         rpms,
@@ -791,6 +931,16 @@ def localize_compose(
         modules,
         composeinfo,
     )
+
+    # --- Phase 0: Repodata discovery ---
+    # Fetch repomd.xml for each repository and generate download tasks
+    # for the referenced metadata files (primary, filelists, comps, etc.).
+    compose_root = os.path.join(output_dir, "compose")
+    if repo_entries:
+        repodata_tasks = _discover_repodata_tasks(repo_entries, compose_root, retries)
+        http_tasks.extend(repodata_tasks)
+        logger.info("Discovered %d repodata files from %d repositories", len(repodata_tasks), len(repo_entries))
+
     http_tasks = _deduplicate_http_tasks(http_tasks)
     oci_tasks = _deduplicate_oci_tasks(oci_tasks)
 

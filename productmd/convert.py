@@ -69,7 +69,9 @@ LocationEntry = namedtuple(
         "path",
         "location",
         "set_location",
+        "field_name",
     ],
+    defaults=(None,),
 )
 """
 A single artifact location from compose metadata.
@@ -80,6 +82,8 @@ A single artifact location from compose metadata.
 :param path: Relative path to the artifact
 :param location: :class:`~productmd.location.Location` object, or ``None`` for v1.x data
 :param set_location: Callable that sets a new Location on the source object
+:param field_name: For variant paths, the field name (e.g., ``"repository"``).
+    ``None`` for non-variant-path entries.
 """
 
 
@@ -236,6 +240,7 @@ def _iter_variant_paths(variant: object) -> Iterator[LocationEntry]:
                 path,
                 loc,
                 _setter,
+                field_name,
             )
     # Recurse into child variants
     for child_variant in variant.variants.values():

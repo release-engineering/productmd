@@ -15,8 +15,13 @@ from productmd.images import Image, Images
 from productmd.localize import (
     HttpTask,
     LocalizeResult,
+    OciTask,
+    _collect_download_tasks,
     _deduplicate_http_tasks,
+    _discover_repodata_tasks,
     _download_https,
+    _download_single_oci,
+    _parse_repomd_xml,
     _should_skip,
     localize_compose,
 )
@@ -691,3 +696,316 @@ class TestDeduplicateHttpTasks:
         )
         result = _deduplicate_http_tasks([task1, task2])
         assert len(result) == 2
+
+
+# ---------------------------------------------------------------------------
+# Tests: _parse_repomd_xml
+# ---------------------------------------------------------------------------
+
+
+class TestParseRepomdXml:
+    """Tests for repomd.xml parsing."""
+
+    SAMPLE_REPOMD = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <revision>1701388800</revision>
+  <data type="primary">
+    <checksum type="sha256">abc123</checksum>
+    <location href="repodata/abc123-primary.xml.gz"/>
+    <size>12345</size>
+  </data>
+  <data type="filelists">
+    <checksum type="sha256">def456</checksum>
+    <location href="repodata/def456-filelists.xml.gz"/>
+    <size>67890</size>
+  </data>
+  <data type="other">
+    <location href="repodata/ghi789-other.xml.gz"/>
+  </data>
+</repomd>
+"""
+
+    def test_parses_all_data_entries(self):
+        """Test that all <data> entries with <location> are parsed."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        assert len(entries) == 3
+
+    def test_extracts_href(self):
+        """Test that href values are extracted correctly."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        hrefs = [e["href"] for e in entries]
+        assert "repodata/abc123-primary.xml.gz" in hrefs
+        assert "repodata/def456-filelists.xml.gz" in hrefs
+        assert "repodata/ghi789-other.xml.gz" in hrefs
+
+    def test_extracts_checksum(self):
+        """Test that checksum type and value are extracted."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        primary = [e for e in entries if "primary" in e["href"]][0]
+        assert primary["checksum_type"] == "sha256"
+        assert primary["checksum"] == "abc123"
+
+    def test_extracts_size(self):
+        """Test that size is extracted as an integer."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        primary = [e for e in entries if "primary" in e["href"]][0]
+        assert primary["size"] == 12345
+
+    def test_missing_checksum_omitted(self):
+        """Test that entries without checksum don't have checksum keys."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        other = [e for e in entries if "other" in e["href"]][0]
+        assert "checksum" not in other
+
+    def test_missing_size_omitted(self):
+        """Test that entries without size don't have size key."""
+        entries = _parse_repomd_xml(self.SAMPLE_REPOMD)
+        other = [e for e in entries if "other" in e["href"]][0]
+        assert "size" not in other
+
+    def test_empty_repomd(self):
+        """Test that an empty repomd.xml returns no entries."""
+        xml = b'<repomd xmlns="http://linux.duke.edu/metadata/repo"></repomd>'
+        entries = _parse_repomd_xml(xml)
+        assert entries == []
+
+    def test_data_without_location_skipped(self):
+        """Test that <data> elements without <location> are skipped."""
+        xml = b"""\
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <data type="primary">
+    <checksum type="sha256">abc123</checksum>
+  </data>
+</repomd>
+"""
+        entries = _parse_repomd_xml(xml)
+        assert entries == []
+
+
+# ---------------------------------------------------------------------------
+# Tests: _discover_repodata_tasks
+# ---------------------------------------------------------------------------
+
+
+class TestDiscoverRepodataTasks:
+    """Tests for repodata task discovery."""
+
+    SAMPLE_REPOMD = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <data type="primary">
+    <checksum type="sha256">abc123</checksum>
+    <location href="repodata/abc123-primary.xml.gz"/>
+    <size>12345</size>
+  </data>
+  <data type="filelists">
+    <checksum type="sha256">def456</checksum>
+    <location href="repodata/def456-filelists.xml.gz"/>
+    <size>67890</size>
+  </data>
+</repomd>
+"""
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_generates_tasks_for_repodata_files(self, mock_urlopen, tmp_path):
+        """Test that HttpTasks are created for each file in repomd.xml."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = self.SAMPLE_REPOMD
+        mock_urlopen.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        assert len(tasks) == 2
+        urls = {t.url for t in tasks}
+        assert "https://cdn.example.com/BaseOS/x86_64/os/repodata/abc123-primary.xml.gz" in urls
+        assert "https://cdn.example.com/BaseOS/x86_64/os/repodata/def456-filelists.xml.gz" in urls
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_saves_repomd_xml_locally(self, mock_urlopen, tmp_path):
+        """Test that repomd.xml is written to the correct local path."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = self.SAMPLE_REPOMD
+        mock_urlopen.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        repomd_path = os.path.join(compose_root, "BaseOS/x86_64/os/repodata/repomd.xml")
+        assert os.path.isfile(repomd_path)
+        with open(repomd_path, "rb") as f:
+            assert f.read() == self.SAMPLE_REPOMD
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_deduplicates_repos_by_url(self, mock_urlopen, tmp_path):
+        """Test that the same repo URL is only fetched once."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = self.SAMPLE_REPOMD
+        mock_urlopen.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree"),
+            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        # Only fetched once despite two identical entries
+        mock_urlopen.assert_called_once()
+        assert len(tasks) == 2
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_dest_paths_are_correct(self, mock_urlopen, tmp_path):
+        """Test that dest_path values point to the right local paths."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = self.SAMPLE_REPOMD
+        mock_urlopen.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        dest_paths = {t.dest_path for t in tasks}
+        expected_primary = os.path.join(compose_root, "BaseOS/x86_64/os/repodata/abc123-primary.xml.gz")
+        expected_filelists = os.path.join(compose_root, "BaseOS/x86_64/os/repodata/def456-filelists.xml.gz")
+        assert expected_primary in dest_paths
+        assert expected_filelists in dest_paths
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_fetch_failure_skips_repo(self, mock_urlopen, tmp_path):
+        """Test that a failed repomd.xml fetch skips the repo gracefully."""
+        from urllib.error import URLError
+
+        mock_urlopen.side_effect = URLError("connection refused")
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        assert tasks == []
+
+    @patch("productmd.localize.urllib.request.urlopen")
+    def test_invalid_xml_skips_repo(self, mock_urlopen, tmp_path):
+        """Test that invalid XML in repomd.xml skips the repo gracefully."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"<not valid xml"
+        mock_urlopen.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        assert tasks == []
+
+
+# ---------------------------------------------------------------------------
+# Tests: _collect_download_tasks with repository variant paths
+# ---------------------------------------------------------------------------
+
+
+class TestCollectRepoEntries:
+    """Tests that _collect_download_tasks collects repository entries."""
+
+    def test_collects_repository_entries(self, tmp_path):
+        """Test that repository variant paths are collected as repo entries."""
+        from productmd.composeinfo import ComposeInfo, Variant
+
+        ci = ComposeInfo()
+        ci.release.name = "Fedora"
+        ci.release.short = "Fedora"
+        ci.release.version = "41"
+        ci.release.type = "ga"
+        ci.compose.id = "Fedora-41-20260204.0"
+        ci.compose.type = "production"
+        ci.compose.date = "20260204"
+        ci.compose.respin = 0
+
+        variant = Variant(ci)
+        variant.id = "Server"
+        variant.uid = "Server"
+        variant.name = "Fedora Server"
+        variant.type = "variant"
+        variant.arches = {"x86_64"}
+        ci.variants.add(variant)
+
+        # Set repository with a Location (v2.0 style)
+        repo_loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os",
+            local_path="Server/x86_64/os",
+        )
+        variant.paths.set_location("repository", "x86_64", repo_loc)
+
+        # Set os_tree with a Location (should NOT be collected)
+        tree_loc = Location(
+            url="https://cdn.example.com/Server/x86_64/os",
+            local_path="Server/x86_64/os",
+        )
+        variant.paths.set_location("os_tree", "x86_64", tree_loc)
+
+        http_tasks, oci_tasks, repo_entries = _collect_download_tasks(str(tmp_path), composeinfo=ci)
+
+        assert len(http_tasks) == 0
+        assert len(oci_tasks) == 0
+        assert len(repo_entries) == 1
+        assert repo_entries[0] == ("https://cdn.example.com/Server/x86_64/os", "Server/x86_64/os")
+
+    def test_collects_all_three_repo_fields(self, tmp_path):
+        """Test that repository, debug_repository, and source_repository are all collected."""
+        from productmd.composeinfo import ComposeInfo, Variant
+
+        ci = ComposeInfo()
+        ci.release.name = "Fedora"
+        ci.release.short = "Fedora"
+        ci.release.version = "41"
+        ci.release.type = "ga"
+        ci.compose.id = "Fedora-41-20260204.0"
+        ci.compose.type = "production"
+        ci.compose.date = "20260204"
+        ci.compose.respin = 0
+
+        variant = Variant(ci)
+        variant.id = "Server"
+        variant.uid = "Server"
+        variant.name = "Fedora Server"
+        variant.type = "variant"
+        variant.arches = {"x86_64"}
+        ci.variants.add(variant)
+
+        for field, path in [
+            ("repository", "Server/x86_64/os"),
+            ("debug_repository", "Server/x86_64/debug/tree"),
+            ("source_repository", "Server/source/tree"),
+        ]:
+            arch = "x86_64" if "source" not in field else "src"
+            loc = Location(
+                url=f"https://cdn.example.com/{path}",
+                local_path=path,
+            )
+            variant.paths.set_location(field, arch, loc)
+
+        http_tasks, oci_tasks, repo_entries = _collect_download_tasks(str(tmp_path), composeinfo=ci)
+
+        assert len(repo_entries) == 3
+        repo_urls = {r[0] for r in repo_entries}
+        assert "https://cdn.example.com/Server/x86_64/os" in repo_urls
+        assert "https://cdn.example.com/Server/x86_64/debug/tree" in repo_urls
+        assert "https://cdn.example.com/Server/source/tree" in repo_urls
