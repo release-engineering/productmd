@@ -373,11 +373,26 @@ def _discover_repodata_tasks(
             file_local = os.path.join(repo_local_path, href)
             file_dest = os.path.join(compose_root, file_local)
 
+            # Build a Location with checksum/size from repomd.xml
+            # so the download pipeline can verify the file after download.
+            file_loc = None
+            checksum_type = entry.get("checksum_type")
+            checksum_value = entry.get("checksum")
+            if checksum_type and checksum_value:
+                from productmd.location import Location as Loc
+
+                file_loc = Loc(
+                    url=file_url,
+                    size=entry.get("size"),
+                    checksum="%s:%s" % (checksum_type, checksum_value),
+                    local_path=file_local,
+                )
+
             tasks.append(
                 HttpTask(
                     url=file_url,
                     dest_path=file_dest,
-                    location=None,
+                    location=file_loc,
                     rel_path=file_local,
                 )
             )
