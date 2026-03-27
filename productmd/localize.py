@@ -267,6 +267,10 @@ def _discover_repodata_tasks(
     repo_entries: list,
     compose_root: str,
     retries: int = 3,
+    netrc_file: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+    token: Optional[str] = None,
 ) -> List:
     """
     Fetch ``repomd.xml`` for each repository and generate download tasks.
@@ -304,10 +308,16 @@ def _discover_repodata_tasks(
         logger.info("Fetching repomd.xml from %s", repomd_url)
         last_error = None
         xml_bytes = None
+
+        headers = _get_default_headers()
+        auth_header = _build_auth_header(repomd_url, username, password, token, netrc_file)
+        if auth_header:
+            headers["Authorization"] = auth_header
+
         for attempt in range(retries + 1):
             try:
-                req = urllib.request.Request(repomd_url, headers=_get_default_headers())
-                response = urllib.request.urlopen(req)
+                req = urllib.request.Request(repomd_url, headers=headers)
+                response = _opener.open(req)
                 xml_bytes = response.read()
                 break
             except (HTTPError, URLError, OSError) as e:
@@ -937,7 +947,15 @@ def localize_compose(
     # for the referenced metadata files (primary, filelists, comps, etc.).
     compose_root = os.path.join(output_dir, "compose")
     if repo_entries:
-        repodata_tasks = _discover_repodata_tasks(repo_entries, compose_root, retries)
+        repodata_tasks = _discover_repodata_tasks(
+            repo_entries,
+            compose_root,
+            retries,
+            netrc_file=netrc_file,
+            username=http_username,
+            password=http_password,
+            token=http_token,
+        )
         http_tasks.extend(repodata_tasks)
         logger.info("Discovered %d repodata files from %d repositories", len(repodata_tasks), len(repo_entries))
 
