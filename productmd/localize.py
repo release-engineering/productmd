@@ -264,7 +264,7 @@ def _parse_repomd_xml(xml_bytes: bytes) -> List[dict]:
 
 
 def _discover_repodata_tasks(
-    repo_entries: list,
+    repo_entries: List[Tuple[str, str]],
     compose_root: str,
     retries: int = 3,
     netrc_file: Optional[str] = None,
@@ -552,7 +552,7 @@ def _collect_download_tasks(
     extra_files: Optional[object] = None,
     modules: Optional[object] = None,
     composeinfo: Optional[object] = None,
-) -> Tuple[List[HttpTask], List[OciTask], list]:
+) -> Tuple[List[HttpTask], List[OciTask], List[Tuple[str, str]]]:
     """
     Collect all remote artifacts that need downloading.
 
