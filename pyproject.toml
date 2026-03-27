@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-dependencies = []
+dependencies = ["defusedxml"]
 name = "productmd"
 version = "1.50"
 description = "Product, compose and installation media metadata library"
@@ -120,7 +120,7 @@ env_list = ["py38", "py39", "py310", "py311", "py312", "py313", "format", "lint"
 
 [tool.tox.env_run_base]
 description = "Run tests with pytest"
-deps = ["pytest", "oras"]
+deps = ["pytest", "oras", "defusedxml"]
 commands = [["pytest", { replace = "posargs", default = [], extend = true }]]
 
 [tool.tox.env.lint]

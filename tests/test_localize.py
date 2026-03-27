@@ -15,12 +15,10 @@ from productmd.images import Image, Images
 from productmd.localize import (
     HttpTask,
     LocalizeResult,
-    OciTask,
     _collect_download_tasks,
     _deduplicate_http_tasks,
     _discover_repodata_tasks,
     _download_https,
-    _download_single_oci,
     _parse_repomd_xml,
     _should_skip,
     localize_compose,

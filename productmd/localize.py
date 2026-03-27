@@ -38,7 +38,7 @@ import os
 import time
 import urllib.request
 from base64 import b64encode
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, List, Optional, Tuple
