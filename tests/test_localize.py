@@ -814,7 +814,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -833,7 +833,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -852,8 +852,8 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree"),
-            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree"),
+            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree", None),
+            ("https://cdn.example.com/BaseOS/source/tree", "BaseOS/source/tree", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -871,7 +871,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -891,7 +891,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -907,7 +907,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -937,7 +937,7 @@ class TestDiscoverRepodataTasks:
 
         compose_root = str(tmp_path / "compose")
         repo_entries = [
-            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os", None),
         ]
 
         tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
@@ -996,7 +996,9 @@ class TestCollectRepoEntries:
         assert len(http_tasks) == 0
         assert len(oci_tasks) == 0
         assert len(repo_entries) == 1
-        assert repo_entries[0] == ("https://cdn.example.com/Server/x86_64/os", "Server/x86_64/os")
+        assert repo_entries[0][0] == "https://cdn.example.com/Server/x86_64/os"
+        assert repo_entries[0][1] == "Server/x86_64/os"
+        assert repo_entries[0][2] is not None  # Location object
 
     def test_collects_all_three_repo_fields(self, tmp_path):
         """Test that repository, debug_repository, and source_repository are all collected."""

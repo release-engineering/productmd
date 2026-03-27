@@ -264,7 +264,7 @@ def _parse_repomd_xml(xml_bytes: bytes) -> List[dict]:
 
 
 def _discover_repodata_tasks(
-    repo_entries: List[Tuple[str, str]],
+    repo_entries: List[Tuple[str, str, object]],
     compose_root: str,
     retries: int = 3,
     netrc_file: Optional[str] = None,
@@ -291,7 +291,7 @@ def _discover_repodata_tasks(
     tasks = []
     seen_urls = set()
 
-    for repo_url, repo_local_path in repo_entries:
+    for repo_url, repo_local_path, location in repo_entries:
         if repo_url in seen_urls:
             continue
         seen_urls.add(repo_url)
@@ -342,6 +342,16 @@ def _discover_repodata_tasks(
         os.makedirs(os.path.dirname(repomd_dest), exist_ok=True)
         with open(repomd_dest, "wb") as f:
             f.write(xml_bytes)
+
+        # Verify checksum if available from composeinfo Location
+        if location is not None and getattr(location, "checksum", None) is not None:
+            try:
+                if not location.verify(repomd_dest):
+                    logger.error("Checksum mismatch for repomd.xml from %s", repomd_url)
+                    continue
+            except (OSError, ValueError) as e:
+                logger.error("Failed to verify repomd.xml from %s: %s", repomd_url, e)
+                continue
 
         # Parse and generate tasks for referenced files
         try:
@@ -559,7 +569,7 @@ def _collect_download_tasks(
     extra_files: Optional[object] = None,
     modules: Optional[object] = None,
     composeinfo: Optional[object] = None,
-) -> Tuple[List[HttpTask], List[OciTask], List[Tuple[str, str]]]:
+) -> Tuple[List[HttpTask], List[OciTask], List[Tuple[str, str, object]]]:
     """
     Collect all remote artifacts that need downloading.
 
@@ -589,7 +599,7 @@ def _collect_download_tasks(
         # all other fields are directory references (not downloadable).
         if entry.metadata_type == "variant_path":
             if entry.field_name in _REPO_FIELDS:
-                repo_entries.append((entry.location.url, entry.location.local_path))
+                repo_entries.append((entry.location.url, entry.location.local_path, entry.location))
             continue
 
         if entry.location.is_oci:
