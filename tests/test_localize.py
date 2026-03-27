@@ -914,6 +914,38 @@ class TestDiscoverRepodataTasks:
 
         assert tasks == []
 
+    @patch("productmd.localize._opener.open")
+    def test_rejects_path_traversal_in_href(self, mock_open, tmp_path):
+        """Test that hrefs with .. or absolute paths are rejected."""
+        malicious_repomd = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <data type="primary">
+    <location href="../../etc/passwd"/>
+  </data>
+  <data type="filelists">
+    <location href="/etc/shadow"/>
+  </data>
+  <data type="other">
+    <location href="repodata/legit-other.xml.gz"/>
+  </data>
+</repomd>
+"""
+        mock_response = MagicMock()
+        mock_response.read.return_value = malicious_repomd
+        mock_open.return_value = mock_response
+
+        compose_root = str(tmp_path / "compose")
+        repo_entries = [
+            ("https://cdn.example.com/BaseOS/x86_64/os", "BaseOS/x86_64/os"),
+        ]
+
+        tasks = _discover_repodata_tasks(repo_entries, compose_root, retries=0)
+
+        # Only the legitimate href should produce a task
+        assert len(tasks) == 1
+        assert "legit-other.xml.gz" in tasks[0].url
+
 
 # ---------------------------------------------------------------------------
 # Tests: _collect_download_tasks with repository variant paths

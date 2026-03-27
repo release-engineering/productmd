@@ -352,6 +352,13 @@ def _discover_repodata_tasks(
 
         for entry in repodata_entries:
             href = entry["href"]
+
+            # Guard against path traversal in href values
+            normalized = os.path.normpath(href)
+            if normalized.startswith(("..", "/")) or "\\" in href:
+                logger.warning("Skipping suspicious repodata href: %s", href)
+                continue
+
             file_url = urljoin(repo_url, href)
             file_local = os.path.join(repo_local_path, href)
             file_dest = os.path.join(compose_root, file_local)
