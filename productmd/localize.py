@@ -38,12 +38,13 @@ import os
 import time
 import urllib.request
 from base64 import b64encode
-import defusedxml.ElementTree as ET
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, List, Optional, Tuple
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin, urlparse
+
+import defusedxml.ElementTree as ET
 
 from productmd.common import _get_default_headers
 from productmd.convert import downgrade_to_v1, iter_all_locations
@@ -277,17 +278,23 @@ def _discover_repodata_tasks(
 
     For each repository variant path, downloads ``repodata/repomd.xml``,
     parses it to discover referenced files, and creates :class:`HttpTask`
-    entries for ``repomd.xml`` itself and each referenced file.
+    entries for each referenced file.
 
     Deduplicates repositories by URL to avoid fetching the same
     ``repomd.xml`` multiple times (e.g., source repos shared across arches).
 
-    :param repo_entries: List of ``(url, local_path)`` tuples for each
-        repository root
+    :param repo_entries: List of ``(url, local_path, location)`` tuples
+        for each repository root
     :param compose_root: Local compose root directory
     :param retries: Number of retry attempts for fetching ``repomd.xml``
+    :param netrc_file: Path to a netrc file for credential lookup
+    :param username: Username for HTTP Basic authentication
+    :param password: Password for HTTP Basic authentication
+    :param token: Bearer token for HTTP authentication
     :return: List of :class:`HttpTask` for all repodata files
     """
+    from productmd.location import Location as Loc
+
     tasks = []
     seen_urls = set()
 
@@ -379,12 +386,10 @@ def _discover_repodata_tasks(
             checksum_type = entry.get("checksum_type")
             checksum_value = entry.get("checksum")
             if checksum_type and checksum_value:
-                from productmd.location import Location as Loc
-
                 file_loc = Loc(
                     url=file_url,
                     size=entry.get("size"),
-                    checksum="%s:%s" % (checksum_type, checksum_value),
+                    checksum=f"{checksum_type}:{checksum_value}",
                     local_path=file_local,
                 )
 
@@ -591,7 +596,7 @@ def _collect_download_tasks(
     :return: Tuple of (http_tasks, oci_tasks, repo_entries) where
         http_tasks is a list of :class:`HttpTask` namedtuples,
         oci_tasks is a list of :class:`OciTask` namedtuples, and
-        repo_entries is a list of ``(url, local_path)`` tuples for
+        repo_entries is a list of ``(url, local_path, location)`` tuples for
         YUM repository roots whose repodata needs downloading.
     """
     compose_root = os.path.join(output_dir, "compose")
