@@ -47,7 +47,7 @@ from urllib.parse import urljoin, urlparse
 import defusedxml.ElementTree as ET
 
 from productmd.common import _get_default_headers
-from productmd.convert import downgrade_to_v1, iter_all_locations
+from productmd.convert import REPO_FIELDS, downgrade_to_v1, iter_all_locations
 
 
 __all__ = (
@@ -224,9 +224,6 @@ _opener = urllib.request.build_opener(_SafeRedirectHandler)
 
 #: Default chunk size for streaming downloads (8 KB)
 _CHUNK_SIZE = 8192
-
-#: Variant path fields that are YUM repository roots containing repodata/
-_REPO_FIELDS = frozenset({"repository", "debug_repository", "source_repository"})
 
 #: XML namespace used in repomd.xml
 _REPOMD_NS = "http://linux.duke.edu/metadata/repo"
@@ -618,7 +615,7 @@ def _collect_download_tasks(
         # Variant paths: repository fields need repodata downloading,
         # all other fields are directory references (not downloadable).
         if entry.metadata_type == "variant_path":
-            if entry.field_name in _REPO_FIELDS:
+            if entry.field_name in REPO_FIELDS:
                 repo_entries.append((entry.location.url, entry.location.local_path, entry.location))
             continue
 

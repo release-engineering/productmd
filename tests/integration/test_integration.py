@@ -65,9 +65,11 @@ ARTIFACT_PATHS = [
     "Server/x86_64/iso/boot.iso",
     "Server/x86_64/os/GPL",
     "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+    "Server/x86_64/os/repodata/repomd.xml",
     "Server/aarch64/iso/boot.iso",
     "Server/aarch64/os/GPL",
     "Server/aarch64/os/Packages/b/bash-5.2.26-3.fc41.aarch64.rpm",
+    "Server/aarch64/os/repodata/repomd.xml",
 ]
 
 
@@ -339,6 +341,46 @@ class TestUpgradeIntegration:
                     for img in data["payload"]["images"][variant][arch]:
                         assert img["location"]["checksum"] is not None
                         assert img["location"]["checksum"].startswith("sha256:")
+
+    def test_upgrade_computes_repomd_checksums(self):
+        """Test that upgrade with --compute-checksums populates checksums for repo variant paths."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            compose_dir = os.path.join(tmp_dir, "compose")
+            _download_compose(compose_dir)
+
+            output_dir = os.path.join(tmp_dir, "v2-repomd")
+            result = _run_productmd(
+                "upgrade",
+                "--output",
+                output_dir,
+                "--base-url",
+                f"{HTTP_BASE_URL}/",
+                "--compute-checksums",
+                compose_dir,
+            )
+
+            assert result.returncode == 0, f"stdout: {result.stdout}\nstderr: {result.stderr}"
+
+            with open(os.path.join(output_dir, "composeinfo.json")) as f:
+                data = json.load(f)
+
+            # Repository variant paths should have checksums computed
+            # from their repodata/repomd.xml files.
+            variant = data["payload"]["variants"]["Server"]
+            repo_paths = variant["paths"]["repository"]
+            for arch in repo_paths:
+                loc = repo_paths[arch]
+                assert isinstance(loc, dict), "v2.0 repo path should be a Location dict"
+                assert loc.get("checksum") is not None, f"repository[{arch}] should have a checksum from repomd.xml"
+                assert loc["checksum"].startswith("sha256:"), f"repository[{arch}] checksum should be SHA-256"
+                assert loc.get("size") is not None, f"repository[{arch}] should have a size from repomd.xml"
+
+            # Non-repo variant paths (os_tree, packages) should NOT have checksums
+            os_tree_paths = variant["paths"]["os_tree"]
+            for arch in os_tree_paths:
+                loc = os_tree_paths[arch]
+                assert isinstance(loc, dict), "v2.0 os_tree path should be a Location dict"
+                assert loc.get("checksum") is None, f"os_tree[{arch}] should NOT have a checksum"
 
 
 class TestDowngradeIntegration:

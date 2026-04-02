@@ -40,10 +40,35 @@ from productmd.version import VERSION_1_2, VERSION_2_0
 __all__ = (
     "LocationEntry",
     "MetadataType",
+    "REPO_FIELDS",
     "iter_all_locations",
     "upgrade_to_v2",
     "downgrade_to_v1",
 )
+
+#: Variant path fields that are YUM repository roots containing repodata/.
+#: For these fields the ``repomd.xml`` file can be used as the checksum
+#: target during upgrade, since it in turn references all other repodata
+#: files by checksum.  Used by both :mod:`convert` and :mod:`localize`.
+REPO_FIELDS = frozenset({"repository", "debug_repository", "source_repository"})
+
+#: Relative path from a repository root to the repomd.xml index file.
+_REPOMD_RELATIVE = os.path.join("repodata", "repomd.xml")
+
+
+def _checksum_target(entry, compose_path):
+    """Return the absolute file path to checksum for *entry*, or ``None``.
+
+    Repository variant paths (``repository``, ``debug_repository``,
+    ``source_repository``) target ``repodata/repomd.xml`` under the
+    repo root.  Non-repo variant paths are directory references and
+    have no checksum target.
+    """
+    if entry.metadata_type == MetadataType.VARIANT_PATH:
+        if entry.field_name not in REPO_FIELDS:
+            return None
+        return os.path.join(compose_path, entry.path, _REPOMD_RELATIVE)
+    return os.path.join(compose_path, entry.path)
 
 
 class MetadataType(str, Enum):
@@ -330,7 +355,10 @@ def upgrade_to_v2(
     :param modules: :class:`~productmd.modules.Modules` instance to upgrade
     :param composeinfo: :class:`~productmd.composeinfo.ComposeInfo` instance to upgrade
     :param base_url: Base URL prefix for constructing remote URLs
-    :param compute_checksums: Compute SHA-256 checksums and sizes from local files
+    :param compute_checksums: Compute SHA-256 checksums and sizes from local files.
+        For repository variant paths (``repository``, ``debug_repository``,
+        ``source_repository``), the checksum is computed on the
+        ``repodata/repomd.xml`` file under the repository root.
     :param compose_path: Path to local compose root (required when *compute_checksums* is True)
     :param strict_checksums: Raise :class:`FileNotFoundError` instead of warning
         when a file cannot be found for checksum computation
@@ -392,9 +420,9 @@ def upgrade_to_v2(
     # This ensures strict_checksums errors are raised early.
     if compute_checksums and compose_path is not None:
         for entry in entries:
-            if entry.metadata_type == MetadataType.VARIANT_PATH:
+            file_path = _checksum_target(entry, compose_path)
+            if file_path is None:
                 continue
-            file_path = os.path.join(compose_path, entry.path)
             if not os.path.isfile(file_path):
                 if strict_checksums:
                     raise FileNotFoundError(f"Cannot compute checksum: file not found: {file_path}")
@@ -415,9 +443,9 @@ def upgrade_to_v2(
                 tasks_in_group = []
                 for offset, entry in enumerate(group):
                     idx = group_start + offset
-                    if entry.metadata_type == MetadataType.VARIANT_PATH:
+                    file_path = _checksum_target(entry, compose_path)
+                    if file_path is None:
                         continue
-                    file_path = os.path.join(compose_path, entry.path)
                     if os.path.isfile(file_path):
                         tasks_in_group.append((idx, file_path))
 

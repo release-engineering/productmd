@@ -810,3 +810,324 @@ class TestRoundTrip:
             assert e.location is not None
             assert e.location.url.startswith("https://new-cdn.example.com/")
             assert e.location.local_path == e.path
+
+
+# ---------------------------------------------------------------------------
+# Helpers: composeinfo with repository variant paths
+# ---------------------------------------------------------------------------
+
+
+def _create_composeinfo_with_repos():
+    """Create ComposeInfo with repository variant paths for checksum tests."""
+    ci = ComposeInfo()
+    ci.release.name = "Fedora"
+    ci.release.short = "Fedora"
+    ci.release.version = "41"
+    ci.release.type = "ga"
+    ci.compose.id = "Fedora-41-20260204.0"
+    ci.compose.type = "production"
+    ci.compose.date = "20260204"
+    ci.compose.respin = 0
+
+    variant = Variant(ci)
+    variant.id = "Server"
+    variant.uid = "Server"
+    variant.name = "Fedora Server"
+    variant.type = "variant"
+    variant.arches = set(["x86_64", "aarch64"])
+    variant.paths.os_tree = {
+        "x86_64": "Server/x86_64/os",
+        "aarch64": "Server/aarch64/os",
+    }
+    variant.paths.packages = {
+        "x86_64": "Server/x86_64/os/Packages",
+        "aarch64": "Server/aarch64/os/Packages",
+    }
+    variant.paths.repository = {
+        "x86_64": "Server/x86_64/os",
+        "aarch64": "Server/aarch64/os",
+    }
+    variant.paths.source_repository = {
+        "x86_64": "Server/source/tree",
+        "aarch64": "Server/source/tree",
+    }
+    ci.variants.add(variant)
+    return ci
+
+
+_SAMPLE_REPOMD_XML = b"""\
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <data type="primary">
+    <checksum type="sha256">abc123</checksum>
+    <location href="repodata/abc123-primary.xml.gz"/>
+    <size>12345</size>
+  </data>
+</repomd>
+"""
+
+
+def _create_repomd_file(compose_dir, repo_path):
+    """Create a repodata/repomd.xml file under a repo path in the compose dir."""
+    repodata_dir = compose_dir / repo_path / "repodata"
+    repodata_dir.mkdir(parents=True, exist_ok=True)
+    repomd_file = repodata_dir / "repomd.xml"
+    repomd_file.write_bytes(_SAMPLE_REPOMD_XML)
+    return repomd_file
+
+
+# ---------------------------------------------------------------------------
+# Tests: repomd.xml checksum computation for repository variant paths
+# ---------------------------------------------------------------------------
+
+
+class TestUpgradeRepomdChecksums:
+    """Tests for repomd.xml checksum computation during upgrade."""
+
+    def test_repo_variant_path_gets_repomd_checksum(self, tmp_path):
+        """Test that repository variant paths get checksum from repomd.xml."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+        )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        repo_entries = [e for e in entries if e.field_name == "repository"]
+        assert len(repo_entries) == 2
+        for e in repo_entries:
+            assert e.location is not None
+            assert e.location.checksum is not None
+            assert e.location.checksum.startswith("sha256:")
+            assert e.location.size is not None
+            assert e.location.size == len(_SAMPLE_REPOMD_XML)
+
+    def test_source_repo_variant_path_gets_checksum(self, tmp_path):
+        """Test that source_repository variant paths also get checksums."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+        )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        src_entries = [e for e in entries if e.field_name == "source_repository"]
+        assert len(src_entries) == 2
+        for e in src_entries:
+            assert e.location is not None
+            assert e.location.checksum is not None
+            assert e.location.checksum.startswith("sha256:")
+
+    def test_non_repo_variant_paths_have_no_checksum(self, tmp_path):
+        """Test that os_tree and packages variant paths still get no checksum."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+        )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        non_repo = [e for e in entries if e.field_name in ("os_tree", "packages")]
+        assert len(non_repo) > 0
+        for e in non_repo:
+            assert e.location is not None
+            # Non-repo variant paths should have no computed checksum
+            assert e.location.checksum is None
+            assert e.location.size is None
+
+    def test_missing_repomd_warns(self, tmp_path):
+        """Test that missing repomd.xml emits a warning."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+        # Don't create any repomd.xml files
+
+        ci = _create_composeinfo_with_repos()
+        with pytest.warns(UserWarning, match="file not found"):
+            upgrade_to_v2(
+                composeinfo=ci,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+            )
+
+    def test_missing_repomd_strict_raises(self, tmp_path):
+        """Test that missing repomd.xml with strict_checksums raises."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        ci = _create_composeinfo_with_repos()
+        with pytest.raises(FileNotFoundError, match="repomd.xml"):
+            upgrade_to_v2(
+                composeinfo=ci,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+                strict_checksums=True,
+            )
+
+    def test_missing_repomd_no_checksum_in_location(self, tmp_path):
+        """Test that missing repomd.xml results in no checksum on Location."""
+        compose_dir = tmp_path / "compose"
+        compose_dir.mkdir()
+
+        ci = _create_composeinfo_with_repos()
+        with pytest.warns(UserWarning):
+            result = upgrade_to_v2(
+                composeinfo=ci,
+                base_url="https://cdn.example.com/",
+                compute_checksums=True,
+                compose_path=str(compose_dir),
+            )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        repo_entries = [e for e in entries if e.field_name == "repository"]
+        for e in repo_entries:
+            assert e.location is not None
+            # Location is created but without checksum/size
+            assert e.location.checksum is None
+            assert e.location.size is None
+
+    def test_shared_repo_path_both_arches_get_checksum(self, tmp_path):
+        """Test that shared source_repository path gives both arches a checksum."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+        )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        src_entries = [e for e in entries if e.field_name == "source_repository"]
+        # Both arches point to the same path and both get checksums
+        assert len(src_entries) == 2
+        checksums = {e.location.checksum for e in src_entries}
+        assert len(checksums) == 1  # same file -> same checksum
+        assert all(c.startswith("sha256:") for c in checksums)
+
+    def test_progress_callback_includes_repo_paths(self, tmp_path):
+        """Test that progress_callback fires for repo variant paths too."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        calls = []
+
+        def on_progress(processed, total, path, checksum):
+            calls.append((processed, total, path, checksum))
+
+        upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            progress_callback=on_progress,
+        )
+
+        # Total entries: 2 os_tree + 2 packages + 2 repository + 2 source_repository = 8
+        assert len(calls) == 8
+        # Find repo entries in the callbacks
+        repo_calls = [c for c in calls if c[3] is not None]
+        # 2 repository + 2 source_repository = 4 with checksums
+        assert len(repo_calls) == 4
+        for _, _, path, checksum in repo_calls:
+            assert checksum.startswith("sha256:")
+
+    @pytest.mark.filterwarnings("ignore::UserWarning")
+    def test_parallel_checksums_with_repos(self, tmp_path):
+        """Test that parallel checksum computation works for repo paths."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+
+        # Sequential
+        seq_result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=1,
+        )
+
+        # Parallel
+        par_result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+            parallel_checksums=4,
+        )
+
+        seq_entries = list(iter_all_locations(composeinfo=seq_result["composeinfo"]))
+        par_entries = list(iter_all_locations(composeinfo=par_result["composeinfo"]))
+
+        for se, pe in zip(seq_entries, par_entries):
+            assert se.location.checksum == pe.location.checksum
+            assert se.location.size == pe.location.size
+
+    def test_without_compute_checksums_repos_have_no_checksum(self):
+        """Test that without compute_checksums, repo paths have no checksum."""
+        ci = _create_composeinfo_with_repos()
+        result = upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+        )
+
+        entries = list(iter_all_locations(composeinfo=result["composeinfo"]))
+        repo_entries = [e for e in entries if e.field_name == "repository"]
+        for e in repo_entries:
+            assert e.location is not None
+            assert e.location.checksum is None
+            assert e.location.size is None
+
+    def test_originals_not_modified(self, tmp_path):
+        """Test that original composeinfo is not modified by checksum computation."""
+        compose_dir = tmp_path / "compose"
+        _create_repomd_file(compose_dir, "Server/x86_64/os")
+        _create_repomd_file(compose_dir, "Server/aarch64/os")
+        _create_repomd_file(compose_dir, "Server/source/tree")
+
+        ci = _create_composeinfo_with_repos()
+        original_entries = list(iter_all_locations(composeinfo=ci))
+
+        upgrade_to_v2(
+            composeinfo=ci,
+            base_url="https://cdn.example.com/",
+            compute_checksums=True,
+            compose_path=str(compose_dir),
+        )
+
+        # Original should still have no locations
+        for e in original_entries:
+            assert e.location is None
