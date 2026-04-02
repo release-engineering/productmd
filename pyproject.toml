@@ -41,6 +41,7 @@ coverage = [
 ]
 docs = [
     "sphinx",
+    "sphinx-rtd-theme",
 ]
 dev = [
     { include-group = "test" },
