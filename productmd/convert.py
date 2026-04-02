@@ -386,7 +386,7 @@ def upgrade_to_v2(
     # When checksums are not requested or parallel_checksums <= 1,
     # batch_size is set to total so everything runs in one pass.
     use_parallel = compute_checksums and compose_path is not None and parallel_checksums > 1
-    batch_size = parallel_checksums if use_parallel else total
+    batch_size = parallel_checksums if use_parallel else max(total, 1)
 
     # Validate missing files upfront before starting any threads.
     # This ensures strict_checksums errors are raised early.

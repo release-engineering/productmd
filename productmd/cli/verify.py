@@ -120,7 +120,7 @@ def run(args: object) -> None:
     # Each batch computes checksums in parallel, then displays results
     # before the next batch starts.
     use_parallel = parallel_checksums > 1
-    batch_size = parallel_checksums if use_parallel else total
+    batch_size = parallel_checksums if use_parallel else max(total, 1)
 
     if use_parallel and show_bar:
         sys.stdout.write(f"Verifying with {parallel_checksums} threads...\n")
