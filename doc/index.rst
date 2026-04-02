@@ -35,7 +35,7 @@ File formats:
     discinfo-1.0
     images-1.1
     rpms-1.1
-    treeinfo-1.1
+    treeinfo-1.2
 
 Old file formats:
 
@@ -45,6 +45,7 @@ Old file formats:
     composeinfo-1.0
     images-1.0
     rpms-1.0
+    treeinfo-1.1
     treeinfo-1.0
 
 
