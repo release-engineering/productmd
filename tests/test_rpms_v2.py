@@ -642,3 +642,144 @@ class TestRpmsAddWithLocation:
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
         assert "_location" not in entry
+
+
+class TestRpmsGetLocation:
+    """Tests for Rpms.get_location() public API."""
+
+    def test_get_location_after_add(self):
+        """get_location() returns the Location passed to add()."""
+        rpms = _create_rpms()
+        loc = Location(
+            url="https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm",
+            size=1849356,
+            checksum="sha256:" + "a" * 64,
+            local_path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+        )
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path=None,
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            location=loc,
+        )
+
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is loc
+
+    def test_get_location_after_v2_deserialize(self):
+        """get_location() returns Location from deserialized v2 data."""
+        data = {
+            "header": {"type": "productmd.rpms", "version": "2.0"},
+            "payload": {
+                "compose": {
+                    "id": "Test-1.0-20240101.0",
+                    "date": "20240101",
+                    "type": "production",
+                    "respin": 0,
+                },
+                "rpms": {
+                    "Server": {
+                        "x86_64": {
+                            "bash-0:5.2.26-3.fc41.src": {
+                                "bash-0:5.2.26-3.fc41.x86_64": {
+                                    "location": {
+                                        "url": "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm",
+                                        "size": 1849356,
+                                        "checksum": "sha256:" + "a" * 64,
+                                        "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                                    },
+                                    "sigkey": "a15b79cc",
+                                    "category": "binary",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        }
+
+        rpms = Rpms()
+        rpms.deserialize(data)
+
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is not None
+        assert isinstance(result, Location)
+        assert result.url == "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm"
+        assert result.size == 1849356
+
+    def test_get_location_without_location_returns_none(self):
+        """get_location() returns None when RPM was added without a Location."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+        )
+
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is None
+
+    def test_get_location_v1_deserialize_returns_none(self):
+        """get_location() returns None for v1.x deserialized data."""
+        data = {
+            "header": {"type": "productmd.rpms", "version": "1.2"},
+            "payload": {
+                "compose": {
+                    "id": "Test-1.0-20240101.0",
+                    "date": "20240101",
+                    "type": "production",
+                    "respin": 0,
+                },
+                "rpms": {
+                    "Server": {
+                        "x86_64": {
+                            "bash-0:5.2.26-3.fc41.src": {
+                                "bash-0:5.2.26-3.fc41.x86_64": {
+                                    "path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                                    "sigkey": "a15b79cc",
+                                    "category": "binary",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        }
+
+        rpms = Rpms()
+        rpms.deserialize(data)
+
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is None
+
+    def test_get_location_missing_variant_returns_none(self):
+        """get_location() returns None for a non-existent variant."""
+        rpms = _create_rpms()
+        _add_sample_rpms(rpms)
+
+        result = rpms.get_location("NoSuchVariant", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is None
+
+    def test_get_location_missing_arch_returns_none(self):
+        """get_location() returns None for a non-existent arch."""
+        rpms = _create_rpms()
+        _add_sample_rpms(rpms)
+
+        result = rpms.get_location("Server", "aarch64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is None
+
+    def test_get_location_missing_rpm_returns_none(self):
+        """get_location() returns None for a non-existent RPM NEVRA."""
+        rpms = _create_rpms()
+        _add_sample_rpms(rpms)
+
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "no-such-0:1.0-1.fc41.x86_64")
+        assert result is None

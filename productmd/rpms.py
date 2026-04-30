@@ -316,3 +316,24 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         if location is not None:
             entry["_location"] = location
         rpms[nevra] = entry
+
+    def get_location(self, variant, arch, srpm_nevra, rpm_nevra):
+        """
+        Return the Location object for an RPM entry, or None.
+
+        :param variant:     compose variant UID
+        :type  variant:     str
+        :param arch:        compose architecture
+        :type  arch:        str
+        :param srpm_nevra:  name-epoch:version-release.arch of the SRPM
+        :type  srpm_nevra:  str
+        :param rpm_nevra:   name-epoch:version-release.arch of the RPM
+        :type  rpm_nevra:   str
+        :return: Location object, or None if not found or not set
+        :rtype: :class:`~productmd.location.Location` or None
+        """
+        try:
+            entry = self.rpms[variant][arch][srpm_nevra][rpm_nevra]
+        except KeyError:
+            return None
+        return entry.get("_location")
