@@ -265,10 +265,11 @@ class TestRpmsSerialization:
         assert rpm["category"] == "binary"
 
         # Location preserved for round-trip
-        assert rpm["_location"] is not None
-        assert isinstance(rpm["_location"], Location)
-        assert rpm["_location"].url == "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm"
-        assert rpm["_location"].size == 1849356
+        loc = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert loc is not None
+        assert isinstance(loc, Location)
+        assert loc.url == "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm"
+        assert loc.size == 1849356
 
     @pytest.mark.parametrize(
         "version, header_version",
@@ -341,9 +342,10 @@ class TestRpmsRoundTrip:
         assert rpm["category"] == "binary"
 
         # Verify Location round-trip
-        assert rpm["_location"].url == "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm"
-        assert rpm["_location"].size == 1849356
-        assert rpm["_location"].checksum == "sha256:" + "a" * 64
+        loc = rpms2.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert loc.url == "https://cdn.example.com/bash-5.2.26-3.fc41.x86_64.rpm"
+        assert loc.size == 1849356
+        assert loc.checksum == "sha256:" + "a" * 64
 
     def test_v20_roundtrip_identity(self):
         """Test v2.0 serialize-deserialize-serialize produces identical output."""
@@ -447,8 +449,9 @@ class TestRpmsAddWithLocation:
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
         assert entry["path"] == "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
-        assert entry["_location"] is loc
-        assert entry["_location"].url == "https://cdn.example.com/Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is loc
+        assert result.url == "https://cdn.example.com/Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
 
     def test_add_with_location_derives_path(self):
         """Test add() with location but path=None derives path from location.local_path."""
@@ -473,7 +476,8 @@ class TestRpmsAddWithLocation:
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
         assert entry["path"] == "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
-        assert entry["_location"] is loc
+        result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result is loc
 
     def test_add_without_path_or_location_raises(self):
         """Test add() with path=None and no location raises ValueError."""
