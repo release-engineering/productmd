@@ -22,6 +22,7 @@
                 "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
               },
               "sigkey": "a15b79cc",
+              "sigkeys": ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"],
               "category": "binary"
             },
             "bash-doc-0:5.2.26-3.fc41.x86_64": {
