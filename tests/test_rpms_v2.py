@@ -787,3 +787,365 @@ class TestRpmsGetLocation:
 
         result = rpms.get_location("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "no-such-0:1.0-1.fc41.x86_64")
         assert result is None
+
+
+class TestRpmsSigkeys:
+    """Tests for multiple RPM signature support (sigkeys field)."""
+
+    def test_add_with_sigkeys(self):
+        """add() stores sigkeys in the entry dict."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["a15b79cc", "1234567890abcdef1234567890abcdef12345678"],
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert entry["sigkeys"] == ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
+
+    def test_add_without_sigkeys_has_no_key(self):
+        """add() without sigkeys does not add the key to the entry."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert "sigkeys" not in entry
+
+    def test_add_sigkeys_normalized_to_lowercase(self):
+        """sigkeys values are normalized to lowercase."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["A15B79CC", "ABCDEF1234567890ABCDEF1234567890ABCDEF12"],
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert entry["sigkeys"] == ["a15b79cc", "abcdef1234567890abcdef1234567890abcdef12"]
+
+    def test_add_sigkeys_invalid_hex_raises(self):
+        """add() raises ValueError for non-hex sigkeys."""
+        rpms = _create_rpms()
+        with pytest.raises(ValueError, match="hex string"):
+            rpms.add(
+                "Server",
+                "x86_64",
+                "bash-0:5.2.26-3.fc41.x86_64",
+                path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                sigkey="a15b79cc",
+                category="binary",
+                srpm_nevra="bash-0:5.2.26-3.fc41.src",
+                sigkeys=["not-hex-value"],
+            )
+
+    def test_add_sigkeys_empty_string_raises(self):
+        """add() raises ValueError for empty string in sigkeys."""
+        rpms = _create_rpms()
+        with pytest.raises(ValueError, match="non-empty string"):
+            rpms.add(
+                "Server",
+                "x86_64",
+                "bash-0:5.2.26-3.fc41.x86_64",
+                path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                sigkey="a15b79cc",
+                category="binary",
+                srpm_nevra="bash-0:5.2.26-3.fc41.src",
+                sigkeys=[""],
+            )
+
+    def test_add_sigkeys_not_list_raises(self):
+        """add() raises TypeError when sigkeys is not a list."""
+        rpms = _create_rpms()
+        with pytest.raises(TypeError, match="must be a list"):
+            rpms.add(
+                "Server",
+                "x86_64",
+                "bash-0:5.2.26-3.fc41.x86_64",
+                path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                sigkey="a15b79cc",
+                category="binary",
+                srpm_nevra="bash-0:5.2.26-3.fc41.src",
+                sigkeys="a15b79cc",
+            )
+
+    def test_serialize_v2_includes_sigkeys(self):
+        """v2.0 serialization includes sigkeys when present."""
+        rpms = _create_rpms()
+        rpms.output_version = VERSION_2_0
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["a15b79cc", "1234567890abcdef1234567890abcdef12345678"],
+        )
+
+        data = rpms.serialize({})
+        rpm = data["payload"]["rpms"]["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert rpm["sigkeys"] == ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
+        assert rpm["sigkey"] == "a15b79cc"
+
+    def test_serialize_v2_omits_empty_sigkeys(self):
+        """v2.0 serialization does not include sigkeys when not set."""
+        rpms = _create_rpms()
+        rpms.output_version = VERSION_2_0
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+        )
+
+        data = rpms.serialize({})
+        rpm = data["payload"]["rpms"]["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert "sigkeys" not in rpm
+
+    def test_serialize_v1_excludes_sigkeys(self):
+        """v1.x serialization does not include sigkeys."""
+        rpms = _create_rpms()
+        rpms.output_version = VERSION_1_2
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["a15b79cc", "1234567890abcdef1234567890abcdef12345678"],
+        )
+
+        data = rpms.serialize({})
+        rpm = data["payload"]["rpms"]["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert "sigkeys" not in rpm
+
+    def test_deserialize_v2_with_sigkeys(self):
+        """v2.0 deserialization preserves sigkeys."""
+        data = {
+            "header": {"type": "productmd.rpms", "version": "2.0"},
+            "payload": {
+                "compose": {
+                    "id": "Test-1.0-20240101.0",
+                    "date": "20240101",
+                    "type": "production",
+                    "respin": 0,
+                },
+                "rpms": {
+                    "Server": {
+                        "x86_64": {
+                            "bash-0:5.2.26-3.fc41.src": {
+                                "bash-0:5.2.26-3.fc41.x86_64": {
+                                    "location": {
+                                        "url": "https://cdn.example.com/bash.rpm",
+                                        "size": 1849356,
+                                        "checksum": "sha256:" + "a" * 64,
+                                        "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                                    },
+                                    "sigkey": "a15b79cc",
+                                    "sigkeys": ["a15b79cc", "deadbeef12345678"],
+                                    "category": "binary",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        }
+
+        rpms = Rpms()
+        rpms.deserialize(data)
+
+        result = rpms.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result == ["a15b79cc", "deadbeef12345678"]
+
+    def test_deserialize_v2_without_sigkeys(self):
+        """v2.0 deserialization without sigkeys returns empty list."""
+        data = {
+            "header": {"type": "productmd.rpms", "version": "2.0"},
+            "payload": {
+                "compose": {
+                    "id": "Test-1.0-20240101.0",
+                    "date": "20240101",
+                    "type": "production",
+                    "respin": 0,
+                },
+                "rpms": {
+                    "Server": {
+                        "x86_64": {
+                            "bash-0:5.2.26-3.fc41.src": {
+                                "bash-0:5.2.26-3.fc41.x86_64": {
+                                    "location": {
+                                        "url": "https://cdn.example.com/bash.rpm",
+                                        "size": 1849356,
+                                        "checksum": "sha256:" + "a" * 64,
+                                        "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+                                    },
+                                    "sigkey": "a15b79cc",
+                                    "category": "binary",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        }
+
+        rpms = Rpms()
+        rpms.deserialize(data)
+
+        result = rpms.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result == []
+
+    def test_get_sigkeys_after_add(self):
+        """get_sigkeys() returns the list passed to add()."""
+        rpms = _create_rpms()
+        keys = ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=keys,
+        )
+
+        result = rpms.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result == keys
+
+    def test_get_sigkeys_no_sigkeys_returns_empty(self):
+        """get_sigkeys() returns empty list when RPM has no sigkeys."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+        )
+
+        result = rpms.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result == []
+
+    def test_get_sigkeys_missing_entry_returns_empty(self):
+        """get_sigkeys() returns empty list for non-existent entry."""
+        rpms = _create_rpms()
+        result = rpms.get_sigkeys("NoVariant", "x86_64", "foo-0:1.0-1.src", "foo-0:1.0-1.x86_64")
+        assert result == []
+
+    def test_sigkey_auto_included_in_sigkeys(self):
+        """sigkey is automatically prepended to sigkeys if not present."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["deadbeef12345678"],
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert entry["sigkey"] == "a15b79cc"
+        assert entry["sigkeys"] == ["a15b79cc", "deadbeef12345678"]
+
+    def test_sigkey_not_duplicated_in_sigkeys(self):
+        """sigkey is not duplicated if already in sigkeys."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["a15b79cc", "deadbeef12345678"],
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert entry["sigkeys"] == ["a15b79cc", "deadbeef12345678"]
+
+    def test_sigkey_null_not_added_to_sigkeys(self):
+        """sigkey=None is not added to sigkeys."""
+        rpms = _create_rpms()
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey=None,
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=["deadbeef12345678"],
+        )
+
+        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
+        assert entry["sigkey"] is None
+        assert entry["sigkeys"] == ["deadbeef12345678"]
+
+    def test_v2_roundtrip_with_sigkeys(self):
+        """v2.0 serialize-deserialize preserves sigkeys."""
+        rpms = _create_rpms()
+        rpms.output_version = VERSION_2_0
+        keys = ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.x86_64",
+            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
+            sigkey="a15b79cc",
+            category="binary",
+            srpm_nevra="bash-0:5.2.26-3.fc41.src",
+            sigkeys=keys,
+        )
+        rpms.add(
+            "Server",
+            "x86_64",
+            "bash-0:5.2.26-3.fc41.src",
+            path="Server/source/SRPMS/b/bash-5.2.26-3.fc41.src.rpm",
+            sigkey="a15b79cc",
+            category="source",
+        )
+
+        data = rpms.serialize({})
+
+        rpms2 = Rpms()
+        rpms2.deserialize(data)
+
+        result = rpms2.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.x86_64")
+        assert result == keys
+
+        # Source RPM without sigkeys should return empty
+        result2 = rpms2.get_sigkeys("Server", "x86_64", "bash-0:5.2.26-3.fc41.src", "bash-0:5.2.26-3.fc41.src")
+        assert result2 == []

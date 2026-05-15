@@ -163,6 +163,11 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
                         v2_entry["sigkey"] = rpm_data.get("sigkey")
                         v2_entry["category"] = rpm_data.get("category")
 
+                        # Include sigkeys if present (RPM v6 multiple signatures)
+                        sigkeys = rpm_data.get("sigkeys")
+                        if sigkeys:
+                            v2_entry["sigkeys"] = sigkeys
+
                         v2_rpms[variant][arch][srpm_nevra][rpm_nevra] = v2_entry
 
         data["payload"]["rpms"] = v2_rpms
@@ -235,12 +240,17 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
                             "category": rpm_data.get("category"),
                         }
 
+                        # Preserve sigkeys for RPM v6 multiple signatures
+                        sigkeys = rpm_data.get("sigkeys")
+                        if sigkeys:
+                            entry["sigkeys"] = sigkeys
+
                         # Preserve full location for round-trip fidelity
                         entry["_location"] = loc
 
                         self.rpms[variant][arch][srpm_nevra][rpm_nevra] = entry
 
-    def add(self, variant, arch, nevra, path, sigkey, category, srpm_nevra=None, location=None):
+    def add(self, variant, arch, nevra, path, sigkey, category, srpm_nevra=None, location=None, sigkeys=None):
         """
         Map RPM to to variant and arch.
 
@@ -265,6 +275,10 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
             and *path* is not explicitly set, *path* defaults to
             ``location.local_path``.
         :type  location:    :class:`~productmd.location.Location` or None
+        :param sigkeys:     list of signing key identifiers for RPM v6
+            packages with multiple signatures. Each value must be a hex
+            string. Only included in v2.0 serialization.
+        :type  sigkeys:     list of str or None
         """
 
         # When location is provided without an explicit path, derive path
@@ -304,6 +318,24 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         if sigkey is not None:
             sigkey = sigkey.lower()
 
+        if sigkeys is not None:
+            if not isinstance(sigkeys, list):
+                raise TypeError("'sigkeys' must be a list, got: %s" % type(sigkeys))
+            validated = []
+            for key in sigkeys:
+                if not isinstance(key, str) or not key:
+                    raise ValueError("Each sigkey must be a non-empty string, got: %r" % key)
+                try:
+                    int(key, 16)
+                except ValueError:
+                    raise ValueError("Each sigkey must be a hex string, got: %r" % key)
+                validated.append(key.lower())
+            sigkeys = validated
+
+        # Ensure sigkey is included in sigkeys for completeness
+        if sigkeys is not None and sigkey is not None and sigkey not in sigkeys:
+            sigkeys.insert(0, sigkey)
+
         if srpm_nevra:
             srpm_nevra, _ = self._check_nevra(srpm_nevra)
         else:
@@ -313,6 +345,8 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         srpms = arches.setdefault(arch, {})
         rpms = srpms.setdefault(srpm_nevra, {})
         entry = {"sigkey": sigkey, "path": path, "category": category}
+        if sigkeys:
+            entry["sigkeys"] = sigkeys
         if location is not None:
             entry["_location"] = location
         rpms[nevra] = entry
@@ -337,3 +371,24 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         except KeyError:
             return None
         return entry.get("_location")
+
+    def get_sigkeys(self, variant, arch, srpm_nevra, rpm_nevra):
+        """
+        Return the list of signing key identifiers for an RPM entry.
+
+        :param variant:     compose variant UID
+        :type  variant:     str
+        :param arch:        compose architecture
+        :type  arch:        str
+        :param srpm_nevra:  name-epoch:version-release.arch of the SRPM
+        :type  srpm_nevra:  str
+        :param rpm_nevra:   name-epoch:version-release.arch of the RPM
+        :type  rpm_nevra:   str
+        :return: list of signing key identifiers, empty if not found or not set
+        :rtype: list of str
+        """
+        try:
+            entry = self.rpms[variant][arch][srpm_nevra][rpm_nevra]
+        except KeyError:
+            return []
+        return entry.get("sigkeys", [])
