@@ -11,6 +11,7 @@ Changes from 1.1
 * ``path`` field replaced by a ``location`` object
 * Location objects include ``url``, ``size``, ``checksum``, and ``local_path`` fields
 * ``sigkey`` and ``category`` fields are preserved alongside the location
+* Optional ``sigkeys`` list for RPM v6 packages with multiple signatures
 * URLs may be HTTPS URLs, OCI registry references, or relative paths
 * Checksums use ``algorithm:hexdigest`` format (e.g., ``sha256:abc123...``)
 * ``force_version`` parameter added to ``serialize()`` for version control
@@ -60,6 +61,7 @@ in order to read and diff rpms.json files easily.
                                     "local_path": <str> # relative path for v1.x filesystem layout
                                 },
                                 "sigkey": <str|null>,   # sigkey ID; null for unsigned RPMs
+                                "sigkeys": [<str>, ...],# (optional) list of signing key IDs; for RPM v6 multiple signatures
                                 "category": <str>       # binary, debug, source
                             }
                         }
@@ -99,6 +101,7 @@ Bash and kernel RPMs in Fedora 41::
                                     "local_path": "Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm"
                                 },
                                 "sigkey": "a15b79cc",
+                                "sigkeys": ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"],
                                 "category": "binary"
                             }
                         },
