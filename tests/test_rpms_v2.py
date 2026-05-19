@@ -809,8 +809,8 @@ class TestRpmsSigkeys:
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
         assert entry["sigkeys"] == ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
 
-    def test_add_without_sigkeys_has_no_key(self):
-        """add() without sigkeys does not add the key to the entry."""
+    def test_add_without_sigkeys_defaults_to_empty_list(self):
+        """add() without sigkeys stores an empty list."""
         rpms = _create_rpms()
         rpms.add(
             "Server",
@@ -823,7 +823,7 @@ class TestRpmsSigkeys:
         )
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
-        assert "sigkeys" not in entry
+        assert entry["sigkeys"] == []
 
     def test_add_sigkeys_normalized_to_lowercase(self):
         """sigkeys values are normalized to lowercase."""
@@ -907,8 +907,8 @@ class TestRpmsSigkeys:
         assert rpm["sigkeys"] == ["a15b79cc", "1234567890abcdef1234567890abcdef12345678"]
         assert rpm["sigkey"] == "a15b79cc"
 
-    def test_serialize_v2_omits_empty_sigkeys(self):
-        """v2.0 serialization does not include sigkeys when not set."""
+    def test_serialize_v2_emits_empty_sigkeys(self):
+        """v2.0 serialization always includes sigkeys, even when empty."""
         rpms = _create_rpms()
         rpms.output_version = VERSION_2_0
         rpms.add(
@@ -923,7 +923,7 @@ class TestRpmsSigkeys:
 
         data = rpms.serialize({})
         rpm = data["payload"]["rpms"]["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
-        assert "sigkeys" not in rpm
+        assert rpm["sigkeys"] == []
 
     def test_serialize_v1_excludes_sigkeys(self):
         """v1.x serialization does not include sigkeys."""
@@ -1061,58 +1061,41 @@ class TestRpmsSigkeys:
         result = rpms.get_sigkeys("NoVariant", "x86_64", "foo-0:1.0-1.src", "foo-0:1.0-1.x86_64")
         assert result == []
 
-    def test_sigkey_auto_included_in_sigkeys(self):
-        """sigkey is automatically prepended to sigkeys if not present."""
+    def test_sigkey_derived_from_sigkeys(self):
+        """sigkey is derived from sigkeys[0] when sigkeys is provided."""
         rpms = _create_rpms()
         rpms.add(
             "Server",
             "x86_64",
             "bash-0:5.2.26-3.fc41.x86_64",
             path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
-            sigkey="a15b79cc",
+            sigkey="ignored",
             category="binary",
             srpm_nevra="bash-0:5.2.26-3.fc41.src",
-            sigkeys=["deadbeef12345678"],
+            sigkeys=["deadbeef12345678", "a15b79cc"],
         )
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
-        assert entry["sigkey"] == "a15b79cc"
-        assert entry["sigkeys"] == ["a15b79cc", "deadbeef12345678"]
+        assert entry["sigkey"] == "deadbeef12345678"
+        assert entry["sigkeys"] == ["deadbeef12345678", "a15b79cc"]
 
-    def test_sigkey_not_duplicated_in_sigkeys(self):
-        """sigkey is not duplicated if already in sigkeys."""
+    def test_sigkey_none_when_sigkeys_empty(self):
+        """sigkey is None when sigkeys is an empty list."""
         rpms = _create_rpms()
         rpms.add(
             "Server",
             "x86_64",
             "bash-0:5.2.26-3.fc41.x86_64",
             path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
-            sigkey="a15b79cc",
+            sigkey="ignored",
             category="binary",
             srpm_nevra="bash-0:5.2.26-3.fc41.src",
-            sigkeys=["a15b79cc", "deadbeef12345678"],
-        )
-
-        entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
-        assert entry["sigkeys"] == ["a15b79cc", "deadbeef12345678"]
-
-    def test_sigkey_null_not_added_to_sigkeys(self):
-        """sigkey=None is not added to sigkeys."""
-        rpms = _create_rpms()
-        rpms.add(
-            "Server",
-            "x86_64",
-            "bash-0:5.2.26-3.fc41.x86_64",
-            path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
-            sigkey=None,
-            category="binary",
-            srpm_nevra="bash-0:5.2.26-3.fc41.src",
-            sigkeys=["deadbeef12345678"],
+            sigkeys=[],
         )
 
         entry = rpms.rpms["Server"]["x86_64"]["bash-0:5.2.26-3.fc41.src"]["bash-0:5.2.26-3.fc41.x86_64"]
         assert entry["sigkey"] is None
-        assert entry["sigkeys"] == ["deadbeef12345678"]
+        assert entry["sigkeys"] == []
 
     def test_v2_roundtrip_with_sigkeys(self):
         """v2.0 serialize-deserialize preserves sigkeys."""
@@ -1124,7 +1107,7 @@ class TestRpmsSigkeys:
             "x86_64",
             "bash-0:5.2.26-3.fc41.x86_64",
             path="Server/x86_64/os/Packages/b/bash-5.2.26-3.fc41.x86_64.rpm",
-            sigkey="a15b79cc",
+            sigkey=None,
             category="binary",
             srpm_nevra="bash-0:5.2.26-3.fc41.src",
             sigkeys=keys,

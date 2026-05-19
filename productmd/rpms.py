@@ -163,10 +163,8 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
                         v2_entry["sigkey"] = rpm_data.get("sigkey")
                         v2_entry["category"] = rpm_data.get("category")
 
-                        # Include sigkeys if present (RPM v6 multiple signatures)
-                        sigkeys = rpm_data.get("sigkeys")
-                        if sigkeys:
-                            v2_entry["sigkeys"] = sigkeys
+                        # Include sigkeys (RPM v6 multiple signatures)
+                        v2_entry["sigkeys"] = rpm_data.get("sigkeys", [])
 
                         v2_rpms[variant][arch][srpm_nevra][rpm_nevra] = v2_entry
 
@@ -241,9 +239,7 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
                         }
 
                         # Preserve sigkeys for RPM v6 multiple signatures
-                        sigkeys = rpm_data.get("sigkeys")
-                        if sigkeys:
-                            entry["sigkeys"] = sigkeys
+                        entry["sigkeys"] = rpm_data.get("sigkeys", [])
 
                         # Preserve full location for round-trip fidelity
                         entry["_location"] = loc
@@ -262,7 +258,8 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         :type  nevra:   str
         :param path:    relative path to the RPM file
         :type  path:    str
-        :param sigkey:  sigkey hash
+        :param sigkey:  sigkey hash. When *sigkeys* is provided, this is
+            derived from ``sigkeys[0]`` and should not be set explicitly.
         :type  sigkey:  str or None
         :param category:    RPM category, one of binary, debug, source
         :type  category:    str
@@ -277,7 +274,10 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         :type  location:    :class:`~productmd.location.Location` or None
         :param sigkeys:     list of signing key identifiers for RPM v6
             packages with multiple signatures. Each value must be a hex
-            string. Only included in v2.0 serialization.
+            string. Only included in v2.0 serialization. When provided,
+            *sigkey* is derived from ``sigkeys[0]``.  This derivation
+            only happens at ``add()`` time; modifying *sigkeys* directly
+            on the entry dict afterwards will not update *sigkey*.
         :type  sigkeys:     list of str or None
         """
 
@@ -315,9 +315,6 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         if (category == "source") != (nevra_dict["arch"] in ("src", "nosrc")):
             raise ValueError("Invalid category/arch combination: %s/%s" % (category, nevra))
 
-        if sigkey is not None:
-            sigkey = sigkey.lower()
-
         if sigkeys is not None:
             if not isinstance(sigkeys, list):
                 raise TypeError("'sigkeys' must be a list, got: %s" % type(sigkeys))
@@ -331,10 +328,12 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
                     raise ValueError("Each sigkey must be a hex string, got: %r" % key)
                 validated.append(key.lower())
             sigkeys = validated
-
-        # Ensure sigkey is included in sigkeys for completeness
-        if sigkeys is not None and sigkey is not None and sigkey not in sigkeys:
-            sigkeys.insert(0, sigkey)
+            # Derive sigkey from sigkeys[0] for v1.x backward compatibility
+            sigkey = sigkeys[0] if sigkeys else None
+        else:
+            sigkeys = []
+            if sigkey is not None:
+                sigkey = sigkey.lower()
 
         if srpm_nevra:
             srpm_nevra, _ = self._check_nevra(srpm_nevra)
@@ -344,9 +343,7 @@ class Rpms(productmd.common.MetadataBase, VersionedMetadataMixin):
         arches = self.rpms.setdefault(variant, {})
         srpms = arches.setdefault(arch, {})
         rpms = srpms.setdefault(srpm_nevra, {})
-        entry = {"sigkey": sigkey, "path": path, "category": category}
-        if sigkeys:
-            entry["sigkeys"] = sigkeys
+        entry = {"sigkey": sigkey, "path": path, "category": category, "sigkeys": sigkeys}
         if location is not None:
             entry["_location"] = location
         rpms[nevra] = entry

@@ -11,7 +11,10 @@ Changes from 1.1
 * ``path`` field replaced by a ``location`` object
 * Location objects include ``url``, ``size``, ``checksum``, and ``local_path`` fields
 * ``sigkey`` and ``category`` fields are preserved alongside the location
-* Optional ``sigkeys`` list for RPM v6 packages with multiple signatures
+* Optional ``sigkeys`` list for RPM v6 packages with multiple signatures.
+  When ``sigkeys`` is provided to ``Rpms.add()``, ``sigkey`` is derived from
+  ``sigkeys[0]``.  This derivation only happens at ``add()`` time; modifying
+  ``sigkeys`` directly on the entry dict afterwards will not update ``sigkey``.
 * URLs may be HTTPS URLs, OCI registry references, or relative paths
 * Checksums use ``algorithm:hexdigest`` format (e.g., ``sha256:abc123...``)
 * ``force_version`` parameter added to ``serialize()`` for version control
