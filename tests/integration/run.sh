@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run productmd integration tests using container compose.
 #
-# Supports podman-compose, podman compose.
+# Supports podman-compose, podman compose, and docker compose.
 # Starts an HTTP server, TLS-enabled OCI registry, seeds the registry with
 # test artifacts, and runs the integration test suite.
 #
@@ -21,14 +21,21 @@ set -e
 
 cd "$(dirname "$0")"
 
-# Get podman compose comand
+# Get container compose command.
+# Check podman-compose (standalone) first, then docker compose,
+# then podman compose (which may delegate to docker compose and
+# fail if the Docker daemon is not running).
 if command -v podman-compose &> /dev/null; then
     COMPOSE="podman-compose"
+elif command -v docker &> /dev/null && docker compose version &> /dev/null 2>&1; then
+    COMPOSE="docker compose"
+    # Docker does not use the localhost/ prefix for local images
+    export REGISTRY_IMAGE="integration_registry"
 elif command -v podman &> /dev/null && podman compose version &> /dev/null 2>&1; then
     COMPOSE="podman compose"
 else
     echo "Error: No container compose tool found."
-    echo "Install one of: podman-compose, podman compose"
+    echo "Install one of: podman-compose, docker compose, podman compose"
     exit 1
 fi
 

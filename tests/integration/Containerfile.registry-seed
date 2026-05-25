@@ -1,9 +1,11 @@
+ARG REGISTRY_IMAGE=localhost/integration_registry
 FROM ghcr.io/oras-project/oras:v1.2.0 AS oras
+FROM ${REGISTRY_IMAGE} AS registry-certs
 
 FROM fedora:43
 
 COPY --from=oras /bin/oras /usr/local/bin/oras
-COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
+COPY --from=registry-certs /certs/ca.crt /certs/ca.crt
 RUN dnf install -y --setopt=install_weak_deps=False curl && dnf clean all
 
 ENV SSL_CERT_FILE=/certs/ca.crt

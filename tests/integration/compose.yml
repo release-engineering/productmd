@@ -18,7 +18,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./fixtures/compose:/usr/share/nginx/html:ro,z
+      - ./fixtures/compose:/usr/share/nginx/html:z
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
       - generated-metadata:/usr/share/nginx/html/oci-metadata:ro
 
@@ -29,6 +29,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile.registry-seed
+      args:
+        REGISTRY_IMAGE: ${REGISTRY_IMAGE:-localhost/integration_registry}
     depends_on:
       - registry
     restart: "no"
@@ -42,6 +44,8 @@ services:
     build:
       context: ../..
       dockerfile: tests/integration/Containerfile.test-runner
+      args:
+        REGISTRY_IMAGE: ${REGISTRY_IMAGE:-localhost/integration_registry}
     environment:
       HTTP_BASE_URL: "http://httpserver:80"
       REGISTRY_URL: "registry:5000"
