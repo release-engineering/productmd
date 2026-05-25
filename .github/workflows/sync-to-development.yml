@@ -1,0 +1,68 @@
+# Sync to Development
+#
+# Cherry-picks merged dependabot PRs from master into the development branch.
+# Also posts a comment on new dependabot PRs to inform about the label.
+#
+# Usage:
+#   1. Create a "sync development" label in the GitHub repository.
+#   2. Add the label to a dependabot PR before merging.
+#   3. On merge, this workflow cherry-picks the commit into development.
+#
+# If the cherry-pick fails (e.g., due to conflicts), the workflow fails
+# and a notification is sent via the normal GitHub Actions failure alert.
+
+name: Sync to Development
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [opened, closed]
+
+jobs:
+  notify-sync-label:
+    if: >
+      github.event.action == 'opened' &&
+      github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment sync label availability
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Add the `sync development` label to this PR before merging to cherry-pick the changes into the `development` branch.'
+            })
+
+  sync-to-dev:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.actor == 'dependabot[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'sync development')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Cherry-pick into development
+        run: |
+          git checkout development
+          git pull origin development
+          git cherry-pick ${{ github.event.pull_request.merge_commit_sha }}
+          git push origin development
