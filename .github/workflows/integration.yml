@@ -1,0 +1,40 @@
+# Integration Tests
+#
+# Runs end-to-end integration tests using docker compose.
+# Spins up an OCI registry, HTTP server, seeds test artifacts,
+# and runs the integration test suite in a container.
+#
+# Triggered on pushes and PRs to master and development when
+# relevant files change. Skipped if integration tests do not
+# exist on the branch (e.g., master before they are ported).
+
+name: Integration Tests
+
+on:
+  push:
+    paths:
+      - "productmd/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/integration.yml"
+  pull_request:
+    paths:
+      - "productmd/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/integration.yml"
+
+concurrency:
+  group: integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run integration tests
+        if: ${{ hashFiles('tests/integration/run.sh') != '' }}
+        run: ./tests/integration/run.sh
