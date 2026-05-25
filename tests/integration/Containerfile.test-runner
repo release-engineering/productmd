@@ -1,3 +1,5 @@
+ARG REGISTRY_IMAGE=localhost/integration_registry
+FROM ${REGISTRY_IMAGE} AS registry-certs
 FROM python:3.11-slim
 
 LABEL description="Integration test runner for productmd CLI tools"
@@ -7,7 +9,7 @@ WORKDIR /app
 # Copy the test CA cert from the registry image (generated at build time).
 # ENV vars for trusting it are set AFTER pip install so they don't break
 # pip's connection to PyPI during the build.
-COPY --from=localhost/integration_registry /certs/ca.crt /certs/ca.crt
+COPY --from=registry-certs /certs/ca.crt /certs/ca.crt
 
 # Install productmd with OCI extra and test dependencies
 COPY . /app/
