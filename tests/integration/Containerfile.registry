@@ -1,4 +1,4 @@
-FROM fedora:41 AS certs
+FROM fedora:44 AS certs
 
 RUN dnf install -y --setopt=install_weak_deps=False openssl && dnf clean all
 RUN set -e && \

@@ -2,7 +2,7 @@ ARG REGISTRY_IMAGE=localhost/integration_registry
 FROM ghcr.io/oras-project/oras:v1.2.0 AS oras
 FROM ${REGISTRY_IMAGE} AS registry-certs
 
-FROM fedora:43
+FROM fedora:44
 
 COPY --from=oras /bin/oras /usr/local/bin/oras
 COPY --from=registry-certs /certs/ca.crt /certs/ca.crt
