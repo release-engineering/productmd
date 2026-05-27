@@ -23,7 +23,7 @@ jobs:
   notify-sync-label:
     if: >
       github.event.action == 'opened' &&
-      github.actor == 'dependabot[bot]'
+      github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -42,7 +42,7 @@ jobs:
   sync-to-dev:
     if: >
       github.event.pull_request.merged == true &&
-      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'sync development')
     runs-on: ubuntu-latest
     permissions:
