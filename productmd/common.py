@@ -347,6 +347,10 @@ class MetadataBase:
 
         :param f: file-like object or path to file
         :type f: file or str
+
+        :raises json.JSONDecodeError: if the file contains invalid JSON
+        :raises ValueError: if the data contains unsupported or invalid values
+        :raises TypeError: if the data contains fields with wrong types
         """
         with open_file_obj(f) as f:
             parser = self.parse_file(f)

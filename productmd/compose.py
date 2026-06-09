@@ -31,6 +31,7 @@ Example::
   compose.modules
 """
 
+import json
 import os
 
 import productmd.composeinfo
@@ -151,6 +152,8 @@ class Compose:
         obj = cls()
         try:
             obj.load(path)
-        except ValueError as exc:
-            raise RuntimeError('%s can not be deserialized: %s.' % (path, exc))
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"{path} is not valid JSON: {exc}") from exc
+        except (ValueError, TypeError) as exc:
+            raise RuntimeError(f"{path} metadata is not supported by this version of productmd: {exc}") from exc
         return obj

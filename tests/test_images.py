@@ -19,6 +19,7 @@
 
 import unittest
 
+import json
 import os
 import sys
 import tempfile
@@ -382,6 +383,86 @@ class TestImages(unittest.TestCase):
         data2['checksums'] = {'sha256': 'YYYYYY'}
         i2.deserialize(data2)
         self.assertRaises(ValueError, im.add, "Server", "x86_64", i2)
+
+
+class TestErrorHandling(unittest.TestCase):
+    """Test error handling when loading v1.x image metadata with bad data.
+
+    Addresses https://github.com/release-engineering/productmd/issues/110
+    """
+
+    def setUp(self):
+        self.tmp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
+    def _build_v1_images_data(self, image_type="dvd", image_format="iso"):
+        return {
+            "header": {"type": "productmd.images", "version": "1.1"},
+            "payload": {
+                "compose": {
+                    "date": "20180101",
+                    "id": "Test-1.0-20180101.0",
+                    "respin": 0,
+                    "type": "production",
+                },
+                "images": {
+                    "Server": {
+                        "x86_64": [
+                            {
+                                "arch": "x86_64",
+                                "bootable": True,
+                                "checksums": {"sha256": "a" * 64},
+                                "disc_count": 1,
+                                "disc_number": 1,
+                                "format": image_format,
+                                "implant_md5": "b" * 32,
+                                "mtime": 1514764800,
+                                "path": "Server/x86_64/iso/test.iso",
+                                "size": 2147483648,
+                                "subvariant": "Server",
+                                "type": image_type,
+                                "volume_id": "Test-1.0",
+                            }
+                        ]
+                    }
+                },
+            },
+        }
+
+    def test_unknown_type_raises_value_error_with_details(self):
+        data = self._build_v1_images_data(image_type="future-type")
+        images = Images()
+        with self.assertRaises(ValueError) as ctx:
+            images.deserialize(data)
+        self.assertIn("future-type", str(ctx.exception))
+
+    def test_unknown_format_raises_value_error_with_details(self):
+        data = self._build_v1_images_data(image_format="future-format")
+        images = Images()
+        with self.assertRaises(ValueError) as ctx:
+            images.deserialize(data)
+        self.assertIn("future-format", str(ctx.exception))
+
+    def test_invalid_json_raises_json_decode_error(self):
+        bad_file = os.path.join(self.tmp_dir, "images.json")
+        with open(bad_file, "w") as f:
+            f.write("{not valid json")
+        images = Images()
+        self.assertRaises(json.JSONDecodeError, images.load, bad_file)
+
+    def test_valid_json_unknown_type_via_load(self):
+        """load() with valid JSON but unknown type should raise ValueError, not JSONDecodeError."""
+        data = self._build_v1_images_data(image_type="future-type")
+        path = os.path.join(self.tmp_dir, "images.json")
+        with open(path, "w") as f:
+            json.dump(data, f)
+        images = Images()
+        with self.assertRaises(ValueError) as ctx:
+            images.load(path)
+        self.assertIn("future-type", str(ctx.exception))
+        self.assertNotIsInstance(ctx.exception, json.JSONDecodeError)
 
 
 if __name__ == "__main__":
