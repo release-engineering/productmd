@@ -39,7 +39,13 @@ jobs:
     container:
       image: fedora:latest
 
+    permissions:
+      id-token: write  # Required for Codecov OIDC authentication
+
     steps:
+      - name: Install git-core
+        run: dnf install -y git-core
+
       - uses: actions/checkout@v6
 
       - name: Install uv and setup Python version
@@ -49,10 +55,18 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --group test --no-dev
+        run: uv sync --group test --group coverage --no-dev
 
       - name: Run tests
-        run: uv run pytest tests
+        run: uv run pytest tests --cov=productmd --cov-report=xml:coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          flags: unit-tests
+          files: coverage.xml
+          fail_ci_if_error: false
 
   test-py36:
     needs: [lint, format, bandit]
