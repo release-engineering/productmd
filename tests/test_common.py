@@ -21,6 +21,7 @@ import unittest
 
 import os
 import sys
+import time
 
 DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
@@ -84,6 +85,14 @@ class TestRelease(unittest.TestCase):
         self.assertFalse(is_valid_release_type("4s"))
 
         self.assertFalse(is_valid_release_type("updates-"))
+
+    def test_no_catastrophic_backtracking(self):
+        # These used to take exponential time with the old regular expressions.
+        start = time.time()
+        self.assertFalse(is_valid_release_short("a" * 64 + "!"))
+        self.assertFalse(is_valid_release_type("a" * 64 + "!"))
+        self.assertFalse(is_valid_release_version("1" * 64 + "!"))
+        self.assertLess(time.time() - start, 1)
 
     def test_split_version(self):
         self.assertEqual(split_version("0"), [0])

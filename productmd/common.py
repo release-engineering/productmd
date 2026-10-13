@@ -164,15 +164,17 @@ def parse_nvra(nvra):
 
 
 #: Validation regex for release short name: [a-z] followed by [a-z0-9] separated with dashes.
-RELEASE_SHORT_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+# Note: avoid nested quantifiers here, they cause catastrophic backtracking
+# (ReDoS) on long non-matching input.
+RELEASE_SHORT_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
 
 
 #: Validation regex for release version: any string or [0-9] separated with dots.
-RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|([0-9]+(\.?[0-9]+)*))$")
+RELEASE_VERSION_RE = re.compile(r"^([^0-9].*|[0-9]+(\.[0-9]+)*)$")
 
 
 #: Validation regex for release type: [a-z] followed by [a-z0-9] separated with dashes.
-RELEASE_TYPE_RE = re.compile(r"^[a-z]+([a-z0-9]*-?[a-z0-9]+)*$")
+RELEASE_TYPE_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
 
 
 #: Known release types. New values need to be added here if they contain a
