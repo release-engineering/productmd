@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "productmd"
-version = "1.50"
+version = "1.51"
 description = "Product, compose and installation media metadata library"
 readme = "README.md"
 license = "LGPL-2.1-only"
