@@ -27,7 +27,7 @@ DIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(DIR, ".."))
 
 from productmd.common import is_valid_release_short, is_valid_release_version, parse_release_id, is_valid_release_type  # noqa
-from productmd.common import split_version  # noqa
+from productmd.common import split_version, parse_nvra  # noqa
 from productmd.common import create_release_id  # noqa
 from productmd.common import get_major_version, get_minor_version  # noqa
 
@@ -128,6 +128,17 @@ class TestRelease(unittest.TestCase):
             "type": "updates-testing",
         }
         self.assertEqual(parse_release_id("f-23-updates-testing"), expected)
+
+
+class TestParseNvra(unittest.TestCase):
+    def test_parse(self):
+        self.assertEqual(
+            parse_nvra("Packages/g/glibc-2:2.18-11.fc20.x86_64.rpm"),
+            {"name": "glibc", "epoch": 2, "version": "2.18", "release": "11.fc20", "arch": "x86_64"},
+        )
+
+    def test_invalid(self):
+        self.assertRaises(ValueError, parse_nvra, "garbage")
 
 
 class TestGetMajorVersion(unittest.TestCase):

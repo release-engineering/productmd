@@ -124,6 +124,11 @@ class TestRpms(unittest.TestCase):
             category="source",
         )
 
+    def test_invalid_nevra(self):
+        rm = Rpms()
+        with self.assertRaisesRegex(ValueError, "Invalid N-E:V-R.A"):
+            rm.add("Fedora", "x86_64", "foo:bar", path="foo.rpm", sigkey=None, category="source")
+
 
 if __name__ == "__main__":
     unittest.main()

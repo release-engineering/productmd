@@ -74,10 +74,7 @@ class Rpms(productmd.common.MetadataBase):
         if ":" not in nevra:
             raise ValueError("Missing epoch in N-E:V-R.A: %s" % nevra)
 
-        try:
-            nevra_dict = productmd.common.parse_nvra(nevra)
-        except ValueError:
-            raise ValueError("Invalid N-E:V-R.A: %s" % nevra)
+        nevra_dict = productmd.common.parse_nvra(nevra)
 
         nevra_dict["epoch"] = nevra_dict["epoch"] or 0
         nevra = "%(name)s-%(epoch)s:%(version)s-%(release)s.%(arch)s" % nevra_dict
