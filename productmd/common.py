@@ -154,10 +154,14 @@ def parse_nvra(nvra):
     :param nvra: N-E:V-R.A string. This can be a file name or a file path including the '.rpm' suffix.
     :type nvra: str
     :rtype: dict, with "name", "epoch", "version", "release", and "arch" elements.
+    :raises ValueError: if the string can not be parsed
     """
     if nvra.endswith(".rpm"):
         nvra = nvra[:-4]
-    result = RPM_NVRA_RE.match(nvra).groupdict()
+    match = RPM_NVRA_RE.match(nvra)
+    if match is None:
+        raise ValueError("Invalid N-E:V-R.A: %s" % nvra)
+    result = match.groupdict()
     result["epoch"] = result["epoch"] or 0
     result["epoch"] = int(result["epoch"])
     return result
