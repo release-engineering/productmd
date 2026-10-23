@@ -356,6 +356,26 @@ class TestTreeInfo(unittest.TestCase):
             },
         )
 
+    def _minimal_treeinfo(self, release_name="Fedora", extra=""):
+        return (
+            "[header]\nversion = 1.2\ntype = productmd.treeinfo\n"
+            "[release]\nname = %s\nshort = F\nversion = 20\n"
+            "[tree]\narch = x86_64\nplatforms = x86_64\nbuild_timestamp = 1\nvariants = Server\n"
+            "[variant-Server]\nid = Server\nuid = Server\nname = Server\ntype = variant\n"
+            "%s"
+        ) % (release_name, extra)
+
+    def test_percent_sign_in_value(self):
+        ti = TreeInfo()
+        ti.loads(self._minimal_treeinfo("100% Linux"))
+        self.assertEqual(ti.release.name, "100% Linux")
+        self._test_identity(ti)
+
+    def test_no_value_interpolation(self):
+        ti = TreeInfo()
+        ti.loads(self._minimal_treeinfo("%(short)s"))
+        self.assertEqual(ti.release.name, "%(short)s")
+
 
 if __name__ == "__main__":
     unittest.main()

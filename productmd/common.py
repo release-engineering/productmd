@@ -637,6 +637,9 @@ class SortedConfigParser(ConfigParser):
             ConfigParser.__init__(self, *args, **kwargs)
         else:
             kwargs["dict_type"] = SortedDict
+            # Values are read verbatim. Interpolation would choke on a literal
+            # '%' and lets a crafted file expand exponentially in size.
+            kwargs.setdefault("interpolation", None)
             super().__init__(*args, **kwargs)
         self.seen = set()
 
