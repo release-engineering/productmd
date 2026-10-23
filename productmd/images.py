@@ -241,13 +241,13 @@ class Image(productmd.common.MetadataBase):
         self.path = None  #: (*str*) -- relative path to an image, for example: "Server/x86_64/iso/boot.iso"
         self.mtime = None  #: (*int*) -- image mtime
         self.size = None  #: (*int*) -- image size
-        self.volume_id = None  #: (*str*) --
-        self.type = None  #: (*str*) --
-        self.format = None  #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.volume_id = None  #: (*str* or *None*) -- volume ID of the image
+        self.type = None  #: (*str*) -- image type, see SUPPORTED_IMAGE_TYPES, for example: "dvd", "qcow2"
+        self.format = None  #: (*str*) -- image format (file suffix), see SUPPORTED_IMAGE_FORMATS, for example: "iso"
         self.arch = None  #: (*str*) -- image architecture, for example: "x86_64", "src"
-        self.disc_number = None  #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.disc_count = None  #: (*int*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
-        self.checksums = {}  #: (*str*) -- Release name, for example: "Fedora", "Red Hat Enterprise Linux"
+        self.disc_number = None  #: (*int*) -- disc number within a media set, starting with 1
+        self.disc_count = None  #: (*int*) -- number of discs in a media set
+        self.checksums = {}  #: (*dict*) -- checksums mapping, for example: {"sha256": "..."}
         self.implant_md5 = None  #: (*str* or *None*) -- value of implanted md5
         self.bootable = False  #: (*bool=False*) --
         self.subvariant = None  #: (*str*) -- image contents, may be same as variant or e.g. 'KDE', 'LXDE'
