@@ -261,8 +261,10 @@ def open_file_obj(f, mode="r"):
     if isinstance(f, str):
         if f.startswith(("http://", "https://", "ftp://")):
             file_obj = _urlopen(f)
-            yield file_obj
-            file_obj.close()
+            try:
+                yield file_obj
+            finally:
+                file_obj.close()
         else:
             with open(f, mode) as file_obj:
                 yield file_obj
