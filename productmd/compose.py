@@ -64,7 +64,13 @@ class Compose:
         elif "://" not in compose_path and os.path.exists(compose_path):
             # Scan all subdirs under compose_path for 'metadata'. Doesn't work over HTTP.
             # example: MYPRODUCT-1.0-YYYYMMDD.0/1.0/metadata (legacy location)
-            for i in os.listdir(compose_path):
+            try:
+                subdirs = os.listdir(compose_path)
+            except OSError:
+                # e.g. permission denied; a descriptive error is raised
+                # once metadata is accessed
+                subdirs = []
+            for i in subdirs:
                 path = os.path.join(compose_path, i)
                 metadata_path = os.path.join(path, "metadata")
                 if _file_exists(metadata_path):

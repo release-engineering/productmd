@@ -93,6 +93,20 @@ class TestLegacyCompose(unittest.TestCase):
         variant = compose.info["Foo"]  # noqa: F841
         variant = compose.info["Foo-Bar"]  # noqa: F841
 
+    def test_unreadable_compose_dir(self):
+        def mock_listdir(path):
+            raise PermissionError(13, "Permission denied", path)
+
+        orig_listdir = os.listdir
+        try:
+            os.listdir = mock_listdir
+            compose = Compose(self.compose_path)
+        finally:
+            os.listdir = orig_listdir
+
+        with self.assertRaisesRegex(RuntimeError, "Failed to load metadata"):
+            compose.info
+
 
 if __name__ == "__main__":
     unittest.main()
