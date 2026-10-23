@@ -143,5 +143,27 @@ class TestGetMinorVersion(unittest.TestCase):
         self.assertEqual(get_minor_version("Rawhide"), None)
 
 
+class TestOpenFileObj(unittest.TestCase):
+    def test_url_is_closed_on_error(self):
+        import productmd.common
+
+        class FakeResponse:
+            closed = False
+
+            def close(self):
+                self.closed = True
+
+        response = FakeResponse()
+        orig_urlopen = productmd.common._urlopen
+        productmd.common._urlopen = lambda path: response
+        try:
+            with self.assertRaises(RuntimeError):
+                with productmd.common.open_file_obj("https://example.com/composeinfo.json"):
+                    raise RuntimeError("parsing failed")
+        finally:
+            productmd.common._urlopen = orig_urlopen
+        self.assertTrue(response.closed)
+
+
 if __name__ == "__main__":
     unittest.main()
