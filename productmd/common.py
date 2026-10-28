@@ -356,6 +356,7 @@ class MetadataBase:
         with open_file_obj(f) as f:
             parser = self.parse_file(f)
             self.deserialize(parser)
+        self.validate()
 
     def loads(self, s):
         """
@@ -368,7 +369,6 @@ class MetadataBase:
         io.write(s)
         io.seek(0)
         self.load(io)
-        self.validate()
 
     def dump(self, f):
         """

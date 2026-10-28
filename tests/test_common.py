@@ -32,6 +32,38 @@ from productmd.common import create_release_id  # noqa
 from productmd.common import get_major_version, get_minor_version  # noqa
 
 
+class TestMetadataBaseLoad(unittest.TestCase):
+    def _metadata(self):
+        from productmd.common import MetadataBase
+
+        class Metadata(MetadataBase):
+            def __init__(self):
+                self.value = None
+
+            def deserialize(self, parser):
+                self.value = parser["value"]
+
+            def _validate_value(self):
+                self._assert_type("value", [int])
+
+        return Metadata()
+
+    def test_load_validates(self):
+        from io import StringIO
+
+        self.assertRaises(TypeError, self._metadata().load, StringIO('{"value": "x"}'))
+
+    def test_loads_validates(self):
+        self.assertRaises(TypeError, self._metadata().loads, '{"value": "x"}')
+
+    def test_load_valid(self):
+        from io import StringIO
+
+        md = self._metadata()
+        md.load(StringIO('{"value": 1}'))
+        self.assertEqual(md.value, 1)
+
+
 class TestRelease(unittest.TestCase):
     def test_valid_short(self):
         self.assertTrue(is_valid_release_short("f"))
